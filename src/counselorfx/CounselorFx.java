@@ -6,37 +6,71 @@
 package counselorfx;
 
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.StackPane;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 /**
+ * Base panel to launch the new Counselor
+ *
+ * Move it to GitHub, make it public?
+ *
+ * No Swing in PbmCommons?
+ *
+ * 
  *
  * @author John
  */
 public class CounselorFx extends Application {
-    
+
+    private static Label getMap() {
+        //TODO: render image
+        //TODO: render 2nd image, merged
+        //TODO: SVG graphs?
+        return new Label("Map go here");
+    }
+
+    private BorderPane getMainPanel() {
+        //create main panel
+        BorderPane bPane = new BorderPane();
+        bPane.setTop(getMenuTop());
+        bPane.setLeft(new Label("Game information go here"));
+        bPane.setRight(new Label("Game Action/Orders go here"));
+        bPane.setBottom(new Label("Counselor information go here"));
+        bPane.setCenter(getMap());
+        return bPane;
+    }
+
+    private MenuBar getMenuTop() {
+        //create menu
+        MenuBar menubar = new MenuBar();
+        Menu FileMenu = new Menu("File");
+        MenuItem filemenu1 = new MenuItem("New");
+        MenuItem filemenu2 = new MenuItem("Save");
+        MenuItem filemenu3 = new MenuItem("Exit");
+        FileMenu.getItems().addAll(filemenu1, filemenu2, filemenu3);
+        Menu EditMenu = new Menu("Edit");
+        MenuItem EditMenu1 = new MenuItem("Cut");
+        MenuItem EditMenu2 = new MenuItem("Copy");
+        MenuItem EditMenu3 = new MenuItem("Paste");
+        EditMenu.getItems().addAll(EditMenu1, EditMenu2, EditMenu3);
+        menubar.getMenus().addAll(FileMenu, EditMenu);
+        return menubar;
+    }
+
     @Override
-    public void start(Stage primaryStage) {
-        Button btn = new Button();
-        btn.setText("Say 'Hello World'");
-        btn.setOnAction(new EventHandler<ActionEvent>() {
-            
-            @Override
-            public void handle(ActionEvent event) {
-                System.out.println("Hello World!");
-            }
-        });
-        
-        StackPane root = new StackPane();
-        root.getChildren().add(btn);
-        
-        Scene scene = new Scene(root, 300, 250);
-        
-        primaryStage.setTitle("Hello World!");
+    public void start(Stage primaryStage) throws Exception {
+
+        BorderPane bPane = getMainPanel();
+
+        //go scene
+        Scene scene = new Scene(bPane, 800, 800);
+        scene.getStylesheets().add("counselorfx/style.css");
+
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -47,5 +81,4 @@ public class CounselorFx extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-    
 }
