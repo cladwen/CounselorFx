@@ -5,13 +5,17 @@
  */
 package counselorfx;
 
+import fxsprite.SpriteMegaMan;
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 /**
@@ -21,17 +25,18 @@ import javafx.stage.Stage;
  *
  * No Swing in PbmCommons?
  *
- * 
+ *
  *
  * @author John
  */
 public class CounselorFx extends Application {
 
-    private static Label getMap() {
+    private Canvas getMap() {
+        MapCanvas mc = new MapCanvas();
         //TODO: render image
         //TODO: render 2nd image, merged
         //TODO: SVG graphs?
-        return new Label("Map go here");
+        return mc.getCanvas();
     }
 
     private BorderPane getMainPanel() {
@@ -40,7 +45,17 @@ public class CounselorFx extends Application {
         bPane.setTop(getMenuTop());
         bPane.setLeft(new Label("Game information go here"));
         bPane.setRight(new Label("Game Action/Orders go here"));
-        bPane.setBottom(new Label("Counselor information go here"));
+        // loads a sprite sheet, and specifies the size of one frame/cell
+        SpriteMegaMan megaMan = new SpriteMegaMan("fxsprite/megaman.png", 50, 49); //searches for the image file in the classpath
+        megaMan.setFPS(5); // animation will play at 5 frames per second
+        megaMan.play(); // animates the first row of the sprite sheet
+        megaMan.pause();
+        megaMan.label(4, "powerup"); // associates the fourth (zero-indexed) row of the sheet with "powerup"
+        megaMan.playTimes("powerup", 10); // plays "powerup" animation 10 times;
+        megaMan.setX(100);
+        megaMan.setY(200);
+        bPane.setBottom(megaMan);
+
         bPane.setCenter(getMap());
         return bPane;
     }
@@ -68,7 +83,7 @@ public class CounselorFx extends Application {
         BorderPane bPane = getMainPanel();
 
         //go scene
-        Scene scene = new Scene(bPane, 800, 800);
+        Scene scene = new Scene(bPane, 1000, 800);
         scene.getStylesheets().add("counselorfx/style.css");
 
         primaryStage.setScene(scene);

@@ -1,27 +1,23 @@
 package counselorfx;
 
-import javafx.stage.Stage;
-import javafx.scene.Scene;
-import javafx.scene.Group;
+import java.awt.Point;
+import java.util.Random;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
 import javafx.animation.AnimationTimer;
+import javafx.geometry.Point2D;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Polygon;
 import toSort.AnimatedImage;
 
 // Animation of Earth rotating around the sun. (Hello, world!)
 public class MapCanvas {
-    xxx: add this to main counselor;
-    public void start(Stage theStage) {
-        theStage.setTitle("AnimatedImage Example");
 
-        Group root = new Group();
-        Scene theScene = new Scene(root);
-        theStage.setScene(theScene);
+    public Canvas getCanvas() {
 
         Canvas canvas = new Canvas(512, 512);
-        root.getChildren().add(canvas);
 
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
@@ -29,6 +25,7 @@ public class MapCanvas {
         Image sun = new Image("resources/sun.png");
         Image space = new Image("resources/space.png");
 
+        //Frames with independent images
         AnimatedImage ufo = new AnimatedImage();
         Image[] imageArray = new Image[6];
         for (int i = 0; i < 6; i++) {
@@ -50,10 +47,64 @@ public class MapCanvas {
                 gc.drawImage(space, 0, 0);
                 gc.drawImage(earth, x, y);
                 gc.drawImage(sun, 196, 196);
-                gc.drawImage(ufo.getFrame(t), 450, 25);
+//                drawStarShape(gc);
+                drawHexagonShape(gc);
+                gc.drawImage(ufo.getFrame(t), 196 + x / 10, 196 + y / 10);
             }
         }.start();
+        return canvas;
+    }
 
-        theStage.show();
+    private void drawStarShape(GraphicsContext gc) {
+
+        Random random = new Random(System.currentTimeMillis());
+
+        double[] xpoints = {10, 85, 110, 135, 210, 160,
+            170, 110, 50, 60};
+        double[] ypoints = {85, 75, 10, 75, 85, 125,
+            190, 150, 190, 125};
+        gc.setFill(Color.rgb(random.nextInt(255), random.nextInt(255),
+                random.nextInt(255), 0.9));
+
+        gc.fillPolygon(xpoints, ypoints, xpoints.length);
+    }
+
+    private void drawHexagonShape(GraphicsContext gc) {
+        gc.setFill(Color.rgb(188, 143, 143, 0.5));
+        gc.setStroke(Color.RED);
+        for (double col = 0; col < 20; col++) {
+            for (double row = 0; row < 20; row++) {
+                Point2D ret;
+                ret = new Point2D(col * 60, row * 45);
+                if (row % 2 != 0) {
+                    ret.add(30, 30);
+                }
+                Hexagon hex = new Hexagon(30d + ret.getX(), 30d + ret.getY());
+                System.out.println(ret.toString());
+                gc.fillPolygon(hex.getListXCoord(), hex.getListYCoord(), hex.getListXCoord().length);
+                gc.strokePolygon(hex.getListXCoord(), hex.getListYCoord(), hex.getListXCoord().length);
+            }
+        }
+    }
+
+    public Polygon setComplete() {
+        double rLen = 100 - 5;
+        Polygon s1 = new Polygon(0, (rLen - 5) / 2,
+                (rLen - 5) / 2, (rLen - 5) / 2,
+                (rLen - 5) / 2, 0,
+                (rLen + 5) / 2, 0,
+                (rLen + 5) / 2, (rLen - 5) / 2,
+                rLen, (rLen - 5) / 2,
+                rLen, (rLen + 5) / 2,
+                (rLen + 5) / 2, (rLen + 5) / 2,
+                (rLen + 5) / 2, rLen,
+                (rLen - 5) / 2, rLen,
+                (rLen - 5) / 2, (rLen + 5) / 2,
+                0, (rLen + 5) / 2);
+        s1.setFill(Color.RED);
+        s1.setRotate(45);
+        s1.setStroke(Color.BLACK);
+        s1.setStrokeWidth(3);
+        return s1;
     }
 }

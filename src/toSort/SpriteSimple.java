@@ -4,7 +4,7 @@ import javafx.scene.image.Image;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.geometry.Rectangle2D;
 
-public class Sprite {
+public class SpriteSimple {
 
     private Image image;
     private double positionX;
@@ -14,7 +14,7 @@ public class Sprite {
     private double width;
     private double height;
 
-    public Sprite() {
+    public SpriteSimple() {
         positionX = 0;
         positionY = 0;
         velocityX = 0;
@@ -60,7 +60,7 @@ public class Sprite {
         return new Rectangle2D(positionX, positionY, width, height);
     }
 
-    public boolean intersects(Sprite s) {
+    public boolean intersects(SpriteSimple s) {
         return s.getBoundary().intersects(this.getBoundary());
     }
 
