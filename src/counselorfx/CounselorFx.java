@@ -8,7 +8,6 @@ package counselorfx;
 import fxsprite.SpriteMegaMan;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -16,6 +15,10 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import persistenceCommons.SettingsManager;
+import persistenceCommons.SysApoio;
 
 /**
  * Base panel to launch the new Counselor
@@ -29,6 +32,7 @@ import javafx.stage.Stage;
  * @author John
  */
 public class CounselorFx extends Application {
+    private static final Log log = LogFactory.getLog(CounselorFx.class); 
 
     private ScrollPane getMap() {
         MapCanvasBasic mc = new MapCanvasBasic();
@@ -102,6 +106,23 @@ public class CounselorFx extends Application {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+                // Invokes Gui to display turn results
+        log.info("Starting...");
+        //TODO: Upgrade versions when building
+        log.info("Counselor version: " + SysApoio.getVersionClash("version_counselor"));
+        log.info("Commons version: " + SysApoio.getVersionClash("version_commons"));
+        final SettingsManager sm = SettingsManager.getInstance();
+        sm.setConfigurationMode("Client");
+        sm.setLanguage(sm.getConfig("language", "en"));
+        final String autoload;
+        if (args.length == 1) {
+            autoload = args[0];
+        } else {
+            autoload = sm.getConfig("autoLoad");
+        }
+        sm.setWorldBuilder(sm.getConfig("worldBuilder", "0").equalsIgnoreCase("1"));
+        sm.setRadialMenu(sm.getConfig("newUi", "1").equalsIgnoreCase("1"));
+
         launch(args);
     }
 }
