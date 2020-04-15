@@ -7,15 +7,14 @@ package counselorfx;
 
 import fxsprite.SpriteMegaMan;
 import javafx.application.Application;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 /**
@@ -31,20 +30,22 @@ import javafx.stage.Stage;
  */
 public class CounselorFx extends Application {
 
-    private Canvas getMap() {
-        MapCanvas mc = new MapCanvas();
+    private ScrollPane getMap() {
+        MapCanvasBasic mc = new MapCanvasBasic();
         //TODO: render image
         //TODO: render 2nd image, merged
         //TODO: SVG graphs?
-        return mc.getCanvas();
+
+        ScrollPane scrollPane = new ScrollPane(mc.getCanvas());
+        scrollPane.setPrefSize(300, 300);
+        scrollPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setStyle("-fx-focus-color: transparent;");
+        return scrollPane;
     }
 
     private BorderPane getMainPanel() {
-        //create main panel
-        BorderPane bPane = new BorderPane();
-        bPane.setTop(getMenuTop());
-        bPane.setLeft(new Label("Game information go here"));
-        bPane.setRight(new Label("Game Action/Orders go here"));
         // loads a sprite sheet, and specifies the size of one frame/cell
         SpriteMegaMan megaMan = new SpriteMegaMan("fxsprite/megaman.png", 50, 49); //searches for the image file in the classpath
         megaMan.setFPS(5); // animation will play at 5 frames per second
@@ -54,26 +55,33 @@ public class CounselorFx extends Application {
         megaMan.playTimes("powerup", 10); // plays "powerup" animation 10 times;
         megaMan.setX(100);
         megaMan.setY(200);
+
+        //create main panel
+        BorderPane bPane = new BorderPane();
+        bPane.setTop(getMenuTop());
+        bPane.setLeft(new Label("Game information go here"));
+        bPane.setCenter(getMap());
+        bPane.setRight(new Label("Game Action/Orders go here"));
         bPane.setBottom(megaMan);
 
-        bPane.setCenter(getMap());
         return bPane;
     }
 
     private MenuBar getMenuTop() {
         //create menu
         MenuBar menubar = new MenuBar();
-        Menu FileMenu = new Menu("File");
+        Menu fileMenu = new Menu("File");
         MenuItem filemenu1 = new MenuItem("New");
         MenuItem filemenu2 = new MenuItem("Save");
         MenuItem filemenu3 = new MenuItem("Exit");
-        FileMenu.getItems().addAll(filemenu1, filemenu2, filemenu3);
-        Menu EditMenu = new Menu("Edit");
+        fileMenu.getItems().addAll(filemenu1, filemenu2, filemenu3);
+        Menu editMenu = new Menu("Edit");
         MenuItem EditMenu1 = new MenuItem("Cut");
         MenuItem EditMenu2 = new MenuItem("Copy");
         MenuItem EditMenu3 = new MenuItem("Paste");
-        EditMenu.getItems().addAll(EditMenu1, EditMenu2, EditMenu3);
-        menubar.getMenus().addAll(FileMenu, EditMenu);
+        editMenu.getItems().addAll(EditMenu1, EditMenu2, EditMenu3);
+        Menu toolBar = new Menu("ToolBar Here");
+        menubar.getMenus().addAll(fileMenu, editMenu, toolBar);
         return menubar;
     }
 

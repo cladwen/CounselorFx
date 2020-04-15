@@ -1,6 +1,5 @@
 package counselorfx;
 
-import java.awt.Point;
 import java.util.Random;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -13,7 +12,7 @@ import javafx.scene.shape.Polygon;
 import toSort.AnimatedImage;
 
 // Animation of Earth rotating around the sun. (Hello, world!)
-public class MapCanvas {
+public class MapCanvasAnimated {
 
     public Canvas getCanvas() {
 
@@ -70,8 +69,16 @@ public class MapCanvas {
     }
 
     private void drawHexagonShape(GraphicsContext gc) {
-        gc.setFill(Color.rgb(188, 143, 143, 0.5));
-        gc.setStroke(Color.RED);
+                // Set line width
+                gc.setLineWidth(1.0);
+                gc.setFill(Color.BLUE);
+
+                // Draw a Text
+                gc.strokeText("This is a stroked Text", 10, 50);
+                gc.strokeText("This is a stroked Text with Max Width 300 px", 10, 100, 300);
+                // Draw a filled Text
+                gc.fillText("This is a filled Text", 10, 150);
+                gc.fillText("This is a filled Text with Max Width 400 px", 10, 200, 400);
         for (double col = 0; col < 20; col++) {
             for (double row = 0; row < 20; row++) {
                 Point2D ret;
@@ -81,8 +88,12 @@ public class MapCanvas {
                 }
                 Hexagon hex = new Hexagon(30d + ret.getX(), 30d + ret.getY());
                 System.out.println(ret.toString());
+                // Set fill color
+                gc.setFill(Color.rgb(188, 143, 143, 0.5));
+                gc.setStroke(Color.RED);
                 gc.fillPolygon(hex.getListXCoord(), hex.getListYCoord(), hex.getListXCoord().length);
                 gc.strokePolygon(hex.getListXCoord(), hex.getListYCoord(), hex.getListXCoord().length);
+
             }
         }
     }
