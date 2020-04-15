@@ -1,5 +1,7 @@
-package counselorfx;
+package gui;
 
+import control.WorldFacadeCounselor;
+import helpers.Hexagon;
 import java.util.Random;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -19,6 +21,7 @@ public class MapCanvasBasic {
         this.xHexes = 42;
         this.yHexes = 74;
         this.hexSize = 60;
+        //WorldFacadeCounselor.getInstance().get;
     }
 
     public Canvas getCanvas() {

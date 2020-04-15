@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package control.facade;
+package control;
 
 import baseLib.BaseModel;
 import business.BussinessException;
@@ -77,9 +77,7 @@ public class WorldFacadeCounselor implements Serializable {
     public void doSaveOrdens(Comando com, File selectedFile) throws BussinessException {
         try {
             XmlManager.getInstance().save(com, selectedFile);
-        } catch (PersistenceException ex) {
-            throw new BussinessException(ex.getMessage());
-        } catch (NullPointerException ex) {
+        } catch (PersistenceException | NullPointerException ex) {
             throw new BussinessException(ex.getMessage());
         }
 
@@ -116,7 +114,7 @@ public class WorldFacadeCounselor implements Serializable {
     }
 
     public List<Nacao> getNacoesJogadorAtivo() {
-        List<Nacao> ret = new ArrayList<Nacao>();
+        List<Nacao> ret = new ArrayList<>();
         for (Nacao nacao : WorldManager.getInstance().getNacoes().values()) {
             if (WorldManager.getInstance().getPartida().getJogadorAtivo() == nacao.getOwner()) {
                 ret.add(nacao);
@@ -167,7 +165,7 @@ public class WorldFacadeCounselor implements Serializable {
     public List<BaseModel> getActors() {
         final int initialCapacity = 25 + WorldManager.getInstance().getPersonagens().size()
                 + WorldManager.getInstance().getCidades().size();
-        final List<BaseModel> ret = new ArrayList<BaseModel>(initialCapacity);
+        final List<BaseModel> ret = new ArrayList<>(initialCapacity);
         ret.addAll(WorldManager.getInstance().getNacoes().values());
         ret.addAll(WorldManager.getInstance().getCidades().values());
         ret.addAll(WorldManager.getInstance().getPersonagens().values());
@@ -175,7 +173,7 @@ public class WorldFacadeCounselor implements Serializable {
     }
 
     public SortedMap<String, BaseModel> getActorsAll() {
-        SortedMap<String, BaseModel> ret = new TreeMap<String, BaseModel>();
+        SortedMap<String, BaseModel> ret = new TreeMap<>();
         for (BaseModel actor : WorldFacadeCounselor.getInstance().getActors()) {
             if (actor.getCodigo() == null) {
                 //FIXME: Why cod would be null? Happening in game 88.
@@ -266,7 +264,7 @@ public class WorldFacadeCounselor implements Serializable {
     }
 
     public SortedMap<String, Habilidade> getHabilidades(String habilidades) {
-        SortedMap<String, Habilidade> ret = new TreeMap<String, Habilidade>();
+        SortedMap<String, Habilidade> ret = new TreeMap<>();
         String[] temp = habilidades.trim().split(";");
         for (String cdHab : temp) {
             cdHab = ";" + cdHab.trim() + ";";
@@ -283,7 +281,7 @@ public class WorldFacadeCounselor implements Serializable {
 
     public Set<PersonagemOrdem> getMapPersonagemOrdens(Nacao nation) {
         if (!getMapPersonagemOrdens().containsKey(nation)) {
-            getMapPersonagemOrdens().put(nation, new HashSet<PersonagemOrdem>());
+            getMapPersonagemOrdens().put(nation, new HashSet<>());
         }
         return getMapPersonagemOrdens().get(nation);
     }
@@ -315,5 +313,4 @@ public class WorldFacadeCounselor implements Serializable {
     public VictoryPointsGame getVictoryPoints() {
         return WorldManager.getInstance().getVictoryPoints();
     }
-
 }

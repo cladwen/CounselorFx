@@ -5,7 +5,7 @@
  *
  * @author D. Collin Bachi
  */
-package fxsprite;
+package helpers;
 
 import java.util.HashMap;
 

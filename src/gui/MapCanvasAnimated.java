@@ -1,5 +1,6 @@
-package counselorfx;
+package gui;
 
+import helpers.Hexagon;
 import java.util.Random;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;

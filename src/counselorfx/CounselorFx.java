@@ -5,7 +5,9 @@
  */
 package counselorfx;
 
-import fxsprite.SpriteMegaMan;
+import gui.MapCanvasBasic;
+import control.WorldLoader;
+import helpers.SpriteMegaMan;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -32,12 +34,12 @@ import persistenceCommons.SysApoio;
  * @author John
  */
 public class CounselorFx extends Application {
-    private static final Log log = LogFactory.getLog(CounselorFx.class); 
+
+    private static final Log log = LogFactory.getLog(CounselorFx.class);
 
     private ScrollPane getMap() {
         MapCanvasBasic mc = new MapCanvasBasic();
-        //TODO: render image
-        //TODO: render 2nd image, merged
+        //TODO: refactor GUI stuff to GUI class
         //TODO: SVG graphs?
 
         ScrollPane scrollPane = new ScrollPane(mc.getCanvas());
@@ -51,14 +53,16 @@ public class CounselorFx extends Application {
 
     private BorderPane getMainPanel() {
         // loads a sprite sheet, and specifies the size of one frame/cell
-        SpriteMegaMan megaMan = new SpriteMegaMan("fxsprite/megaman.png", 50, 49); //searches for the image file in the classpath
+        SpriteMegaMan megaMan = new SpriteMegaMan("resources/megaman.png", 50, 49); //searches for the image file in the classpath
         megaMan.setFPS(5); // animation will play at 5 frames per second
-        megaMan.play(); // animates the first row of the sprite sheet
-        megaMan.pause();
+        //megaMan.pause();
         megaMan.label(4, "powerup"); // associates the fourth (zero-indexed) row of the sheet with "powerup"
-        megaMan.playTimes("powerup", 10); // plays "powerup" animation 10 times;
-        megaMan.setX(100);
-        megaMan.setY(200);
+        //megaMan.playTimes("powerup", 10); // plays "powerup" animation 10 times;
+        //megaMan.limitRowColumns(2, 9);
+        //megaMan.play(); // animates the first row of the sprite sheet
+        megaMan.play("powerup");
+        //megaMan.setX(100);
+        //megaMan.setY(200);
 
         //create main panel
         BorderPane bPane = new BorderPane();
@@ -96,17 +100,13 @@ public class CounselorFx extends Application {
 
         //go scene
         Scene scene = new Scene(bPane, 1000, 800);
-        scene.getStylesheets().add("counselorfx/style.css");
+        scene.getStylesheets().add("resources/style.css");
 
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-                // Invokes Gui to display turn results
+    private static void setBasicConfig() {
         log.info("Starting...");
         //TODO: Upgrade versions when building
         log.info("Counselor version: " + SysApoio.getVersionClash("version_counselor"));
@@ -114,15 +114,22 @@ public class CounselorFx extends Application {
         final SettingsManager sm = SettingsManager.getInstance();
         sm.setConfigurationMode("Client");
         sm.setLanguage(sm.getConfig("language", "en"));
-        final String autoload;
-        if (args.length == 1) {
-            autoload = args[0];
-        } else {
-            autoload = sm.getConfig("autoLoad");
-        }
-        sm.setWorldBuilder(sm.getConfig("worldBuilder", "0").equalsIgnoreCase("1"));
-        sm.setRadialMenu(sm.getConfig("newUi", "1").equalsIgnoreCase("1"));
+    }
 
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        // set basic configurations for Counselor
+        setBasicConfig();
+        //load game file
+        WorldLoader wl = new WorldLoader();
+        wl.doAutoLoad(args);
+
+        //TODO: sync interface (status bar)
+        //TODO: open map
+        //TODO: Progress bar on loading
+        //launch GUI
         launch(args);
     }
 }

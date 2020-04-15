@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package counselorfx;
+package control;
 
 import business.BussinessException;
-import control.facade.WorldFacadeCounselor;
+import counselorfx.CounselorFx;
 import java.io.File;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,29 +21,34 @@ public class WorldLoader {
 
     private static final Log log = LogFactory.getLog(CounselorFx.class);
     private static final BundleManager labels = SettingsManager.getInstance().getBundleManager();
-    private static final WorldFacadeCounselor WFC = WorldFacadeCounselor.getInstance();
 
     /**
-     * Checks if there's an autoload file defined or passed as arg at launch. Then load it
+     * Checks if there's an autoload file defined or passed as arg at launch.Then load it
+     * 
+     * Start WorldFacadeCounselor first instance
      *
-     * @param autoLoad
+     * @param args
      */
-    public void doAutoLoad(String autoLoad) {
+    public void doAutoLoad(String[] args) {
+        final String autoLoad;
+        if (args.length == 1) {
+            //file name passed as parameter from BAT or OS
+            autoLoad = args[0];
+        } else {
+            //load from saved settings
+            autoLoad = SettingsManager.getInstance().getConfig("autoLoad");
+        }
         if (autoLoad == null || autoLoad.isEmpty()) {
+            //no file to load
             return;
         }
         try {
             log.info(labels.getString("AUTOLOADING.OPENING") + autoLoad);
             final File resultsFile = new File(autoLoad);
-            //TODO: autoload_actions go here
-            //TODO: Progress bar on loading
-            //TODO: sync interface (status bar)
-            //TODO: open map
-            WFC.doStart(resultsFile);
+            WorldFacadeCounselor.getInstance().doStart(resultsFile);
         } catch (BussinessException ex) {
             //TODO: what if file not found?
             log.error(ex);
         }
     }
-
 }
