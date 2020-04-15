@@ -1,4 +1,4 @@
-package toSort;
+package gui.animation;
 
 import javafx.scene.image.Image;
 

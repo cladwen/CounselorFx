@@ -1,6 +1,5 @@
 package gui;
 
-import control.WorldFacadeCounselor;
 import helpers.Hexagon;
 import java.util.Random;
 import javafx.scene.canvas.Canvas;
@@ -25,25 +24,14 @@ public class MapCanvasBasic {
     }
 
     public Canvas getCanvas() {
-
         Canvas canvas = new Canvas((xHexes + 1) * hexSize, (yHexes + 1) * hexSize * 3 / 4);
-
         GraphicsContext gc = canvas.getGraphicsContext2D();
-
-        Image earth = new Image("resources/earth.png");
-        Image sun = new Image("resources/sun.png");
-        Image space = new Image("resources/space.png");
-
-        gc.drawImage(space, 0, 0);
-        gc.drawImage(sun, 196, 196);
-        gc.drawImage(earth, 300, 400);
-
-        doDeserts(gc);
-
+        gc.scale(0.5, 0.5);
+        doRenderDeserts(gc);
         return canvas;
     }
 
-    private void doDeserts(GraphicsContext gc) {
+    private void doRenderDeserts(GraphicsContext gc) {
         Image desert = new Image("resources/hex_2b_deserto.gif");
         //centering text
         gc.setTextAlign(TextAlignment.CENTER);
@@ -76,7 +64,7 @@ public class MapCanvasBasic {
         }
     }
 
-    private void doMaps(GraphicsContext gc) {
+    private void doDrawHexagons(GraphicsContext gc) {
         //centering text
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setTextBaseline(VPos.CENTER);

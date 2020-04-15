@@ -7,8 +7,11 @@ package counselorfx;
 
 import gui.MapCanvasBasic;
 import control.WorldLoader;
+import gui.MapCanvasAnimated;
 import helpers.SpriteMegaMan;
 import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
@@ -16,6 +19,7 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,6 +56,28 @@ public class CounselorFx extends Application {
     }
 
     private BorderPane getMainPanel() {
+
+        //create main panel
+        BorderPane bPane = new BorderPane();
+        bPane.setTop(getMenuTop());
+        bPane.setLeft(new Label("Game information go here"));
+        bPane.setCenter(getMap());
+        bPane.setRight(getSpaceSunEarth());
+        bPane.setBottom(setMegaman());
+
+        return bPane;
+    }
+
+    private static VBox getSpaceSunEarth() {
+        VBox vbox = new VBox();
+        vbox.setAlignment(Pos.BASELINE_CENTER);
+        vbox.setSpacing(50);
+        MapCanvasAnimated mca = new MapCanvasAnimated();
+        vbox.getChildren().addAll(new Label("Game Action/Orders go here"), mca.getCanvas());
+        return vbox;
+    }
+
+    private SpriteMegaMan setMegaman() {
         // loads a sprite sheet, and specifies the size of one frame/cell
         SpriteMegaMan megaMan = new SpriteMegaMan("resources/megaman.png", 50, 49); //searches for the image file in the classpath
         megaMan.setFPS(5); // animation will play at 5 frames per second
@@ -63,16 +89,7 @@ public class CounselorFx extends Application {
         megaMan.play("powerup");
         //megaMan.setX(100);
         //megaMan.setY(200);
-
-        //create main panel
-        BorderPane bPane = new BorderPane();
-        bPane.setTop(getMenuTop());
-        bPane.setLeft(new Label("Game information go here"));
-        bPane.setCenter(getMap());
-        bPane.setRight(new Label("Game Action/Orders go here"));
-        bPane.setBottom(megaMan);
-
-        return bPane;
+        return megaMan;
     }
 
     private MenuBar getMenuTop() {
