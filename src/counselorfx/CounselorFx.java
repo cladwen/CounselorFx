@@ -10,7 +10,6 @@ import control.WorldLoader;
 import gui.MapCanvasAnimated;
 import helpers.SpriteMegaMan;
 import javafx.application.Application;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;

@@ -22,7 +22,7 @@ public final class Hexagon {
     private double sideSize;
     private Point2D centerPoint;
 
-    public Hexagon(Double xPixel, Double yPixel, Double sideLenght) {
+    public Hexagon(double xPixel, double yPixel, double sideLenght) {
         //side size if 1/2 height
         sideSize = sideLenght;
         listXCoord = new double[6];
@@ -33,7 +33,7 @@ public final class Hexagon {
         calculHex();
     }
 
-    public Hexagon(Double xPixel, Double yPixel) {
+    public Hexagon(double xPixel, double yPixel) {
         this(xPixel, yPixel, 30.5d);
     }
 

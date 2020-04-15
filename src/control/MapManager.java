@@ -24,7 +24,9 @@ import model.Local;
 import model.Personagem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import persistence.local.ImageFactory;
 import persistence.local.ListFactory;
+import persistenceCommons.SettingsManager;
 
 /**
  *
@@ -33,16 +35,17 @@ import persistence.local.ListFactory;
 public class MapManager {
 
     private static final Log log = LogFactory.getLog(MapManager.class);
-    private static final LocalFacade localFacade = new LocalFacade();
+    private final ImageFactory imageFactory = new ImageFactory();
+    private final LocalFacade localFacade = new LocalFacade();
     private Point farPoint;
     private int xHexes;
     private int yHexes;
     private final int hexSize;
-    private final Double zoomFactor;
+    private final double zoomFactor;
 
     public MapManager() {
         this.hexSize = 60;
-        this.zoomFactor = 0.5d;
+        this.zoomFactor = (double) SettingsManager.getInstance().getConfigAsInt("MapZoomPercent", "100") / 100;
     }
 
     /**
@@ -84,32 +87,65 @@ public class MapManager {
         Canvas canvas = new Canvas((xHexes + 1) * hexSize * zoomFactor, (yHexes + 1) * hexSize * 3 / 4 * zoomFactor);
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.scale(zoomFactor, zoomFactor);
-        doRenderDeserts(gc, listaLocal);
+        doRenderTerrain(gc, listaLocal);
+        doRenderHexagonGrid(gc);
         return canvas;
     }
 
-    private void doRenderDeserts(GraphicsContext gc, Collection<Local> listaLocal) {
-        Image desert = new Image("images/mapa/hex_2b_deserto.gif");
+    private void doRenderTerrain(GraphicsContext gc, Collection<Local> listaLocal) {
         //centering text
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setTextBaseline(VPos.CENTER);
-        for (double x = 0; x < xHexes; x++) {
-            for (double y = 0; y < yHexes; y++) {
+        for (Local local : listaLocal) {
+            double x = localFacade.getCol(local);
+            double y = localFacade.getRow(local);
+            Point2D ret;
+            if (y % 2 == 1) {
+                ret = new Point2D(x * hexSize, y * hexSize * 3 / 4);
+            } else {
+                ret = new Point2D(x * hexSize + hexSize / 2, y * hexSize * 3 / 4);
+            }
+            gc.drawImage(imageFactory.getTerrainImage(local), ret.getX(), ret.getY());
+            Hexagon hex = new Hexagon(30d + ret.getX(), 30d + ret.getY());
+            //drawHexagon(gc);
+            // Draw coordinates
+            gc.fillText(
+                    local.getCoordenadas(),
+                    hex.getCenterPoint().getX(), hex.getCenterPoint().getY()
+            );
+        }
+    }
+
+    private void drawHexagon(GraphicsContext gc) {
+        // Set fill color
+        gc.setFill(javafx.scene.paint.Color.rgb(188, 143, 143, 0.5));
+        gc.setStroke(javafx.scene.paint.Color.RED);
+        //                gc.fillPolygon(hex.getListXCoord(), hex.getListYCoord(), hex.getListXCoord().length);
+        //gc.strokePolygon(hex.getListXCoord(), hex.getListYCoord(), hex.getListXCoord().length);
+        // Set line width
+        gc.setLineWidth(1.0);
+        gc.setFill(javafx.scene.paint.Color.BLUE);
+    }
+
+    private void doRenderHexagonGrid(GraphicsContext gc) {
+        //centering text
+        gc.setTextAlign(TextAlignment.CENTER);
+        gc.setTextBaseline(VPos.CENTER);
+        for (double x = 0; x < 40; x++) {
+            for (double y = 0; y < 40; y++) {
                 Point2D ret;
                 if (y % 2 == 0) {
                     ret = new Point2D(x * hexSize, y * hexSize * 3 / 4);
                 } else {
                     ret = new Point2D(x * hexSize + hexSize / 2, y * hexSize * 3 / 4);
                 }
-
-                gc.drawImage(desert, ret.getX(), ret.getY());
                 Hexagon hex = new Hexagon(30d + ret.getX(), 30d + ret.getY());
                 //System.out.println(ret.toString());
                 // Set fill color
                 gc.setFill(javafx.scene.paint.Color.rgb(188, 143, 143, 0.5));
                 gc.setStroke(javafx.scene.paint.Color.RED);
-//                gc.fillPolygon(hex.getListXCoord(), hex.getListYCoord(), hex.getListXCoord().length);
-                //gc.strokePolygon(hex.getListXCoord(), hex.getListYCoord(), hex.getListXCoord().length);
+                gc.fillPolygon(hex.getListXCoord(), hex.getListYCoord(), hex.getListXCoord().length);
+                gc.strokePolygon(hex.getListXCoord(), hex.getListYCoord(), hex.getListXCoord().length);
                 // Set line width
                 gc.setLineWidth(1.0);
                 gc.setFill(javafx.scene.paint.Color.BLUE);
