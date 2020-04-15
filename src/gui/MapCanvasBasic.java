@@ -1,10 +1,10 @@
 package gui;
 
+import control.MapManager;
 import helpers.Hexagon;
 import java.util.Random;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
 import javafx.geometry.Point2D;
 import javafx.geometry.VPos;
 import javafx.scene.paint.Color;
@@ -14,54 +14,14 @@ import javafx.scene.text.TextAlignment;
 // Animation of Earth rotating around the sun. (Hello, world!)
 public class MapCanvasBasic {
 
-    private final int xHexes, yHexes, hexSize;
+    private final MapManager mapManager;
 
     public MapCanvasBasic() {
-        this.xHexes = 42;
-        this.yHexes = 74;
-        this.hexSize = 60;
-        //WorldFacadeCounselor.getInstance().get;
+        this.mapManager = new MapManager();
     }
 
     public Canvas getCanvas() {
-        Canvas canvas = new Canvas((xHexes + 1) * hexSize, (yHexes + 1) * hexSize * 3 / 4);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.scale(0.5, 0.5);
-        doRenderDeserts(gc);
-        return canvas;
-    }
-
-    private void doRenderDeserts(GraphicsContext gc) {
-        Image desert = new Image("resources/hex_2b_deserto.gif");
-        //centering text
-        gc.setTextAlign(TextAlignment.CENTER);
-        gc.setTextBaseline(VPos.CENTER);
-        for (double x = 0; x < xHexes; x++) {
-            for (double y = 0; y < yHexes; y++) {
-                Point2D ret;
-                if (y % 2 == 0) {
-                    ret = new Point2D(x * hexSize, y * hexSize * 3 / 4);
-                } else {
-                    ret = new Point2D(x * hexSize + hexSize / 2, y * hexSize * 3 / 4);
-                }
-
-                gc.drawImage(desert, ret.getX(), ret.getY());
-                Hexagon hex = new Hexagon(30d + ret.getX(), 30d + ret.getY());
-                //System.out.println(ret.toString());
-                // Set fill color
-                gc.setFill(Color.rgb(188, 143, 143, 0.5));
-                gc.setStroke(Color.RED);
-//                gc.fillPolygon(hex.getListXCoord(), hex.getListYCoord(), hex.getListXCoord().length);
-                //gc.strokePolygon(hex.getListXCoord(), hex.getListYCoord(), hex.getListXCoord().length);
-                // Set line width
-                gc.setLineWidth(1.0);
-                gc.setFill(Color.BLUE);
-                // Draw a filled Text
-                gc.fillText(
-                        String.format("%s %s", (int) x + 1, (int) y + 1),
-                        hex.getCenterPoint().getX(), hex.getCenterPoint().getY());
-            }
-        }
+        return this.mapManager.getCanvas();
     }
 
     private void doDrawHexagons(GraphicsContext gc) {
