@@ -28,13 +28,9 @@ public final class Hexagon {
         listXCoord = new double[6];
         listYCoord = new double[6];
         a = Math.sqrt((sideSize * sideSize) - ((sideSize / 2) * (sideSize / 2)));
-        this.xPixel = xPixel;
-        this.yPixel = yPixel;
+        this.xPixel = xPixel + sideSize;
+        this.yPixel = yPixel + sideSize;
         calculHex();
-    }
-
-    public Hexagon(double xPixel, double yPixel) {
-        this(xPixel, yPixel, 30.5d);
     }
 
     private Hexagon() {

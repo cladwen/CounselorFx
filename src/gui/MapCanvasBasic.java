@@ -25,6 +25,7 @@ public class MapCanvasBasic {
     }
 
     private void doDrawHexagons(GraphicsContext gc) {
+        //FIXME: Clean up fixed values (60 for hex size) all over the place.
         //centering text
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setTextBaseline(VPos.CENTER);
@@ -37,7 +38,7 @@ public class MapCanvasBasic {
                     ret = new Point2D(x * 60 + 30, y * 45);
                 }
 
-                Hexagon hex = new Hexagon(30d + ret.getX(), 30d + ret.getY());
+                Hexagon hex = new Hexagon(ret.getX(), ret.getY(), 60);
                 //System.out.println(ret.toString());
                 // Set fill color
                 gc.setFill(Color.rgb(188, 143, 143, 0.5));
