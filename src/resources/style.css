@@ -19,6 +19,17 @@
     -fx-effect:dropshadow(one-pass-box,GREEN,8,0.0,2,0);  
 
 }  
+#smalltext {
+    -fx-font: 100px Tahoma;
+    -fx-stroke: navy;
+    -fx-stroke-width: 1;
+}
+#fancytext {
+    -fx-font: 100px Tahoma;
+    -fx-fill: linear-gradient(from 0% 0% to 100% 200%, repeat, aqua 0%, red 50%);
+    -fx-stroke: navy;
+    -fx-stroke-width: 1;
+}
 /*
 
 .scroll-pane {

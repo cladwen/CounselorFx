@@ -14,6 +14,7 @@ import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import model.Local;
 import org.apache.commons.logging.Log;
@@ -60,6 +61,9 @@ public class MapManager {
     }
 
     private void doRenderTerrain(GraphicsContext gc, Collection<Local> listaLocal) {
+        legendFontSize = new Font(
+                SettingsManager.getInstance().getConfigAsInt("MapCoordinatesSize", "8") / zoomFactor
+        );
         //centering text
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setTextBaseline(VPos.CENTER);
@@ -80,12 +84,14 @@ public class MapManager {
             // Set line width
             gc.setLineWidth(1.0);
             gc.setFill(Color.BLUE);
+            gc.setFont(legendFontSize);
             gc.fillText(
                     local.getCoordenadas(),
                     hex.getCenterPoint().getX(), hex.getCenterPoint().getY()
             );
         }
     }
+    private Font legendFontSize;
 
     private void drawHexagon(GraphicsContext gc) {
         // Set fill color
