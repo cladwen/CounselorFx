@@ -54,7 +54,7 @@ public class MapManager {
             getMapMaxSize(listaLocal);
         }
 
-        Canvas canvas = new Canvas(xHexes * hexSize * zoomFactor, yHexes * hexSize * 3 / 4 * zoomFactor);
+        Canvas canvas = new Canvas(xHexes * hexSize * zoomFactor, (yHexes * hexSize * 3 / 4 + 15) * zoomFactor);
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.scale(zoomFactor, zoomFactor);
         gc.setFill(Color.GAINSBORO);
