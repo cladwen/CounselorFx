@@ -9,14 +9,21 @@ import gui.MapCanvasBasic;
 import control.WorldLoader;
 import gui.MapCanvasAnimated;
 import helpers.SpriteMegaMan;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -40,17 +47,24 @@ public class CounselorFx extends Application {
 
     private static final Log log = LogFactory.getLog(CounselorFx.class);
 
-    private ScrollPane getMap() {
-        MapCanvasBasic mc = new MapCanvasBasic();
+    private ScrollPane getScrollPane() {
+        final MapCanvasBasic mc = new MapCanvasBasic();
+        final Canvas mapCanvas = mc.getCanvas();
         //TODO: refactor GUI stuff to GUI class
         //TODO: SVG graphs?
 
-        ScrollPane scrollPane = new ScrollPane(mc.getCanvas());
-        scrollPane.setPrefSize(300, 300);
-        scrollPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setContent(mapCanvas);
+        scrollPane.setPrefSize(mapCanvas.getWidth(), mapCanvas.getHeight());
+        scrollPane.setMaxSize(mapCanvas.getWidth(), mapCanvas.getHeight());
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
-        scrollPane.setStyle("-fx-focus-color: transparent;");
+        scrollPane.pannableProperty().set(true);
+//        scrollPane.setStyle("-fx-focus-color: transparent;");
+        scrollPane.setStyle("-fx-background-color: transparent");
+
+//        scrollPane.hbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.NEVER);
+//        scrollPane.vbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.NEVER);
         return scrollPane;
     }
 
@@ -60,7 +74,7 @@ public class CounselorFx extends Application {
         BorderPane bPane = new BorderPane();
         bPane.setTop(getMenuTop());
         bPane.setLeft(new Label("Game information go here"));
-        bPane.setCenter(getMap());
+        bPane.setCenter(getScrollPane());
         bPane.setRight(getSpaceSunEarth());
         bPane.setBottom(setMegaman());
 

@@ -7,7 +7,6 @@ package control;
 
 import business.facade.LocalFacade;
 import helpers.Hexagon;
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -17,7 +16,7 @@ import javafx.geometry.Point2D;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import model.Jogador;
 import model.Local;
@@ -48,35 +47,6 @@ public class MapManager {
         this.zoomFactor = (double) SettingsManager.getInstance().getConfigAsInt("MapZoomPercent", "100") / 100;
     }
 
-    /**
-     * for reference only. Cannibalize then delete
-     *
-     * @param listaLocal
-     * @param listaPers
-     * @param observer
-     * @return
-     */
-    private BufferedImage printMapaGeral(Collection<Local> listaLocal, Collection<Personagem> listaPers, Jogador observer) {
-        if (farPoint == null) {
-            this.farPoint = getMapMaxSize(listaLocal);
-        }
-
-        //cria a imagem base
-        BufferedImage megaMap = new BufferedImage(farPoint.x, farPoint.y, BufferedImage.TRANSLUCENT);
-        final Graphics2D big = megaMap.createGraphics();
-
-        //desenhando box para o mapa
-        big.setBackground(Color.WHITE);
-        big.clearRect(0, 0, farPoint.x, farPoint.y);
-        big.setColor(Color.BLACK);
-        big.setFont(new Font("Verdana", Font.PLAIN, 10));
-        for (Local local : listaLocal) {
-            //printHex(big, local, observer);
-        }
-        big.dispose(); //libera memoria
-        return megaMap;
-    }
-
     public Canvas getCanvas() {
         ListFactory listFactory = new ListFactory();
         Collection<Local> listaLocal = listFactory.listLocais().values();
@@ -84,11 +54,13 @@ public class MapManager {
             getMapMaxSize(listaLocal);
         }
 
-        Canvas canvas = new Canvas((xHexes + 1) * hexSize * zoomFactor, (yHexes + 1) * hexSize * 3 / 4 * zoomFactor);
+        Canvas canvas = new Canvas(xHexes * hexSize * zoomFactor, yHexes * hexSize * 3 / 4 * zoomFactor);
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.scale(zoomFactor, zoomFactor);
+        gc.setFill(Color.GAINSBORO);
+        gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
         doRenderTerrain(gc, listaLocal);
-        doRenderHexagonGrid(gc);
+//        doRenderHexagonGrid(gc);
         return canvas;
     }
 
@@ -97,10 +69,10 @@ public class MapManager {
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setTextBaseline(VPos.CENTER);
         for (Local local : listaLocal) {
-            double x = localFacade.getCol(local);
-            double y = localFacade.getRow(local);
+            double x = localFacade.getCol(local) - 1;
+            double y = localFacade.getRow(local) - 1;
             Point2D ret;
-            if (y % 2 == 1) {
+            if (y % 2 == 0) {
                 ret = new Point2D(x * hexSize, y * hexSize * 3 / 4);
             } else {
                 ret = new Point2D(x * hexSize + hexSize / 2, y * hexSize * 3 / 4);
@@ -109,6 +81,10 @@ public class MapManager {
             Hexagon hex = new Hexagon(30d + ret.getX(), 30d + ret.getY());
             //drawHexagon(gc);
             // Draw coordinates
+
+            // Set line width
+            gc.setLineWidth(1.0);
+            gc.setFill(Color.BLUE);
             gc.fillText(
                     local.getCoordenadas(),
                     hex.getCenterPoint().getX(), hex.getCenterPoint().getY()
@@ -118,13 +94,10 @@ public class MapManager {
 
     private void drawHexagon(GraphicsContext gc) {
         // Set fill color
-        gc.setFill(javafx.scene.paint.Color.rgb(188, 143, 143, 0.5));
-        gc.setStroke(javafx.scene.paint.Color.RED);
+        gc.setFill(Color.rgb(188, 143, 143, 0.5));
+        gc.setStroke(Color.RED);
         //                gc.fillPolygon(hex.getListXCoord(), hex.getListYCoord(), hex.getListXCoord().length);
         //gc.strokePolygon(hex.getListXCoord(), hex.getListYCoord(), hex.getListXCoord().length);
-        // Set line width
-        gc.setLineWidth(1.0);
-        gc.setFill(javafx.scene.paint.Color.BLUE);
     }
 
     private void doRenderHexagonGrid(GraphicsContext gc) {
@@ -142,13 +115,13 @@ public class MapManager {
                 Hexagon hex = new Hexagon(30d + ret.getX(), 30d + ret.getY());
                 //System.out.println(ret.toString());
                 // Set fill color
-                gc.setFill(javafx.scene.paint.Color.rgb(188, 143, 143, 0.5));
-                gc.setStroke(javafx.scene.paint.Color.RED);
+                gc.setFill(Color.rgb(188, 143, 143, 0.5));
+                gc.setStroke(Color.RED);
                 gc.fillPolygon(hex.getListXCoord(), hex.getListYCoord(), hex.getListXCoord().length);
                 gc.strokePolygon(hex.getListXCoord(), hex.getListYCoord(), hex.getListXCoord().length);
                 // Set line width
                 gc.setLineWidth(1.0);
-                gc.setFill(javafx.scene.paint.Color.BLUE);
+                gc.setFill(Color.BLUE);
                 // Draw a filled Text
                 gc.fillText(
                         String.format("%s %s", (int) x + 1, (int) y + 1),
