@@ -64,7 +64,9 @@ public class MapManager {
         gc.setFill(Color.GAINSBORO);
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
         doRenderTerrain(gc, listaLocal);
-        doRenderHexagonGrid(gc, listaLocal);
+        if (renderGrid) {
+            doRenderHexagonGrid(gc, listaLocal);
+        }
         log.info("finish map");
         return canvas;
     }
