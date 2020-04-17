@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package control;
+package business;
 
 import business.facade.LocalFacade;
 import helpers.Hexagon;
@@ -72,15 +72,54 @@ public class MapManager {
     }
 
     private void doRenderTerrain(GraphicsContext gc, Collection<Local> listaLocal) {
+        boolean renderRoads = true;
+        boolean renderRivers = true;
+        boolean renderCreek = true;
+        boolean renderBridge = true;
+        boolean renderSpan = true;
+        boolean renderTracks = true;
+        boolean renderLanding = true;
+        boolean renderLandmark = true;
         //main loop
         for (Local local : listaLocal) {
             Point2D point = getPositionCanvas(local);
+            //draw terrain
             gc.drawImage(imageFactory.getTerrainImage(local), point.getX(), point.getY());
-            Hexagon hex = new Hexagon(point.getX(), point.getY(), hexSize / 2);
+            for (int direcao = 1; direcao < 7; direcao++) {
+                //draw roads
+                if (renderRoads && localFacade.isEstrada(local, direcao)) {
+                    gc.drawImage(imageFactory.getRoadImage(direcao), point.getX(), point.getY());
+                }
+                //draw rivers
+                if (renderRivers && localFacade.isRio(local, direcao)) {
+                    gc.drawImage(imageFactory.getRiverImage(direcao), point.getX(), point.getY());
+                }
+                //draw rivers
+                if (renderCreek && localFacade.isRiacho(local, direcao)) {
+                    gc.drawImage(imageFactory.getCreekImage(direcao), point.getX(), point.getY());
+                }
+                //grava rastro exercito
+                if (renderTracks && localFacade.isRastroExercito(local, direcao) && local.isVisible()) {
+//                    gc.drawImage(imageFactory.getTracksImage(direcao), point.getX(), point.getY());
+                }
+                //draw bridges
+                if (renderBridge && localFacade.isPonte(local, direcao)) {
+                    gc.drawImage(imageFactory.getBridgeImage(direcao), point.getX(), point.getY());
+                }
+                //draw bridges
+                if (renderSpan && localFacade.isVau(local, direcao)) {
+                    gc.drawImage(imageFactory.getSpanImage(direcao), point.getX(), point.getY());
+                }
+                //detalhe landing
+                if (renderLanding && localFacade.isLanding(local, direcao)) {
+                    gc.drawImage(imageFactory.getLandingImage(direcao), point.getX(), point.getY());
+                }
+            }
+
         }
     }
 
-    private void doRenderHexagonGrid(GraphicsContext gc, Collection<Local> listaLocal) {
+    private void doRenderHexagonGrid(GraphicsContext gc, Collection<Local> listLocal) {
         //prepping styles
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setTextBaseline(VPos.CENTER);
@@ -89,7 +128,7 @@ public class MapManager {
         gc.setStroke(Color.RED);
         //calculate coordinates label relative position
 //        int b = (hexSize/2)- coordinateFontSize;
-        for (Local local : listaLocal) {
+        for (Local local : listLocal) {
             //calculate position
             Point2D point = getPositionCanvas(local);
             Hexagon hex = new Hexagon(point.getX(), point.getY(), hexSize / 2);
