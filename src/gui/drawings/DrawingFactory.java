@@ -19,17 +19,16 @@ public class DrawingFactory {
 
     public void renderTrackArmy(GraphicsContext gc, int direction, Point2D point) {
         // Set line width
-        gc.setLineWidth(2.0);
+        gc.setLineWidth(3.0);
         // Set the Color
         gc.setStroke(Color.CRIMSON);
         // Set fill color
-        gc.setFill(Color.CRIMSON);
+        gc.setFill(Color.RED);
         // Start the Path
         gc.beginPath();
         // Make different Paths
         gc.moveTo(point.getX() + 38, point.getY() + 38);
-        gc.quadraticCurveTo(point.getX() + 38,
-                point.getY() + 38,
+        gc.quadraticCurveTo(point.getX() + 38, point.getY() + 38,
                 point.getX() + coordRastros[direction - 1][0],
                 point.getY() + coordRastros[direction - 1][1]);
         gc.fill();

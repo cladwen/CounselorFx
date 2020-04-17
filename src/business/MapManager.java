@@ -5,6 +5,7 @@
  */
 package business;
 
+import business.facade.CidadeFacade;
 import business.facade.LocalFacade;
 import gui.drawings.DrawingFactory;
 import helpers.Hexagon;
@@ -14,9 +15,11 @@ import javafx.geometry.Point2D;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
+import model.Cidade;
 import model.Local;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,6 +37,7 @@ public class MapManager {
     private final ImageFactory imageFactory = new ImageFactory();
     private final DrawingFactory drawingFactory = new DrawingFactory();
     private final LocalFacade localFacade = new LocalFacade();
+    private final CidadeFacade cityFacade = new CidadeFacade();
     private Point farPoint;
     private int xHexes;
     private int yHexes;
@@ -42,6 +46,17 @@ public class MapManager {
     private final double zoomFactor;
     private static final int SCROLLBAR_SIZE = 15;
     private final boolean renderGrid;
+    private boolean renderRoads;
+    private boolean renderRivers;
+    private boolean renderCreek;
+    private boolean renderBridge;
+    private boolean renderSpan;
+    private boolean renderTracks;
+    private boolean renderLanding;
+    private boolean directionBased;
+    private boolean renderLandmark;
+    private boolean renderCities;
+    private boolean renderForts;
 
     public MapManager() {
         this.hexSize = 60;
@@ -54,6 +69,7 @@ public class MapManager {
 
     public Canvas getCanvas() {
         log.info("Start map");
+        setRenderingFlags();
         ListFactory listFactory = new ListFactory();
         Collection<Local> listaLocal = listFactory.listLocais().values();
         if (farPoint == null) {
@@ -74,52 +90,108 @@ public class MapManager {
     }
 
     private void doRenderTerrain(GraphicsContext gc, Collection<Local> listaLocal) {
-        boolean renderRoads = true;
-        boolean renderRivers = true;
-        boolean renderCreek = true;
-        boolean renderBridge = true;
-        boolean renderSpan = true;
-        boolean renderTracks = true;
-        boolean renderLanding = true;
-        boolean renderLandmark = true;
         //main loop
         for (Local local : listaLocal) {
             Point2D point = getPositionCanvas(local);
             //draw terrain
             gc.drawImage(imageFactory.getTerrainImage(local), point.getX(), point.getY());
-            for (int direction = 1; direction < 7; direction++) {
-                //draw roads
-                if (renderRoads && localFacade.isEstrada(local, direction)) {
-                    gc.drawImage(imageFactory.getRoadImage(direction), point.getX(), point.getY());
-                }
-                //draw rivers
-                if (renderRivers && localFacade.isRio(local, direction)) {
-                    gc.drawImage(imageFactory.getRiverImage(direction), point.getX(), point.getY());
-                }
-                //draw rivers
-                if (renderCreek && localFacade.isRiacho(local, direction)) {
-                    gc.drawImage(imageFactory.getCreekImage(direction), point.getX(), point.getY());
-                }
-                //grava rastro exercito
-                if (renderTracks && localFacade.isRastroExercito(local, direction) && localFacade.isVisible(local)) {
-                    drawingFactory.renderTrackArmy(gc, direction, point);
-//                    gc.drawImage(imageFactory.getTracksImage(direcao), point.getX(), point.getY());
-                }
-                //draw bridges
-                if (renderBridge && localFacade.isPonte(local, direction)) {
-                    gc.drawImage(imageFactory.getBridgeImage(direction), point.getX(), point.getY());
-                }
-                //draw bridges
-                if (renderSpan && localFacade.isVau(local, direction)) {
-                    gc.drawImage(imageFactory.getSpanImage(direction), point.getX(), point.getY());
-                }
-                //detalhe landing
-                if (renderLanding && localFacade.isLanding(local, direction)) {
-                    gc.drawImage(imageFactory.getLandingImage(direction), point.getX(), point.getY());
-                }
-            }
+            //roads, rivers, bridges, span, creek, landing, army tracks
+            doRenderDecorations(local, gc, point);
+            doRenderCity(local, gc, point);
 
         }
+    }
+
+    private void doRenderCity(Local local, GraphicsContext gc, Point2D point) {
+        //cities
+        if (!localFacade.isCidade(local)) {
+            return;
+        }
+        Cidade city = localFacade.getCidade(local);
+        //render fortification
+        if (renderForts && cityFacade.isFortificacao(city)) {
+            final Image img = ImageFactory.getFortificationImage(cityFacade.getFortificacao(city));
+            gc.drawImage(img, point.getX() + (hexSize - img.getWidth()) / 2, point.getY() + 34 - img.getHeight());
+        }
+
+        if (renderCities && cityFacade.getTamanho(city) > 0) {
+            //FIXME: City color
+            //Image colorCp = ColorFactory.setNacaoColor(
+            //        this.desenhoCidades[+6 + cpEscondido],
+            //      cityFacade.getNacaoColorFill(city),
+            //    cityFacade.getNacaoColorBorder(city),
+            //  form);
+            if (!cityFacade.isOculto(city)) {
+                //regular visible city
+                final Image img = ImageFactory.getCityImage(cityFacade.getTamanho(city));
+                gc.drawImage(img, point.getX() + (hexSize - img.getWidth()) / 2, point.getY() + 34 - img.getHeight());
+            } else {
+                //hidden city
+                final Image img = ImageFactory.getHiddenCityImage(cityFacade.getTamanho(city));
+                gc.drawImage(img, point.getX() + (hexSize - img.getWidth()) / 2, point.getY() + 34 - img.getHeight());
+            }
+        }
+
+        //draw docks
+        final Image docksImg = ImageFactory.getDockImage(cityFacade.getDocas(city));
+        gc.drawImage(docksImg, point.getX() + (hexSize - docksImg.getWidth()) / 2, point.getY() + 2);
+
+        //draw capital
+        if (cityFacade.isCapital(city)) {
+            final Image img = ImageFactory.getCapitalImage();
+            gc.drawImage(img, point.getX() + (hexSize - img.getWidth()) / 2, point.getY() + 30);
+        }
+    }
+
+    private void doRenderDecorations(Local local, GraphicsContext gc, Point2D point) {
+        for (int direction = 1; direction < 7 && directionBased; direction++) {
+            //draw roads
+            if (renderRoads && localFacade.isEstrada(local, direction)) {
+                gc.drawImage(ImageFactory.getRoadImage(direction), point.getX(), point.getY());
+            }
+            //draw rivers
+            if (renderRivers && localFacade.isRio(local, direction)) {
+                gc.drawImage(ImageFactory.getRiverImage(direction), point.getX(), point.getY());
+            }
+            //draw rivers
+            if (renderCreek && localFacade.isRiacho(local, direction)) {
+                gc.drawImage(ImageFactory.getCreekImage(direction), point.getX(), point.getY());
+            }
+            //draw army tracks
+            if (renderTracks && localFacade.isRastroExercito(local, direction) && localFacade.isVisible(local)) {
+                drawingFactory.renderTrackArmy(gc, direction, point);
+//                    gc.drawImage(imageFactory.getTracksImage(direcao), point.getX(), point.getY());
+            }
+            //draw bridges
+            if (renderBridge && localFacade.isPonte(local, direction)) {
+                gc.drawImage(ImageFactory.getBridgeImage(direction), point.getX(), point.getY());
+            }
+            //draw bridges
+            if (renderSpan && localFacade.isVau(local, direction)) {
+                gc.drawImage(ImageFactory.getSpanImage(direction), point.getX(), point.getY());
+            }
+            //draw landing/coast
+            if (renderLanding && localFacade.isLanding(local, direction)) {
+                gc.drawImage(ImageFactory.getLandingImage(direction), point.getX(), point.getY());
+            }
+        }
+    }
+
+    private void setRenderingFlags() {
+        //TODO: load from settings
+        //direction based
+        renderRoads = true;
+        renderRivers = true;
+        renderCreek = true;
+        renderBridge = true;
+        renderSpan = true;
+        renderTracks = true;
+        renderLanding = true;
+        directionBased = renderRoads && renderRivers && renderCreek && renderBridge && renderSpan && renderTracks && renderLanding;
+        //other decorations
+        renderLandmark = true;
+        renderCities = true;
+        renderForts = true;
     }
 
     private void doRenderHexagonGrid(GraphicsContext gc, Collection<Local> listLocal) {

@@ -29,6 +29,10 @@ public class ImageFactory {
     private static final String[] roadNames = {"empty", "road_no", "road_ne", "road_l", "road_se", "road_so", "road_o"};
     private static final String[] spanNames = {"empty", "vau_no", "vau_ne", "vau_l", "vau_se", "vau_so", "vau_o"};
     private static final String[] terrainNames = {"vazio", "mar", "costa", "litoral", "floresta", "planicie", "montanha", "colinas", "pantano", "deserto", "wasteland", "lago"};
+    private static final String[] fortificationNames = {"vazio", "torre", "forte", "castelo", "fortaleza", "cidadela"};
+    private static final String[] cityNames = {"vazio", "acampamento", "aldeia", "vila", "burgo", "cidade"};
+    private static final String[] hiddenCityNames = {"vazio", "acampamento_hidden", "aldeia_hidden", "vila_hidden", "burgo_hidden", "cidade_hidden"};
+    private static final String[] dockNames = {"vazio", "docas", "porto"};
 
     public Image getTerrainImage(Local local) {
         int idxTerrain = ConverterFactory.terrainToIndex(localFacade.getTerrenoCodigo(local));
@@ -51,30 +55,51 @@ public class ImageFactory {
         }
     }
 
-    public Image getRoadImage(int direcao) {
+    public static Image getRoadImage(int direcao) {
         return new Image("/images/mapa/hex_" + roadNames[direcao] + ".gif");
     }
 
-    public Image getRiverImage(int direcao) {
+    public static Image getRiverImage(int direcao) {
         return new Image("/images/mapa/hex_" + riverNames[direcao] + ".gif");
     }
 
-    public Image getCreekImage(int direcao) {
+    public static Image getCreekImage(int direcao) {
         return new Image("/images/mapa/hex_" + creekNames[direcao] + ".gif");
     }
 
-    public Image getBridgeImage(int direcao) {
+    public static Image getBridgeImage(int direcao) {
         return new Image("/images/mapa/hex_" + bridgeNames[direcao] + ".gif");
     }
 
-    public Image getSpanImage(int direcao) {
+    public static Image getSpanImage(int direcao) {
         return new Image("/images/mapa/hex_" + spanNames[direcao] + ".gif");
     }
 
 //    public Image getTracksImage(int direcao) {
 //        return new Image("/images/mapa/hex_" + tr[direcao] + ".gif");
 //    }
-    public Image getLandingImage(int direcao) {
+    public static Image getLandingImage(int direcao) {
         return new Image("/images/mapa/hex_" + landingNames[direcao] + ".gif");
+    }
+
+    public static Image getFortificationImage(int fortificationSize) {
+        return new Image("/images/mapa/cp_" + fortificationNames[fortificationSize] + ".gif");
+    }
+
+    public static Image getCityImage(int citySize) {
+        //TODO: draw, not image
+        return new Image("/images/mapa/cp_" + cityNames[citySize] + ".gif");
+    }
+
+    public static Image getHiddenCityImage(int citySize) {
+        return new Image("/images/mapa/cp_" + hiddenCityNames[citySize] + ".gif");
+    }
+
+    public static Image getDockImage(int dockSize) {
+        return new Image("/images/mapa/cp_" + dockNames[dockSize] + ".gif");
+    }
+
+    public static Image getCapitalImage() {
+        return new Image("/images/mapa/cp_capital.gif");
     }
 }
