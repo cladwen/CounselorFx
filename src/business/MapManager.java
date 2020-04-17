@@ -6,6 +6,7 @@
 package business;
 
 import business.facade.LocalFacade;
+import gui.drawings.DrawingFactory;
 import helpers.Hexagon;
 import java.awt.Point;
 import java.util.Collection;
@@ -31,6 +32,7 @@ public class MapManager {
 
     private static final Log log = LogFactory.getLog(MapManager.class);
     private final ImageFactory imageFactory = new ImageFactory();
+    private final DrawingFactory drawingFactory = new DrawingFactory();
     private final LocalFacade localFacade = new LocalFacade();
     private Point farPoint;
     private int xHexes;
@@ -85,34 +87,35 @@ public class MapManager {
             Point2D point = getPositionCanvas(local);
             //draw terrain
             gc.drawImage(imageFactory.getTerrainImage(local), point.getX(), point.getY());
-            for (int direcao = 1; direcao < 7; direcao++) {
+            for (int direction = 1; direction < 7; direction++) {
                 //draw roads
-                if (renderRoads && localFacade.isEstrada(local, direcao)) {
-                    gc.drawImage(imageFactory.getRoadImage(direcao), point.getX(), point.getY());
+                if (renderRoads && localFacade.isEstrada(local, direction)) {
+                    gc.drawImage(imageFactory.getRoadImage(direction), point.getX(), point.getY());
                 }
                 //draw rivers
-                if (renderRivers && localFacade.isRio(local, direcao)) {
-                    gc.drawImage(imageFactory.getRiverImage(direcao), point.getX(), point.getY());
+                if (renderRivers && localFacade.isRio(local, direction)) {
+                    gc.drawImage(imageFactory.getRiverImage(direction), point.getX(), point.getY());
                 }
                 //draw rivers
-                if (renderCreek && localFacade.isRiacho(local, direcao)) {
-                    gc.drawImage(imageFactory.getCreekImage(direcao), point.getX(), point.getY());
+                if (renderCreek && localFacade.isRiacho(local, direction)) {
+                    gc.drawImage(imageFactory.getCreekImage(direction), point.getX(), point.getY());
                 }
                 //grava rastro exercito
-                if (renderTracks && localFacade.isRastroExercito(local, direcao) && local.isVisible()) {
+                if (renderTracks && localFacade.isRastroExercito(local, direction) && localFacade.isVisible(local)) {
+                    drawingFactory.renderTrackArmy(gc, direction, point);
 //                    gc.drawImage(imageFactory.getTracksImage(direcao), point.getX(), point.getY());
                 }
                 //draw bridges
-                if (renderBridge && localFacade.isPonte(local, direcao)) {
-                    gc.drawImage(imageFactory.getBridgeImage(direcao), point.getX(), point.getY());
+                if (renderBridge && localFacade.isPonte(local, direction)) {
+                    gc.drawImage(imageFactory.getBridgeImage(direction), point.getX(), point.getY());
                 }
                 //draw bridges
-                if (renderSpan && localFacade.isVau(local, direcao)) {
-                    gc.drawImage(imageFactory.getSpanImage(direcao), point.getX(), point.getY());
+                if (renderSpan && localFacade.isVau(local, direction)) {
+                    gc.drawImage(imageFactory.getSpanImage(direction), point.getX(), point.getY());
                 }
                 //detalhe landing
-                if (renderLanding && localFacade.isLanding(local, direcao)) {
-                    gc.drawImage(imageFactory.getLandingImage(direcao), point.getX(), point.getY());
+                if (renderLanding && localFacade.isLanding(local, direction)) {
+                    gc.drawImage(imageFactory.getLandingImage(direction), point.getX(), point.getY());
                 }
             }
 
