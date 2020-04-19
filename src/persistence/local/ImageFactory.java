@@ -178,7 +178,7 @@ public class ImageFactory {
         return new Image("/images/mapa/hex_tag.gif");
     }
 
-    public static Image getFogofwarImage() {
+    public static Image getTerrainUnknownImage() {
         return new Image("/images/mapa/hex_fogofwar.gif");
     }
 

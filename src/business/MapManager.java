@@ -17,6 +17,7 @@ import helpers.Hexagon;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -58,10 +59,11 @@ public class MapManager {
     private final PersonagemFacade persFacade;
     private final JogadorFacade playerFacade;
     private final ExercitoFacade armyFacade;
-    private final int hexSize;
+    private final int hexSize = 60;
     private int coordinateFontSize;
     private double zoomFactor;
     private boolean renderGrid;
+    private boolean renderCoordinates;
     private boolean renderRoads;
     private boolean renderRivers;
     private boolean renderCreek;
@@ -76,6 +78,7 @@ public class MapManager {
     private boolean renderArmy;
     private boolean renderFeatures;
     private boolean armyIconDrawType;
+    private boolean renderFogOfWar;
     private Point farPoint;
     private int xHexes;
     private int yHexes;
@@ -93,12 +96,13 @@ public class MapManager {
         this.armyFacade = new ExercitoFacade();
         this.drawingFactory = new DrawingFactory();
         this.imageFactory = new ImageFactory();
-        this.hexSize = 60;
         //TODO: refactor map coordinates label to be a Text over canvas, out of GraphicsContext so that we can use CSS
+        //TODO: optimize image rendering for animations. static vs dynamic. i.e. terrain and roads, vs armies and chars and events
     }
 
     public Canvas getCanvas() {
-        log.info("Start map");
+        long timeStart = (new Date()).getTime();
+        log.info("Start map " + timeStart);
         setRenderingFlags();
         //set observer
         observer = WorldFacadeCounselor.getInstance().getJogadorAtivo();
@@ -118,9 +122,62 @@ public class MapManager {
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
         doRenderTerrain(gc, listaLocal);
         doRenderHexagonGrid(gc, listaLocal);
-
-        log.info("finish map");
+        doRenderCoordinateLabels(gc, listaLocal);
+        long timeFinish = (new Date()).getTime();
+        log.info("finish map " + (timeFinish - timeStart));
         return canvas;
+    }
+
+    private void doRenderHexagonGrid(GraphicsContext gc, Collection<Local> listLocal) {
+        if (!renderGrid && !renderFogOfWar) {
+            return;
+        }
+
+        //prepping styles
+        gc.setTextAlign(TextAlignment.CENTER);
+        gc.setTextBaseline(VPos.CENTER);
+        gc.setLineWidth(1.0);
+        gc.setFont(new Font(coordinateFontSize));
+        gc.setStroke(Color.RED);
+        //calculate coordinates label relative position
+//        int b = (hexSize/2)- coordinateFontSize;
+        for (Local local : listLocal) {
+            //calculate position
+            Point2D point = getPositionCanvas(local);
+            Hexagon hex = new Hexagon(point.getX(), point.getY(), hexSize / 2);
+            //for of war
+            if (renderFogOfWar && !local.isVisible()) {
+                gc.setFill(Color.rgb(188, 143, 143, 0.5));
+                gc.fillPolygon(hex.getListXCoord(), hex.getListYCoord(), hex.getListXCoord().length);
+            }
+            //draw grid
+            if (renderGrid) {
+                gc.strokePolygon(hex.getListXCoord(), hex.getListYCoord(), hex.getListXCoord().length);
+            }
+        }
+    }
+
+    private void doRenderCoordinateLabels(GraphicsContext gc, Collection<Local> listLocal) {
+        if (!renderCoordinates) {
+            return;
+        }
+
+        //prepping styles
+        gc.setTextAlign(TextAlignment.CENTER);
+        gc.setTextBaseline(VPos.CENTER);
+        gc.setLineWidth(1.0);
+        gc.setFont(new Font(coordinateFontSize));
+        gc.setStroke(Color.RED);
+        gc.setFill(Color.NAVY);
+        for (Local local : listLocal) {
+            //calculate position
+            Point2D point = getPositionCanvas(local);
+            // write coordinates
+            gc.fillText(
+                    local.getCoordenadas(),
+                    point.getX() + hexSize / 2, point.getY() + coordinateFontSize
+            );
+        }
     }
 
     private void doRenderTerrain(GraphicsContext gc, Collection<Local> listaLocal) {
@@ -135,7 +192,6 @@ public class MapManager {
             doRenderLandmark(local, gc, point);
             doRenderFeatures(local, gc, point);
             doRenderArmy(local, gc, point);
-            doRenderFogofWar(local, gc, point);
         }
     }
 
@@ -200,7 +256,7 @@ public class MapManager {
         //render icons
         int nn = 0;
         for (Nacao nation : armyList) {
-            //FIXME: imprimir exercito de nacao desconhecida???
+            //FIXME: print unknow nation for army
             final Image img = imageFactory.getArmyShield(nation, WorldFacadeCounselor.getInstance().getCenario());
             gc.drawImage(img, point.getX() + armySpacing[nn][0], point.getY() + armySpacing[nn][1]);
             nn++;
@@ -289,20 +345,10 @@ public class MapManager {
         }
     }
 
-    private void doRenderFogofWar(Local local, GraphicsContext gc, Point2D point) {
-        if (local.isVisible() || SettingsManager.getInstance().isWorldBuilder()) {
-            return;
-        }
-        if (!SettingsManager.getInstance().isConfig("FogOfWarType", "1", "1")) {
-            return;
-        }
-        //render fog of war
-        final Image img = ImageFactory.getFogofwarImage();
+    private void doRenderTerrainUnknown(GraphicsContext gc, Point2D point) {
+        //render unknown terrain
+        final Image img = ImageFactory.getTerrainUnknownImage();
         gc.drawImage(img, point.getX() + (hexSize - img.getWidth()) / 2, point.getY() + (hexSize - img.getHeight()) / 2);
-        //FIXME: test fog of war, adjust alpha
-//        big.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .6f));
-//        big.drawImage(this.desenhoDetalhes[dtFogofwar], x, y, form);
-//        big.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
     }
 
     private void doRenderDecoration(Local local, GraphicsContext gc, Point2D point) {
@@ -322,7 +368,6 @@ public class MapManager {
             //draw army tracks
             if (renderTracks && localFacade.isRastroExercito(local, direction) && localFacade.isVisible(local)) {
                 drawingFactory.renderTrackArmy(gc, direction, point);
-//                    gc.drawImage(imageFactory.getTracksImage(direcao), point.getX(), point.getY());
             }
             //draw bridges
             if (renderBridge && localFacade.isPonte(local, direction)) {
@@ -339,47 +384,8 @@ public class MapManager {
         }
     }
 
-    private void doRenderHexagonGrid(GraphicsContext gc, Collection<Local> listLocal) {
-        if (!renderGrid) {
-            return;
-        }
-
-        //prepping styles
-        gc.setTextAlign(TextAlignment.CENTER);
-        gc.setTextBaseline(VPos.CENTER);
-        gc.setLineWidth(1.0);
-        gc.setFont(new Font(coordinateFontSize));
-        gc.setStroke(Color.RED);
-        //calculate coordinates label relative position
-//        int b = (hexSize/2)- coordinateFontSize;
-        for (Local local : listLocal) {
-            //calculate position
-            Point2D point = getPositionCanvas(local);
-            Hexagon hex = new Hexagon(point.getX(), point.getY(), hexSize / 2);
-            // draw filling
-            gc.setFill(Color.rgb(188, 143, 143, 0.5));
-            gc.fillPolygon(hex.getListXCoord(), hex.getListYCoord(), hex.getListXCoord().length);
-            //draw grid
-            gc.strokePolygon(hex.getListXCoord(), hex.getListYCoord(), hex.getListXCoord().length);
-
-            // write coordinates
-            gc.setFill(Color.BLUE);
-            gc.fillText(
-                    local.getCoordenadas(),
-                    hex.getCenterPoint().getX(), hex.getCenterPoint().getY() - (hexSize / 2) + coordinateFontSize
-            );
-        }
-    }
-
-    private void drawHexagon(GraphicsContext gc) {
-        // Set fill color
-        gc.setFill(Color.rgb(188, 143, 143, 0.5));
-        gc.setStroke(Color.RED);
-        //gc.fillPolygon(hex.getListXCoord(), hex.getListYCoord(), hex.getListXCoord().length);
-        //gc.strokePolygon(hex.getListXCoord(), hex.getListYCoord(), hex.getListXCoord().length);
-    }
-
     private Point2D getPositionCanvas(Local local) {
+        //TODO: convert to static for improved performance
         //calculate position on canvas
         double x = localFacade.getCol(local) - 1;
         double y = localFacade.getRow(local) - 1;
@@ -430,6 +436,8 @@ public class MapManager {
         renderFeatures = true;
         //FIXME: initializing here will not work once we move to animation
         renderGrid = SettingsManager.getInstance().isConfig("MapGridRender", "1", "0");
+        renderCoordinates = SettingsManager.getInstance().isConfig("MapCoordinateRender", "1", "0");
+        renderFogOfWar = !SettingsManager.getInstance().isWorldBuilder() && SettingsManager.getInstance().isConfig("FogOfWarType", "1", "1");
         zoomFactor = (double) SettingsManager.getInstance().getConfigAsInt("MapZoomPercent", "100") / 100;
         coordinateFontSize = (int) Math.round(SettingsManager.getInstance().getConfigAsInt("MapCoordinatesSize", "8") / zoomFactor);
         armyIconDrawType = SettingsManager.getInstance().isConfig("DrawAllArmyIcons", "1", "1");

@@ -141,6 +141,18 @@ public class CounselorFx extends Application {
     }
 
     /**
+     * Animation ideas: Map transition to show on load
+     *
+     * Fog of war transition to set on
+     *
+     * Progress bar on loading
+     *
+     * Dragons/NPCs on map
+     *
+     * Army/PC movement for new orders
+     *
+     * Event Icons: Combat, overrun, battle, item location, NPC encounter
+     *
      * @param args the command line arguments
      */
     public static void main(String[] args) {
@@ -151,8 +163,6 @@ public class CounselorFx extends Application {
         wl.doAutoLoad(args);
 
         //TODO: sync interface (status bar)
-        //TODO: open map
-        //TODO: Progress bar on loading
         //launch GUI
         launch(args);
     }

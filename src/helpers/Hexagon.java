@@ -60,20 +60,6 @@ public final class Hexagon {
     }
 
     /**
-     * @param xPixel the xPixel to set
-     */
-    public void setxPixel(double xPixel) {
-        this.xPixel = xPixel;
-    }
-
-    /**
-     * @param yPixel the yPixel to set
-     */
-    public void setyPixel(double yPixel) {
-        this.yPixel = yPixel;
-    }
-
-    /**
      * Calcul a list of X coordinates and Y coordinates for the points of hexagon
      */
     public void calculHex() {
