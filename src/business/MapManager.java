@@ -15,6 +15,7 @@ import control.WorldFacadeCounselor;
 import gui.drawings.DrawingFactory;
 import helpers.Hexagon;
 import java.awt.Point;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -25,7 +26,10 @@ import javafx.geometry.Point2D;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.effect.BlendMode;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
@@ -151,8 +155,9 @@ public class MapManager {
             Hexagon hex = new Hexagon(point.getX(), point.getY(), hexSize / 2);
             //for of war
             if (renderFogOfWar && !local.isVisible()) {
-                gc.setFill(Color.rgb(188, 143, 143, 0.5));
-                gc.fillPolygon(hex.getListXCoord(), hex.getListYCoord(), hex.getListXCoord().length);
+                //gc.setFill(Color.rgb(188, 143, 143, 0.5));
+                //gc.fillPolygon(hex.getListXCoord(), hex.getListYCoord(), hex.getListXCoord().length);
+                doRenderFogOfWar(gc, point);
             }
             //draw grid
             if (renderGrid) {
@@ -202,7 +207,7 @@ public class MapManager {
 
     private void doRenderCity(Local local, GraphicsContext gc, Point2D point) {
         //cities
-        if (!localFacade.isCidade(local)) {
+        if (!renderCities || !localFacade.isCidade(local)) {
             return;
         }
         Cidade city = localFacade.getCidade(local);
@@ -212,22 +217,12 @@ public class MapManager {
             gc.drawImage(img, point.getX() + (hexSize - img.getWidth()) / 2, point.getY() + 34 - img.getHeight());
         }
 
-        if (renderCities && cityFacade.getTamanho(city) > 0) {
-            //FIXME: City color
-//            Image colorCp = ColorFactory.setNacaoColor(
-//                    this.desenhoCidades[+6 + cpEscondido],
-//                    cityFacade.getNacaoColorFill(city),
-//                    cityFacade.getNacaoColorBorder(city),
-//                    form);
-            if (!cityFacade.isOculto(city)) {
-                //regular visible city
-                final Image img = ImageFactory.getCityImage(cityFacade.getTamanho(city));
-                gc.drawImage(img, point.getX() + (hexSize - img.getWidth()) / 2, point.getY() + 34 - img.getHeight());
-            } else {
-                //hidden city
-                final Image img = ImageFactory.getHiddenCityImage(cityFacade.getTamanho(city));
-                gc.drawImage(img, point.getX() + (hexSize - img.getWidth()) / 2, point.getY() + 34 - img.getHeight());
-            }
+        if (cityFacade.getTamanho(city) > 0 && !cityFacade.isOculto(city)) {
+            doDrawCity(city, gc, point);
+        } else if (cityFacade.getTamanho(city) > 0 && cityFacade.isOculto(city)) {
+            //hidden city
+            final Image img = ImageFactory.getHiddenCityImage(cityFacade.getTamanho(city));
+            gc.drawImage(img, point.getX() + (hexSize - img.getWidth()) / 2, point.getY() + 34 - img.getHeight());
         }
 
         //draw docks
@@ -238,6 +233,19 @@ public class MapManager {
         if (cityFacade.isCapital(city)) {
             final Image img = ImageFactory.getCapitalImage();
             gc.drawImage(img, point.getX() + (hexSize - img.getWidth()) / 2, point.getY() + 30);
+        }
+    }
+
+    private void doDrawCity(Cidade city, GraphicsContext gc, Point2D point) {
+        //TODO: border color by alliance (RED vs BLUE), or Mine vs enemy (BLue vs RED fill+border)
+        final int citySize = cityFacade.getTamanho(city);
+        if (citySize == 0) {
+            //drawingFactory.renderCity(gc, point, city.getTamanho(), cityFacade.getNacaoColorFill(city), cityFacade.getNacaoColorBorder(city));
+        } else {
+            //FIXME: City color =             Image colorCp = ColorFactory.setNacaoColor(
+            //regular visible city
+            final Image img = ImageFactory.getCityImage(citySize);
+            gc.drawImage(img, point.getX() + (hexSize - img.getWidth()) / 2, point.getY() + 34 - img.getHeight());
         }
     }
 
@@ -350,8 +358,11 @@ public class MapManager {
         }
     }
 
-    private void doRenderTerrainUnknown(GraphicsContext gc, Point2D point) {
-        //render unknown terrain
+    private void doRenderFogOfWar(GraphicsContext gc, Point2D point) {
+        //render for of war
+        //gc.setGlobalBlendMode(BlendMode.MULTIPLY);
+        //gc.setGlobalBlendMode(BlendMode.SOFT_LIGHT);
+        gc.setGlobalAlpha(0.5d);
         final Image img = ImageFactory.getTerrainUnknownImage();
         gc.drawImage(img, point.getX() + (hexSize - img.getWidth()) / 2, point.getY() + (hexSize - img.getHeight()) / 2);
     }

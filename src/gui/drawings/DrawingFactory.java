@@ -8,6 +8,7 @@ package gui.drawings;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Path;
 
 /**
  *
@@ -48,5 +49,26 @@ public class DrawingFactory {
                 new float[]{5f},
                 0f));
          */
+    }
+
+    public void renderCity(GraphicsContext gc, Point2D point, int tamanho, Color nacaoColorFill, Color nacaoColorBorder) {
+        // Set line width
+        gc.setLineWidth(1.0);
+        // Set the Color
+        gc.setStroke(nacaoColorBorder);
+        // Set fill color
+        gc.setFill(nacaoColorFill);
+        // Start the Path
+        gc.beginPath();
+        // Make different Paths
+        gc.moveTo(point.getX(), point.getY());
+        gc.lineTo(point.getX(), point.getY() + 38);
+        gc.lineTo(point.getX() + 38, point.getY() + 38);
+        gc.lineTo(point.getX() + 38, point.getY() - 38);
+        gc.fill();
+        // End the Path
+        gc.closePath();
+        // Draw the Path
+        gc.stroke();
     }
 }

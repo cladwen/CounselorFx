@@ -12,6 +12,10 @@ import business.facade.NacaoFacade;
 import control.WorldFacadeCounselor;
 import java.util.SortedMap;
 import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
+import javafx.scene.paint.Color;
 import model.Cenario;
 import model.Local;
 import model.Nacao;
@@ -123,7 +127,49 @@ public class ImageFactory {
 
     public static Image getCityImage(int citySize) {
         //TODO: draw, not image
+        //todo: wishlist: use sprites and better 3d? icons
         return new Image("/images/mapa/cp_" + cityNames[citySize] + ".gif");
+    }
+
+    /**
+     * reColor the given InputImage to the given color inspired by https://stackoverflow.com/a/12945629/1497139
+     *
+     * @param inputImage
+     * @param oldColor
+     * @param newColor
+     * @return reColored Image
+     *
+     */
+    public static Image reColor(Image inputImage, Color oldColor, Color newColor) {
+        int W = (int) inputImage.getWidth();
+        int H = (int) inputImage.getHeight();
+        WritableImage outputImage = new WritableImage(W, H);
+        PixelReader reader = inputImage.getPixelReader();
+        PixelWriter writer = outputImage.getPixelWriter();
+        int ob = (int) oldColor.getBlue() * 255;
+        int or = (int) oldColor.getRed() * 255;
+        int og = (int) oldColor.getGreen() * 255;
+        int nb = (int) newColor.getBlue() * 255;
+        int nr = (int) newColor.getRed() * 255;
+        int ng = (int) newColor.getGreen() * 255;
+        for (int y = 0; y < H; y++) {
+            for (int x = 0; x < W; x++) {
+                int argb = reader.getArgb(x, y);
+                int a = (argb >> 24) & 0xFF;
+                int r = (argb >> 16) & 0xFF;
+                int g = (argb >> 8) & 0xFF;
+                int b = argb & 0xFF;
+                if (g == og && r == or && b == ob) {
+                    r = nr;
+                    g = ng;
+                    b = nb;
+                }
+
+                argb = (a << 24) | (r << 16) | (g << 8) | b;
+                writer.setArgb(x, y, argb);
+            }
+        }
+        return outputImage;
     }
 
     public static Image getHiddenCityImage(int citySize) {
