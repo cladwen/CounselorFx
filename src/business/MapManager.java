@@ -15,7 +15,6 @@ import control.WorldFacadeCounselor;
 import gui.drawings.DrawingFactory;
 import helpers.Hexagon;
 import java.awt.Point;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -26,10 +25,10 @@ import javafx.geometry.Point2D;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.effect.BlendMode;
-import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
@@ -238,15 +237,12 @@ public class MapManager {
 
     private void doDrawCity(Cidade city, GraphicsContext gc, Point2D point) {
         //TODO: border color by alliance (RED vs BLUE), or Mine vs enemy (BLue vs RED fill+border)
+        //FIXME: City color =             Image colorCp = ColorFactory.setNacaoColor(
         final int citySize = cityFacade.getTamanho(city);
-        if (citySize == 0) {
-            //drawingFactory.renderCity(gc, point, city.getTamanho(), cityFacade.getNacaoColorFill(city), cityFacade.getNacaoColorBorder(city));
-        } else {
-            //FIXME: City color =             Image colorCp = ColorFactory.setNacaoColor(
-            //regular visible city
-            final Image img = ImageFactory.getCityImage(citySize);
-            gc.drawImage(img, point.getX() + (hexSize - img.getWidth()) / 2, point.getY() + 34 - img.getHeight());
-        }
+        //drawingFactory.renderCity(gc, point, city.getTamanho(), cityFacade.getNacaoColorFill(city), cityFacade.getNacaoColorBorder(city));
+        //regular visible city
+        final Image img = ImageFactory.getCityImagePainted(citySize, Color.rgb(252, 254, 4), cityFacade.getNacaoColorFillFx(city), Color.rgb(4, 2, 4), cityFacade.getNacaoColorBorderFx(city));
+        gc.drawImage(img, point.getX() + (hexSize - img.getWidth()) / 2, point.getY() + 34 - img.getHeight());
     }
 
     private void doRenderArmy(Local local, GraphicsContext gc, Point2D point) {
