@@ -96,16 +96,16 @@ public class MapManager {
         this.armyFacade = new ExercitoFacade();
         this.drawingFactory = new DrawingFactory();
         this.imageFactory = new ImageFactory();
-        //TODO: refactor map coordinates label to be a Text over canvas, out of GraphicsContext so that we can use CSS
         //TODO: optimize image rendering for animations. static vs dynamic. i.e. terrain and roads, vs armies and chars and events
     }
 
     public Canvas getCanvas() {
-        long timeStart = (new Date()).getTime();
-        log.info("Start map " + timeStart);
         setRenderingFlags();
         //set observer
         observer = WorldFacadeCounselor.getInstance().getJogadorAtivo();
+        //profiling
+        long timeStart = (new Date()).getTime();
+        log.info("Start map " + timeStart);
         //load hexes
         ListFactory listFactory = new ListFactory();
         Collection<Local> listaLocal = listFactory.listLocais().values();
@@ -114,15 +114,19 @@ public class MapManager {
             getMapMaxSize(listaLocal);
         }
 
-        //start rendering
+        //prep canvas
         Canvas canvas = new Canvas(xHexes * hexSize * zoomFactor, (yHexes * hexSize * 3 / 4 + SCROLLBAR_SIZE) * zoomFactor);
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.scale(zoomFactor, zoomFactor);
         gc.setFill(Color.GAINSBORO);
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+
+        //actual rendering
         doRenderTerrain(gc, listaLocal);
         doRenderHexagonGrid(gc, listaLocal);
         doRenderCoordinateLabels(gc, listaLocal);
+
+        //profiling
         long timeFinish = (new Date()).getTime();
         log.info("finish map " + (timeFinish - timeStart));
         return canvas;
@@ -158,6 +162,7 @@ public class MapManager {
     }
 
     private void doRenderCoordinateLabels(GraphicsContext gc, Collection<Local> listLocal) {
+        //TODO: refactor map coordinates label to be a Text over canvas, out of GraphicsContext so that we can use CSS
         if (!renderCoordinates) {
             return;
         }
@@ -209,11 +214,11 @@ public class MapManager {
 
         if (renderCities && cityFacade.getTamanho(city) > 0) {
             //FIXME: City color
-            //Image colorCp = ColorFactory.setNacaoColor(
-            //        this.desenhoCidades[+6 + cpEscondido],
-            //      cityFacade.getNacaoColorFill(city),
-            //    cityFacade.getNacaoColorBorder(city),
-            //  form);
+//            Image colorCp = ColorFactory.setNacaoColor(
+//                    this.desenhoCidades[+6 + cpEscondido],
+//                    cityFacade.getNacaoColorFill(city),
+//                    cityFacade.getNacaoColorBorder(city),
+//                    form);
             if (!cityFacade.isOculto(city)) {
                 //regular visible city
                 final Image img = ImageFactory.getCityImage(cityFacade.getTamanho(city));
