@@ -37,7 +37,7 @@ public class DrawingFactory {
         // Draw the Path
         gc.stroke();
 
-        //FIXME: make it look like the old Counselor
+        //TODO: make it look like the old Counselor. Replace with animation?
         /*
         big.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         gc.setStroke(new BasicStroke(
@@ -48,6 +48,5 @@ public class DrawingFactory {
                 new float[]{5f},
                 0f));
          */
-        //FIXME: undo gc settings
     }
 }

@@ -434,7 +434,7 @@ public class MapManager {
         renderForts = true;
         renderArmy = true;
         renderFeatures = true;
-        //FIXME: initializing here will not work once we move to animation
+        //TODO: initializing here will not work once we move to animation
         renderGrid = SettingsManager.getInstance().isConfig("MapGridRender", "1", "0");
         renderCoordinates = SettingsManager.getInstance().isConfig("MapCoordinateRender", "1", "0");
         renderFogOfWar = !SettingsManager.getInstance().isWorldBuilder() && SettingsManager.getInstance().isConfig("FogOfWarType", "1", "1");
