@@ -99,7 +99,7 @@ public class MapManager {
         this.armyFacade = new ExercitoFacade();
         this.drawingFactory = new DrawingFactory();
         this.imageFactory = new ImageFactory();
-        //TODO: optimize image rendering for animations. static vs dynamic. i.e. terrain and roads, vs armies and chars and events
+        //TODO wishlist: optimize image rendering for animations. static vs dynamic. i.e. terrain and roads, vs armies and chars and events
     }
 
     public Canvas getCanvas() {
@@ -166,7 +166,7 @@ public class MapManager {
     }
 
     private void doRenderCoordinateLabels(GraphicsContext gc, Collection<Local> listLocal) {
-        //TODO: refactor map coordinates label to be a Text over canvas, out of GraphicsContext so that we can use CSS
+        //TODO NEXT: refactor map coordinates label to be a Text over canvas, out of GraphicsContext so that we can use CSS
         if (!renderCoordinates) {
             return;
         }
@@ -236,8 +236,7 @@ public class MapManager {
     }
 
     private void doDrawCity(Cidade city, GraphicsContext gc, Point2D point) {
-        //TODO: border color by alliance (RED vs BLUE), or Mine vs enemy (BLue vs RED fill+border)
-        //FIXME: City color =             Image colorCp = ColorFactory.setNacaoColor(
+        //TODO: border color by alliance (RED vs BLUE), or Mine vs enemy (BLUE vs RED fill+border)
         final int citySize = cityFacade.getTamanho(city);
         //drawingFactory.renderCity(gc, point, city.getTamanho(), cityFacade.getNacaoColorFill(city), cityFacade.getNacaoColorBorder(city));
         //regular visible city
@@ -265,7 +264,6 @@ public class MapManager {
         //render icons
         int nn = 0;
         for (Nacao nation : armyList) {
-            //FIXME: print unknow nation for army
             final Image img = imageFactory.getArmyShield(nation, WorldFacadeCounselor.getInstance().getCenario());
             gc.drawImage(img, point.getX() + armySpacing[nn][0], point.getY() + armySpacing[nn][1]);
             nn++;
@@ -308,7 +306,7 @@ public class MapManager {
     }
 
     private void doRenderFeatures(Local local, GraphicsContext gc, Point2D point) {
-        //TODO: Make animation!
+        //TODO wishlist: Make animation!
         if (!renderFeatures) {
             return;
         }
@@ -397,7 +395,7 @@ public class MapManager {
     }
 
     private Point2D getPositionCanvas(Local local) {
-        //TODO: convert to static for improved performance
+        //TODO wishlist: convert to static for improved performance
         //calculate position on canvas
         double x = localFacade.getCol(local) - 1;
         double y = localFacade.getRow(local) - 1;
@@ -446,7 +444,7 @@ public class MapManager {
         renderForts = true;
         renderArmy = true;
         renderFeatures = true;
-        //TODO: initializing here will not work once we move to animation
+        //TODO wishlist: initializing here will not work once we move to animation
         renderGrid = SettingsManager.getInstance().isConfig("MapGridRender", "1", "0");
         renderCoordinates = SettingsManager.getInstance().isConfig("MapCoordinateRender", "1", "0");
         renderFogOfWar = !SettingsManager.getInstance().isWorldBuilder() && SettingsManager.getInstance().isConfig("FogOfWarType", "1", "1");

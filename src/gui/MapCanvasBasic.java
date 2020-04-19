@@ -1,11 +1,16 @@
 package gui;
 
 import business.MapManager;
-import java.util.Random;
+import helpers.SpriteMegaMan;
+import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Polygon;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 
 // Animation of Earth rotating around the sun. (Hello, world!)
 public class MapCanvasBasic {
@@ -20,38 +25,73 @@ public class MapCanvasBasic {
         return this.mapManager.getCanvas();
     }
 
-    private Polygon getPolygon() {
-        double rLen = 100 - 5;
-        Polygon s1 = new Polygon(0, (rLen - 5) / 2,
-                (rLen - 5) / 2, (rLen - 5) / 2,
-                (rLen - 5) / 2, 0,
-                (rLen + 5) / 2, 0,
-                (rLen + 5) / 2, (rLen - 5) / 2,
-                rLen, (rLen - 5) / 2,
-                rLen, (rLen + 5) / 2,
-                (rLen + 5) / 2, (rLen + 5) / 2,
-                (rLen + 5) / 2, rLen,
-                (rLen - 5) / 2, rLen,
-                (rLen - 5) / 2, (rLen + 5) / 2,
-                0, (rLen + 5) / 2);
-        s1.setFill(Color.RED);
-        s1.setRotate(45);
-        s1.setStroke(Color.BLACK);
-        s1.setStrokeWidth(3);
-        return s1;
+    public ScrollPane getScrollPane() {
+        final Canvas mapCanvas = this.getCanvas();
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setContent(mapCanvas);
+        scrollPane.setPrefSize(mapCanvas.getWidth(), mapCanvas.getHeight());
+        scrollPane.setMaxSize(mapCanvas.getWidth() + 15, mapCanvas.getHeight() + 15);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+        scrollPane.pannableProperty().set(true);
+//        scrollPane.hbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.NEVER);
+//        scrollPane.vbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setStyle("-fx-background-color: transparent");
+        return scrollPane;
     }
 
-    private void drawStarShape(GraphicsContext gc) {
+    public BorderPane getMainPanel() {
 
-        Random random = new Random(System.currentTimeMillis());
+        //create main panel
+        BorderPane bPane = new BorderPane();
+        bPane.setTop(getMenuTop());
+        bPane.setLeft(new Label("Game information go here"));
+        bPane.setCenter(getScrollPane());
+        bPane.setRight(getSpaceSunEarth());
+        bPane.setBottom(setMegaman());
 
-        double[] xpoints = {10, 85, 110, 135, 210, 160,
-            170, 110, 50, 60};
-        double[] ypoints = {85, 75, 10, 75, 85, 125,
-            190, 150, 190, 125};
-        gc.setFill(Color.rgb(random.nextInt(255), random.nextInt(255),
-                random.nextInt(255), 0.9));
+        return bPane;
+    }
 
-        gc.fillPolygon(xpoints, ypoints, xpoints.length);
+    private static VBox getSpaceSunEarth() {
+        VBox vbox = new VBox();
+        vbox.setAlignment(Pos.BASELINE_CENTER);
+        vbox.setSpacing(50);
+        MapCanvasAnimated mca = new MapCanvasAnimated();
+        vbox.getChildren().addAll(new Label("Game Action/Orders go here"), mca.getCanvas());
+        return vbox;
+    }
+
+    private SpriteMegaMan setMegaman() {
+        // loads a sprite sheet, and specifies the size of one frame/cell
+        SpriteMegaMan megaMan = new SpriteMegaMan("resources/megaman.png", 50, 49); //searches for the image file in the classpath
+        megaMan.setFPS(5); // animation will play at 5 frames per second
+        //megaMan.pause();
+        megaMan.label(4, "powerup"); // associates the fourth (zero-indexed) row of the sheet with "powerup"
+        //megaMan.playTimes("powerup", 10); // plays "powerup" animation 10 times;
+        //megaMan.limitRowColumns(2, 9);
+        //megaMan.play(); // animates the first row of the sprite sheet
+        megaMan.play("powerup");
+        //megaMan.setX(100);
+        //megaMan.setY(200);
+        return megaMan;
+    }
+
+    private MenuBar getMenuTop() {
+        //create menu
+        MenuBar menubar = new MenuBar();
+        Menu fileMenu = new Menu("File");
+        MenuItem filemenu1 = new MenuItem("New");
+        MenuItem filemenu2 = new MenuItem("Save");
+        MenuItem filemenu3 = new MenuItem("Exit");
+        fileMenu.getItems().addAll(filemenu1, filemenu2, filemenu3);
+        Menu editMenu = new Menu("Edit");
+        MenuItem EditMenu1 = new MenuItem("Cut");
+        MenuItem EditMenu2 = new MenuItem("Copy");
+        MenuItem EditMenu3 = new MenuItem("Paste");
+        editMenu.getItems().addAll(EditMenu1, EditMenu2, EditMenu3);
+        Menu toolBar = new Menu("ToolBar Here");
+        menubar.getMenus().addAll(fileMenu, editMenu, toolBar);
+        return menubar;
     }
 }

@@ -73,6 +73,7 @@ public class ImageFactory {
     private static final String[] shieldsArzhog = {"neutral.png", "Twainek.gif", "Frusodian.gif"};
 
     public ImageFactory() {
+        //TODO wishlist: SVG graphs?
         this.landmarkNames = localFacade.getTerrainLandmarksImage();
     }
 
@@ -130,8 +131,8 @@ public class ImageFactory {
     }
 
     public static Image getCityImagePainted(int citySize, Color oldFillColor, Color newFillColor, Color oldBorderColor, Color newBorderColor) {
-        //TODO: draw, not image
-        //todo: wishlist: use sprites and better 3d? icons
+        //TODO wishlist: draw, not image
+        //TODO wishlist: use sprites and better 3d? icons
         return reColor(
                 new Image("/images/mapa/cp_" + cityNames[citySize] + ".gif"),
                 oldFillColor, newFillColor,

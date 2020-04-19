@@ -13,7 +13,7 @@ import persistenceCommons.SettingsManager;
 import business.WorldManagerBase;
 
 /**
- * Singleton para gerenciar o xml que deve ser único. TODO: depois tem que ver como fica o multi turno.
+ * Singleton to manage single XML.
  *
  * @author gurgel
  */
