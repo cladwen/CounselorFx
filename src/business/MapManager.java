@@ -10,6 +10,7 @@ import business.facade.CidadeFacade;
 import business.facade.ExercitoFacade;
 import business.facade.JogadorFacade;
 import business.facade.LocalFacade;
+import business.facade.NacaoFacade;
 import business.facade.PersonagemFacade;
 import control.WorldFacadeCounselor;
 import gui.drawings.DrawingFactory;
@@ -26,9 +27,6 @@ import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
@@ -57,6 +55,7 @@ public class MapManager {
     private final ImageFactory imageFactory;
     private final DrawingFactory drawingFactory;
     private final LocalFacade localFacade;
+    private final NacaoFacade nationFacade;
     private final CidadeFacade cityFacade;
     private final ArtefatoFacade itemFacade;
     private final PersonagemFacade persFacade;
@@ -82,6 +81,7 @@ public class MapManager {
     private boolean renderFeatures;
     private boolean armyIconDrawType;
     private boolean renderFogOfWar;
+    private String cityColorType;
     private Point farPoint;
     private int xHexes;
     private int yHexes;
@@ -93,6 +93,7 @@ public class MapManager {
     public MapManager() {
         this.itemFacade = new ArtefatoFacade();
         this.cityFacade = new CidadeFacade();
+        this.nationFacade = new NacaoFacade();
         this.localFacade = new LocalFacade();
         this.persFacade = new PersonagemFacade();
         this.playerFacade = new JogadorFacade();
@@ -236,13 +237,60 @@ public class MapManager {
     }
 
     private void doDrawCity(Cidade city, GraphicsContext gc, Point2D point) {
-        //TODO: border color by alliance (RED vs BLUE), or Mine vs enemy (BLUE vs RED fill+border)
         final int citySize = cityFacade.getTamanho(city);
         //drawingFactory.renderCity(gc, point, city.getTamanho(), cityFacade.getNacaoColorFill(city), cityFacade.getNacaoColorBorder(city));
         //regular visible city
-        final Image img = ImageFactory.getCityImagePainted(citySize, Color.rgb(252, 254, 4), cityFacade.getNacaoColorFillFx(city), Color.rgb(4, 2, 4), cityFacade.getNacaoColorBorderFx(city));
+        Color cityBorderColor;
+        Color cityFillColor;
+        switch (cityColorType) {
+            case "2":
+                //border color by alliance (RED vs BLUE VS YELLOW vs GREEN)
+            try {
+                cityBorderColor = DrawingFactory.getColor(city.getNacao().getTeamFlag());
+            } catch (NullPointerException e) {
+                cityBorderColor = DrawingFactory.getColor("gray");
+            }
+            //use nation's fill color
+            cityFillColor = cityFacade.getNacaoColorFillFx(city);
+            break;
+
+            case "3":
+                //Team diplomacy: border + fill, enemy = RED vs ally = BLUE
+                if (playerFacade.isAlly(city.getNacao(), observer)) {
+                    //mine
+                    cityBorderColor = Color.BLUE;
+                    cityFillColor = Color.DEEPSKYBLUE;
+                } else {
+                    //enemy
+                    cityBorderColor = Color.RED;
+                    cityFillColor = Color.TOMATO;
+                }
+                break;
+            case "4":
+                //my diplomacy: border + fill, enemy = RED vs ally = BLUE
+                if (playerFacade.isMine(city, observer)) {
+                    //mine
+                    cityBorderColor = Color.BLUE;
+                    cityFillColor = Color.DEEPSKYBLUE;
+                } else {
+                    //enemy
+                    cityBorderColor = Color.RED;
+                    cityFillColor = Color.TOMATO;
+                }
+                break;
+            default:
+                //paint cities according to nation colors
+                cityBorderColor = cityFacade.getNacaoColorBorderFx(city);
+                cityFillColor = cityFacade.getNacaoColorFillFx(city);
+                break;
+        }
+        final Image img = ImageFactory.getCityImagePainted(citySize,
+                CITY_SPRIT_FILL, cityFillColor,
+                CITY_SPRITE_BORDER, cityBorderColor);
         gc.drawImage(img, point.getX() + (hexSize - img.getWidth()) / 2, point.getY() + 34 - img.getHeight());
     }
+    private static final Color CITY_SPRITE_BORDER = Color.rgb(4, 2, 4);
+    private static final Color CITY_SPRIT_FILL = Color.rgb(252, 254, 4);
 
     private void doRenderArmy(Local local, GraphicsContext gc, Point2D point) {
         if (!renderArmy || localFacade.getExercitos(local).isEmpty()) {
@@ -451,5 +499,6 @@ public class MapManager {
         zoomFactor = (double) SettingsManager.getInstance().getConfigAsInt("MapZoomPercent", "100") / 100;
         coordinateFontSize = (int) Math.round(SettingsManager.getInstance().getConfigAsInt("MapCoordinatesSize", "8") / zoomFactor);
         armyIconDrawType = SettingsManager.getInstance().isConfig("DrawAllArmyIcons", "1", "1");
+        cityColorType = SettingsManager.getInstance().getConfig("MapCityColorType", "1");
     }
 }

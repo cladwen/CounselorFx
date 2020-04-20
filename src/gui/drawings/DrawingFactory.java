@@ -5,7 +5,10 @@
  */
 package gui.drawings;
 
+import java.lang.reflect.Field;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -71,6 +74,15 @@ public class DrawingFactory {
         gc.closePath();
         // Draw the Path
         gc.stroke();
+    }
+
+    public static Color getColor(String teamFlag) {
+        try {
+            Field field = Class.forName("java.awt.Color").getField("teamFlag");
+            return (Color) field.get(null);
+        } catch (ClassNotFoundException | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+            return Color.BLACK; // Not defined
+        }
     }
 
     private Polygon getPolygon() {

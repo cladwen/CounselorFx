@@ -131,113 +131,12 @@ public class ImageFactory {
     }
 
     public static Image getCityImagePainted(int citySize, Color oldFillColor, Color newFillColor, Color oldBorderColor, Color newBorderColor) {
-        //TODO wishlist: draw, not image
-        //TODO wishlist: use sprites and better 3d? icons
+        //TODO wishlist: use sprites and better 3d? icons OR draw, not image
         return reColor(
                 new Image("/images/mapa/cp_" + cityNames[citySize] + ".gif"),
                 oldFillColor, newFillColor,
                 oldBorderColor, newBorderColor
         );
-    }
-
-    /**
-     * reColor the given InputImage to the given color inspired by https://stackoverflow.com/a/12945629/1497139
-     *
-     * @param inputImage
-     * @param oldColor
-     * @param newColor
-     * @return reColored Image
-     *
-     */
-    public static Image reColor(Image inputImage, Color oldColor, Color newColor) {
-        int W = (int) inputImage.getWidth();
-        int H = (int) inputImage.getHeight();
-        WritableImage outputImage = new WritableImage(W, H);
-        PixelReader reader = inputImage.getPixelReader();
-        PixelWriter writer = outputImage.getPixelWriter();
-        int ob = (int) (oldColor.getBlue() * 255);
-        int or = (int) (oldColor.getRed() * 255);
-        int og = (int) (oldColor.getGreen() * 255);
-        int nb = (int) (newColor.getBlue() * 255);
-        int nr = (int) (newColor.getRed() * 255);
-        int ng = (int) (newColor.getGreen() * 255);
-        for (int y = 0; y < H; y++) {
-            for (int x = 0; x < W; x++) {
-                int argb = reader.getArgb(x, y);
-                int a = (argb >> 24) & 0xFF;
-                int r = (argb >> 16) & 0xFF;
-                int g = (argb >> 8) & 0xFF;
-                int b = argb & 0xFF;
-                if (r > 200) {
-                    //log.info(String.format("%s %s %s", r, g, b));
-                }
-                if (g == og && r == or && b == ob) {
-                    r = nr;
-                    g = ng;
-                    b = nb;
-                }
-
-                argb = (a << 24) | (r << 16) | (g << 8) | b;
-                writer.setArgb(x, y, argb);
-            }
-        }
-        return outputImage;
-    }
-
-    /**
-     * reColor the given InputImage to the given color inspired by https://stackoverflow.com/a/12945629/1497139
-     *
-     * @param inputImage
-     * @param oldFillColor
-     * @param newFillColor
-     * @param oldBorderColor
-     * @param newBorderColor
-     * @return reColored Image
-     *
-     */
-    public static Image reColor(Image inputImage, Color oldFillColor, Color newFillColor, Color oldBorderColor, Color newBorderColor) {
-        int W = (int) inputImage.getWidth();
-        int H = (int) inputImage.getHeight();
-        WritableImage outputImage = new WritableImage(W, H);
-        PixelReader reader = inputImage.getPixelReader();
-        PixelWriter writer = outputImage.getPixelWriter();
-        int ofb = (int) (oldFillColor.getBlue() * 255);
-        int ofr = (int) (oldFillColor.getRed() * 255);
-        int ofg = (int) (oldFillColor.getGreen() * 255);
-        int nfb = (int) (newFillColor.getBlue() * 255);
-        int nfr = (int) (newFillColor.getRed() * 255);
-        int nfg = (int) (newFillColor.getGreen() * 255);
-        int obb = (int) (oldBorderColor.getBlue() * 255);
-        int obr = (int) (oldBorderColor.getRed() * 255);
-        int obg = (int) (oldBorderColor.getGreen() * 255);
-        int nbb = (int) (newBorderColor.getBlue() * 255);
-        int nbr = (int) (newBorderColor.getRed() * 255);
-        int nbg = (int) (newBorderColor.getGreen() * 255);
-        for (int y = 0; y < H; y++) {
-            for (int x = 0; x < W; x++) {
-                int argb = reader.getArgb(x, y);
-                int a = (argb >> 24) & 0xFF;
-                int r = (argb >> 16) & 0xFF;
-                int g = (argb >> 8) & 0xFF;
-                int b = argb & 0xFF;
-                if (r > 200) {
-                    //log.info(String.format("%s %s %s", r, g, b));
-                }
-                if (g == ofg && r == ofr && b == ofb) {
-                    r = nfr;
-                    g = nfg;
-                    b = nfb;
-                } else if (g == obg && r == obr && b == obb) {
-                    r = nbr;
-                    g = nbg;
-                    b = nbb;
-                }
-
-                argb = (a << 24) | (r << 16) | (g << 8) | b;
-                writer.setArgb(x, y, argb);
-            }
-        }
-        return outputImage;
     }
 
     public static Image getHiddenCityImage(int citySize) {
@@ -348,5 +247,105 @@ public class ImageFactory {
         } else {
             return shieldsElse;
         }
+    }
+
+    /**
+     * reColor the given InputImage to the given color inspired by https://stackoverflow.com/a/12945629/1497139
+     *
+     * @param inputImage
+     * @param oldColor
+     * @param newColor
+     * @return reColored Image
+     *
+     */
+    public static Image reColor(Image inputImage, Color oldColor, Color newColor) {
+        int W = (int) inputImage.getWidth();
+        int H = (int) inputImage.getHeight();
+        WritableImage outputImage = new WritableImage(W, H);
+        PixelReader reader = inputImage.getPixelReader();
+        PixelWriter writer = outputImage.getPixelWriter();
+        int ob = (int) (oldColor.getBlue() * 255);
+        int or = (int) (oldColor.getRed() * 255);
+        int og = (int) (oldColor.getGreen() * 255);
+        int nb = (int) (newColor.getBlue() * 255);
+        int nr = (int) (newColor.getRed() * 255);
+        int ng = (int) (newColor.getGreen() * 255);
+        for (int y = 0; y < H; y++) {
+            for (int x = 0; x < W; x++) {
+                int argb = reader.getArgb(x, y);
+                int a = (argb >> 24) & 0xFF;
+                int r = (argb >> 16) & 0xFF;
+                int g = (argb >> 8) & 0xFF;
+                int b = argb & 0xFF;
+                if (r > 200) {
+                    //log.info(String.format("%s %s %s", r, g, b));
+                }
+                if (g == og && r == or && b == ob) {
+                    r = nr;
+                    g = ng;
+                    b = nb;
+                }
+
+                argb = (a << 24) | (r << 16) | (g << 8) | b;
+                writer.setArgb(x, y, argb);
+            }
+        }
+        return outputImage;
+    }
+
+    /**
+     * reColor the given InputImage to the given color inspired by https://stackoverflow.com/a/12945629/1497139
+     *
+     * @param inputImage
+     * @param oldFillColor
+     * @param newFillColor
+     * @param oldBorderColor
+     * @param newBorderColor
+     * @return reColored Image
+     *
+     */
+    public static Image reColor(Image inputImage, Color oldFillColor, Color newFillColor, Color oldBorderColor, Color newBorderColor) {
+        int W = (int) inputImage.getWidth();
+        int H = (int) inputImage.getHeight();
+        WritableImage outputImage = new WritableImage(W, H);
+        PixelReader reader = inputImage.getPixelReader();
+        PixelWriter writer = outputImage.getPixelWriter();
+        int ofb = (int) (oldFillColor.getBlue() * 255);
+        int ofr = (int) (oldFillColor.getRed() * 255);
+        int ofg = (int) (oldFillColor.getGreen() * 255);
+        int nfb = (int) (newFillColor.getBlue() * 255);
+        int nfr = (int) (newFillColor.getRed() * 255);
+        int nfg = (int) (newFillColor.getGreen() * 255);
+        int obb = (int) (oldBorderColor.getBlue() * 255);
+        int obr = (int) (oldBorderColor.getRed() * 255);
+        int obg = (int) (oldBorderColor.getGreen() * 255);
+        int nbb = (int) (newBorderColor.getBlue() * 255);
+        int nbr = (int) (newBorderColor.getRed() * 255);
+        int nbg = (int) (newBorderColor.getGreen() * 255);
+        for (int y = 0; y < H; y++) {
+            for (int x = 0; x < W; x++) {
+                int argb = reader.getArgb(x, y);
+                int a = (argb >> 24) & 0xFF;
+                int r = (argb >> 16) & 0xFF;
+                int g = (argb >> 8) & 0xFF;
+                int b = argb & 0xFF;
+                if (r > 200) {
+                    //log.info(String.format("%s %s %s", r, g, b));
+                }
+                if (g == ofg && r == ofr && b == ofb) {
+                    r = nfr;
+                    g = nfg;
+                    b = nfb;
+                } else if (g == obg && r == obr && b == obb) {
+                    r = nbr;
+                    g = nbg;
+                    b = nbb;
+                }
+
+                argb = (a << 24) | (r << 16) | (g << 8) | b;
+                writer.setArgb(x, y, argb);
+            }
+        }
+        return outputImage;
     }
 }
