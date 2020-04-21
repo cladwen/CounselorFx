@@ -1,9 +1,20 @@
 package gui;
 
 import business.MapManager;
+import control.CounselorStateMachine;
+import control.WorldLoader;
 import helpers.SpriteMegaMan;
+import java.io.File;
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -11,21 +22,43 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.util.Duration;
+import persistenceCommons.SettingsManager;
 
 // Animation of Earth rotating around the sun. (Hello, world!)
 public class MapCanvasBasic {
 
     private final MapManager mapManager;
+    private final FileChooser fileChooser = new FileChooser();
 
     public MapCanvasBasic() {
         this.mapManager = new MapManager();
     }
 
-    public Canvas getCanvas() {
+    public Scene getScene(Stage primaryStage) {
+        final Scene scene;
+        //build main GUI
+        if (CounselorStateMachine.getInstance().getCurrentState().isWorldLoaded()) {
+            //world is loaded
+            scene = new Scene(this.getMainPanel(), 1000, 800);
+            primaryStage.setTitle(String.format("%s - Counselor FX", SettingsManager.getInstance().getWorldFilename()));
+        } else {
+            //there's no world. Ask for file
+            scene = new Scene(this.getOpenButton(primaryStage), 1000, 800);
+            primaryStage.setTitle("Counselor FX");
+        }
+        //go scene
+        scene.getStylesheets().add("resources/style.css");
+        return scene;
+    }
+
+    private Canvas getCanvas() {
         return this.mapManager.getCanvas();
     }
 
-    public ScrollPane getScrollPane() {
+    private ScrollPane getScrollPane() {
         final Canvas mapCanvas = this.getCanvas();
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(mapCanvas);
@@ -38,19 +71,6 @@ public class MapCanvasBasic {
 //        scrollPane.vbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setStyle("-fx-background-color: transparent");
         return scrollPane;
-    }
-
-    public BorderPane getMainPanel() {
-
-        //create main panel
-        BorderPane bPane = new BorderPane();
-        bPane.setTop(getMenuTop());
-        bPane.setLeft(new Label("Game information go here"));
-        bPane.setCenter(getScrollPane());
-        bPane.setRight(getSpaceSunEarth());
-        bPane.setBottom(setMegaman());
-
-        return bPane;
     }
 
     private static VBox getSpaceSunEarth() {
@@ -93,5 +113,56 @@ public class MapCanvasBasic {
         Menu toolBar = new Menu("ToolBar Here");
         menubar.getMenus().addAll(fileMenu, editMenu, toolBar);
         return menubar;
+    }
+
+    private BorderPane getMainPanel() {
+
+        //create main panel
+        BorderPane bPane = new BorderPane();
+        bPane.setTop(getMenuTop());
+        bPane.setLeft(new Label("Game information go here"));
+        bPane.setCenter(getScrollPane());
+        bPane.setRight(getSpaceSunEarth());
+        bPane.setBottom(setMegaman());
+
+        return bPane;
+    }
+
+    private VBox getOpenButton(Stage primaryStage) {
+        fileChooser.setInitialDirectory(new File("."));
+        //        fileChooser.setInitialFileName("myfile.txt");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Clash Files", "*.egf")
+        );
+        Button button = new Button("Select File");
+        button.setOnAction(e -> {
+            loadlWorldStage(primaryStage);
+        });
+        VBox vBox = new VBox(button);
+        return vBox;
+    }
+
+    private void loadlWorldStage(Stage primaryStage) {
+        //select file
+        File selectedFile = fileChooser.showOpenDialog(primaryStage);
+        //load world
+        WorldLoader wl = new WorldLoader();
+        wl.doLoadWorld(selectedFile);
+        //change scene
+        final Scene scene = primaryStage.getScene();
+        final Scene nextScene = getScene(primaryStage);
+        Parent root = nextScene.getRoot();
+//Create a timeline instance
+        Timeline timeline = new Timeline();
+//Create a keyValue. We need to slide in -- We gradually decrement Y value to Zero
+        KeyValue kv = new KeyValue(root.translateYProperty(), 0, Interpolator.EASE_IN);
+//Create keyframe of 1s with keyvalue kv
+        KeyFrame kf = new KeyFrame(Duration.seconds(15), kv);
+//Add frame to timeline
+        timeline.getKeyFrames().add(kf);
+
+//Start animation
+        timeline.play();
+        primaryStage.setScene(nextScene);
     }
 }

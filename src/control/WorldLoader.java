@@ -24,7 +24,7 @@ public class WorldLoader {
 
     /**
      * Checks if there's an autoload file defined or passed as arg at launch.Then load it
-     * 
+     *
      * Start WorldFacadeCounselor first instance
      *
      * @param args
@@ -42,14 +42,22 @@ public class WorldLoader {
             //no file to load
             //TODO NEXT: file selection
             log.info(labels.getString("AUTOLOADING.OPENING") + "none");
+            CounselorStateMachine.getInstance().setCurrentStateNoWorld();
             return;
         }
+        log.info(labels.getString("AUTOLOADING.OPENING") + autoLoad);
+        final File resultsFile = new File(autoLoad);
+        doLoadWorld(resultsFile);
+    }
+
+    public void doLoadWorld(final File resultsFile) {
         try {
-            log.info(labels.getString("AUTOLOADING.OPENING") + autoLoad);
-            final File resultsFile = new File(autoLoad);
             WorldFacadeCounselor.getInstance().doStart(resultsFile);
+            CounselorStateMachine.getInstance().setCurrentStateOrderEntry();
+            SettingsManager.getInstance().setWorldFilename(resultsFile.getName());
         } catch (BussinessException ex) {
             //TODO: what if file not found?
+            CounselorStateMachine.getInstance().setCurrentStateNoWorld();
             log.error(ex);
         }
     }

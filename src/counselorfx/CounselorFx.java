@@ -5,6 +5,7 @@
  */
 package counselorfx;
 
+import control.CounselorStateMachine;
 import gui.MapCanvasBasic;
 import control.WorldLoader;
 import javafx.application.Application;
@@ -32,14 +33,8 @@ public class CounselorFx extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-
-        //build main GUI
         final MapCanvasBasic mc = new MapCanvasBasic();
-
-        //go scene
-        Scene scene = new Scene(mc.getMainPanel(), 1000, 800);
-        scene.getStylesheets().add("resources/style.css");
-
+        Scene scene = mc.getScene(primaryStage);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -52,6 +47,7 @@ public class CounselorFx extends Application {
         final SettingsManager sm = SettingsManager.getInstance();
         sm.setConfigurationMode("Client");
         sm.setLanguage(sm.getConfig("language", "en"));
+        CounselorStateMachine.getInstance().setCurrentStateLoading();
     }
 
     /**
