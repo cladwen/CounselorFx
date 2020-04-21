@@ -40,6 +40,7 @@ public class WorldLoader {
         }
         if (autoLoad == null || autoLoad.isEmpty()) {
             //no file to load
+            //TODO NEXT: file selection
             log.info(labels.getString("AUTOLOADING.OPENING") + "none");
             return;
         }

@@ -167,7 +167,7 @@ public class MapManager {
     }
 
     private void doRenderCoordinateLabels(GraphicsContext gc, Collection<Local> listLocal) {
-        //TODO NEXT: refactor map coordinates label to be a Text over canvas, out of GraphicsContext so that we can use CSS
+        //TODO wishlist: refactor map coordinates label to be a Text over canvas, out of GraphicsContext so that we can use CSS
         if (!renderCoordinates) {
             return;
         }
