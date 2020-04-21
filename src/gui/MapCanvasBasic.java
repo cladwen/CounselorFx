@@ -143,6 +143,7 @@ public class MapCanvasBasic {
     }
 
     private void loadlWorldStage(Stage primaryStage) {
+        //TODO NEXT: Add animation to switch scene
         //select file
         File selectedFile = fileChooser.showOpenDialog(primaryStage);
         //load world
