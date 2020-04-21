@@ -23,6 +23,7 @@ public class CounselorStateMachine {
     private static final int NOWORLD = 1;
     private static final int ORDERENTRY = 2;
     private static final int READONLY = 3;
+    private String worldFilename = "";
 
     private CounselorStateMachine() {
         this.currentState = states[LOADING];
@@ -124,4 +125,19 @@ public class CounselorStateMachine {
         }
     }
 
+    /**
+     *
+     * @param resultsFile
+     */
+    public void setWorldFilename(String resultsFile) {
+        this.worldFilename = resultsFile;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getWorldFilename() {
+        return this.worldFilename;
+    }
 }

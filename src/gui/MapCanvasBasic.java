@@ -43,7 +43,7 @@ public class MapCanvasBasic {
         if (CounselorStateMachine.getInstance().getCurrentState().isWorldLoaded()) {
             //world is loaded
             scene = new Scene(this.getMainPanel(), 1000, 800);
-            primaryStage.setTitle(String.format("%s - Counselor FX", SettingsManager.getInstance().getWorldFilename()));
+            primaryStage.setTitle(String.format("%s - Counselor FX", CounselorStateMachine.getInstance().getWorldFilename()));
         } else {
             //there's no world. Ask for file
             scene = new Scene(this.getOpenButton(primaryStage), 1000, 800);
