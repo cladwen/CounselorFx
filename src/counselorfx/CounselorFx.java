@@ -10,6 +10,8 @@ import gui.MapCanvasBasic;
 import control.WorldLoader;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,8 +35,15 @@ public class CounselorFx extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        final MapCanvasBasic mc = new MapCanvasBasic();
-        Scene scene = mc.getScene(primaryStage);
+        final MapCanvasBasic mc = new MapCanvasBasic(primaryStage);
+        //go scene
+        StackPane rootPane = new StackPane();
+        Pane sceneContent = mc.getSceneContent(rootPane);
+        rootPane.getChildren().add(sceneContent);
+
+        final Scene scene = new Scene(rootPane, 1000, 800);
+        scene.getStylesheets().add("resources/style.css");
+        primaryStage.setTitle(mc.getWindowTitle());
         primaryStage.setScene(scene);
         primaryStage.show();
     }
