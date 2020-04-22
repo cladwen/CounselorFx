@@ -79,6 +79,7 @@ public class CounselorFx extends Application {
         setBasicConfig();
         //load game file
         WorldLoader wl = new WorldLoader();
+        //TODO: what if file not found? add gui msgs somewhere.
         wl.doAutoLoad(args);
 
         //TODO: sync interface (status bar)

@@ -55,7 +55,6 @@ public class WorldLoader {
             CounselorStateMachine.getInstance().setCurrentStateOrderEntry();
             CounselorStateMachine.getInstance().setWorldFilename(resultsFile.getName());
         } catch (BussinessException ex) {
-            //TODO: what if file not found?
             CounselorStateMachine.getInstance().setCurrentStateNoWorld();
             log.error(ex);
         }
