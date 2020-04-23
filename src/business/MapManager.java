@@ -476,29 +476,29 @@ public class MapManager {
     }
 
     private void setRenderingFlags() {
-        //TODO: load from settings
+        //TODO NEXT: add configs to toolbar or UI config pane
         //direction based
-        renderRoads = true;
-        renderRivers = true;
-        renderCreek = true;
-        renderBridge = true;
-        renderSpan = true;
-        renderTracks = true;
-        renderLanding = true;
+        renderRoads = SettingsManager.getInstance().isConfig("MapRenderRoads", "1", "1");
+        renderRivers = SettingsManager.getInstance().isConfig("MapRenderRiver", "1", "1");
+        renderCreek = SettingsManager.getInstance().isConfig("MapRenderCreek", "1", "1");
+        renderBridge = SettingsManager.getInstance().isConfig("MapRenderBridge", "1", "1");
+        renderSpan = SettingsManager.getInstance().isConfig("MapRenderSpan", "1", "1");
+        renderTracks = SettingsManager.getInstance().isConfig("MapRenderArmyTrack", "1", "1");
+        renderLanding = SettingsManager.getInstance().isConfig("MapRenderLanding", "1", "1");
         directionBased = renderRoads && renderRivers && renderCreek && renderBridge && renderSpan && renderTracks && renderLanding;
         //other decorations
-        renderLandmark = true;
-        renderCities = true;
-        renderForts = true;
-        renderArmy = true;
-        renderFeatures = true;
+        renderLandmark = SettingsManager.getInstance().isConfig("MapRenderLandmark", "1", "1");
+        renderCities = SettingsManager.getInstance().isConfig("MapRenderCities", "1", "1");
+        renderForts = SettingsManager.getInstance().isConfig("MapRenderForst", "1", "1");
+        renderArmy = SettingsManager.getInstance().isConfig("MapRenderArmy", "1", "1");
+        renderFeatures = SettingsManager.getInstance().isConfig("MapRenderFeature", "1", "1");
         //TODO wishlist: initializing here will not work once we move to animation
-        renderGrid = SettingsManager.getInstance().isConfig("MapGridRender", "1", "0");
-        renderCoordinates = SettingsManager.getInstance().isConfig("MapCoordinateRender", "1", "0");
-        renderFogOfWar = !SettingsManager.getInstance().isWorldBuilder() && SettingsManager.getInstance().isConfig("FogOfWarType", "1", "1");
+        renderGrid = SettingsManager.getInstance().isConfig("MapRenderGrid", "1", "0");
+        renderCoordinates = SettingsManager.getInstance().isConfig("MapRenderCoordinate", "1", "1");
+        renderFogOfWar = !SettingsManager.getInstance().isWorldBuilder() && SettingsManager.getInstance().isConfig("MapRenderFogOfWar", "1", "1");
         zoomFactor = (double) SettingsManager.getInstance().getConfigAsInt("MapZoomPercent", "100") / 100;
         coordinateFontSize = (int) Math.round(SettingsManager.getInstance().getConfigAsInt("MapCoordinatesSize", "8") / zoomFactor);
-        armyIconDrawType = SettingsManager.getInstance().isConfig("DrawAllArmyIcons", "1", "1");
+        armyIconDrawType = SettingsManager.getInstance().isConfig("MapDrawAllArmyIcons", "1", "1");
         cityColorType = SettingsManager.getInstance().getConfig("MapCityColorType", "1");
     }
 }

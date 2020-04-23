@@ -5,6 +5,7 @@
  */
 package control;
 
+import java.io.File;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -23,7 +24,7 @@ public class CounselorStateMachine {
     private static final int NOWORLD = 1;
     private static final int ORDERENTRY = 2;
     private static final int READONLY = 3;
-    private String worldFilename = "";
+    private File worldFilename;
 
     private CounselorStateMachine() {
         this.currentState = states[LOADING];
@@ -129,7 +130,7 @@ public class CounselorStateMachine {
      *
      * @param resultsFile
      */
-    public void setWorldFilename(String resultsFile) {
+    public void setWorldFile(File resultsFile) {
         this.worldFilename = resultsFile;
     }
 
@@ -138,6 +139,6 @@ public class CounselorStateMachine {
      * @return
      */
     public String getWorldFilename() {
-        return this.worldFilename;
+        return this.worldFilename.getName();
     }
 }

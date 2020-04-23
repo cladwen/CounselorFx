@@ -53,7 +53,7 @@ public class WorldLoader {
         try {
             WorldFacadeCounselor.getInstance().doStart(resultsFile);
             CounselorStateMachine.getInstance().setCurrentStateOrderEntry();
-            CounselorStateMachine.getInstance().setWorldFilename(resultsFile.getName());
+            CounselorStateMachine.getInstance().setWorldFile(resultsFile);
         } catch (BussinessException ex) {
             CounselorStateMachine.getInstance().setCurrentStateNoWorld();
             log.error(ex);

@@ -34,7 +34,6 @@ public class MapCanvasBasic {
     private static final Log log = LogFactory.getLog(CounselorFx.class);
     private final MapManager mapManager;
     private final Stage mainStage;
-    private File resultsFile;
     private final FileChooser fileChooser = new FileChooser();
 
     public MapCanvasBasic(Stage primaryStage) {
@@ -55,7 +54,7 @@ public class MapCanvasBasic {
 
     public String getWindowTitle() {
         if (CounselorStateMachine.getInstance().getCurrentState().isWorldLoaded()) {
-            return String.format("%s - Counselor FX", this.resultsFile.getName());
+            return String.format("%s - Counselor FX", CounselorStateMachine.getInstance().getWorldFilename());
         } else {
             return "Counselor FX";
         }
@@ -150,7 +149,7 @@ public class MapCanvasBasic {
 
     private void loadlWorldStage(StackPane root) {
         //select file
-        resultsFile = fileChooser.showOpenDialog(mainStage);
+        File resultsFile = fileChooser.showOpenDialog(mainStage);
         if (resultsFile == null) {
             //no file selected, no changes to UI
             return;
@@ -163,7 +162,6 @@ public class MapCanvasBasic {
             //world is NOT loaded, keep asking to select file.
             return;
         }
-
         setSceneAnimation(root);
     }
 
