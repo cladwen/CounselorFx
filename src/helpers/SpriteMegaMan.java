@@ -78,7 +78,7 @@ public class SpriteMegaMan extends ImageView {
 
     // Below are all the different API calls for playing, pausing, restarting, etc. animations
     /**
-     * Animates a series of cells from the specified row of the sprite sheeet.
+     * Animates a series of cells from the specified row of the sprite sheet.
      *
      * @param row the row to play
      */

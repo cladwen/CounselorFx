@@ -25,6 +25,7 @@ public class CounselorStateMachine {
     private static final int ORDERENTRY = 2;
     private static final int READONLY = 3;
     private File worldFilename;
+    private boolean mapChanged = true;
 
     private CounselorStateMachine() {
         this.currentState = states[LOADING];
@@ -140,5 +141,19 @@ public class CounselorStateMachine {
      */
     public String getWorldFilename() {
         return this.worldFilename.getName();
+    }
+
+    /**
+     * @return the mapChanged
+     */
+    public boolean isMapChanged() {
+        return mapChanged;
+    }
+
+    /**
+     * @param mapChanged the mapChanged to set
+     */
+    public void setMapChanged(boolean mapChanged) {
+        this.mapChanged = mapChanged;
     }
 }

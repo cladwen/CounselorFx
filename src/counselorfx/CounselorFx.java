@@ -6,11 +6,10 @@
 package counselorfx;
 
 import control.CounselorStateMachine;
-import gui.MapCanvasBasic;
+import control.MapCanvasBasic;
 import control.WorldLoader;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.apache.commons.logging.Log;
@@ -35,20 +34,24 @@ public class CounselorFx extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        final MapCanvasBasic mc = new MapCanvasBasic(primaryStage);
-        //go scene
         StackPane rootPane = new StackPane();
-        Pane sceneContent = mc.getSceneContent(rootPane);
-        rootPane.getChildren().add(sceneContent);
 
+        final MapCanvasBasic mc = new MapCanvasBasic(primaryStage);
+        rootPane.getChildren().add(mc.getSceneContent(rootPane));
         final Scene scene = new Scene(rootPane, 1000, 800);
-        scene.getStylesheets().add("resources/style.css");
+        
+        //TODO: Select css?
+        //scene.getStylesheets().add("resources/styles/style.css");
+        scene.getStylesheets().add("resources/styles/default-style.css");
+        //scene.getStylesheets().add("resources/styles/material-fx-v0_3.css");
+        
         primaryStage.setTitle(mc.getWindowTitle());
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
     private static void setBasicConfig() {
+        //TODO: internationalize the entire Counselor
         log.info("Starting...");
         //FIXME: Upgrade versions when building
         log.info("Counselor version: " + SysApoio.getVersionClash("version_counselor"));

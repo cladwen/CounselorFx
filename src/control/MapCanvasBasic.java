@@ -1,9 +1,8 @@
-package gui;
+package control;
 
 import business.MapManager;
-import control.CounselorStateMachine;
-import control.WorldLoader;
 import counselorfx.CounselorFx;
+import gui.MapCanvasAnimated;
 import helpers.SpriteMegaMan;
 import java.io.File;
 import javafx.animation.KeyFrame;
@@ -13,12 +12,19 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Slider;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -35,10 +41,12 @@ public class MapCanvasBasic {
     private final MapManager mapManager;
     private final Stage mainStage;
     private final FileChooser fileChooser = new FileChooser();
+    private final ConfigControl configControl;
 
     public MapCanvasBasic(Stage primaryStage) {
-        this.mapManager = new MapManager();
         mainStage = primaryStage;
+        mapManager = new MapManager();
+        configControl = new ConfigControl();
     }
 
     public Pane getSceneContent(StackPane root) {
@@ -64,7 +72,7 @@ public class MapCanvasBasic {
         return this.mapManager.getCanvas();
     }
 
-    private ScrollPane getScrollPane() {
+    private ScrollPane getMapPane() {
         final Canvas mapCanvas = this.getCanvas();
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(mapCanvas);
@@ -88,19 +96,21 @@ public class MapCanvasBasic {
         return vbox;
     }
 
-    private SpriteMegaMan setMegaman() {
-        // loads a sprite sheet, and specifies the size of one frame/cell
-        SpriteMegaMan megaMan = new SpriteMegaMan("resources/megaman.png", 50, 49); //searches for the image file in the classpath
-        megaMan.setFPS(5); // animation will play at 5 frames per second
-        //megaMan.pause();
-        megaMan.label(4, "powerup"); // associates the fourth (zero-indexed) row of the sheet with "powerup"
-        //megaMan.playTimes("powerup", 10); // plays "powerup" animation 10 times;
-        //megaMan.limitRowColumns(2, 9);
-        //megaMan.play(); // animates the first row of the sprite sheet
-        megaMan.play("powerup");
-        //megaMan.setX(100);
-        //megaMan.setY(200);
-        return megaMan;
+    private VBox getSideBar() {
+        VBox vbox = new VBox();
+        vbox.setAlignment(Pos.BASELINE_CENTER);
+        vbox.setSpacing(50);
+        vbox.getChildren().addAll(new Label("Game information go here"), getMegaman());
+        return vbox;
+    }
+
+    private HBox getConfigBar() {
+        //TODO: add it to sliding toolbar on a timer, button to hide when not needed? how to show?
+        HBox hbox = new HBox();
+        hbox.setAlignment(Pos.BASELINE_CENTER);
+        hbox.setSpacing(10);
+        hbox.getChildren().addAll(configControl.getUiElements());
+        return hbox;
     }
 
     private MenuBar getMenuTop() {
@@ -122,14 +132,13 @@ public class MapCanvasBasic {
     }
 
     private BorderPane getMainPanel() {
-
         //create main panel
         BorderPane bPane = new BorderPane();
         bPane.setTop(getMenuTop());
-        bPane.setLeft(new Label("Game information go here"));
-        bPane.setCenter(getScrollPane());
+        bPane.setLeft(getSideBar());
+        bPane.setCenter(getMapPane());
         bPane.setRight(getSpaceSunEarth());
-        bPane.setBottom(setMegaman());
+        bPane.setBottom(getConfigBar());
 
         return bPane;
     }
@@ -179,5 +188,20 @@ public class MapCanvasBasic {
         Timeline slide = new Timeline(start, end);
         slide.setOnFinished(e -> root.getChildren().remove(view1));
         slide.play();
+    }
+
+    private SpriteMegaMan getMegaman() {
+        // loads a sprite sheet, and specifies the size of one frame/cell
+        SpriteMegaMan megaMan = new SpriteMegaMan("resources/megaman.png", 50, 49); //searches for the image file in the classpath
+        megaMan.setFPS(5); // animation will play at 5 frames per second
+        //megaMan.pause();
+        megaMan.label(4, "powerup"); // associates the fourth (zero-indexed) row of the sheet with "powerup"
+        //megaMan.playTimes("powerup", 10); // plays "powerup" animation 10 times;
+        //megaMan.limitRowColumns(2, 9);
+        //megaMan.play(); // animates the first row of the sprite sheet
+        megaMan.play("powerup");
+        //megaMan.setX(100);
+        //megaMan.setY(200);
+        return megaMan;
     }
 }

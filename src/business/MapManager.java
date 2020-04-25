@@ -12,8 +12,9 @@ import business.facade.JogadorFacade;
 import business.facade.LocalFacade;
 import business.facade.NacaoFacade;
 import business.facade.PersonagemFacade;
+import control.CounselorStateMachine;
 import control.WorldFacadeCounselor;
-import gui.drawings.DrawingFactory;
+import gui.factory.DrawingFactory;
 import helpers.Hexagon;
 import java.awt.Point;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javafx.animation.AnimationTimer;
 import javafx.geometry.Point2D;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
@@ -63,7 +65,8 @@ public class MapManager {
     private final ExercitoFacade armyFacade;
     private final int hexSize = 60;
     private int coordinateFontSize;
-    private double zoomFactor;
+    private double zoomFactorCurrent;
+    private double zoomFactorUndo = 1d;
     private boolean renderGrid;
     private boolean renderCoordinates;
     private boolean renderRoads;
@@ -107,9 +110,6 @@ public class MapManager {
         setRenderingFlags();
         //set observer
         observer = WorldFacadeCounselor.getInstance().getJogadorAtivo();
-        //profiling
-        long timeStart = (new Date()).getTime();
-        log.info("Start map " + timeStart);
         //load hexes
         ListFactory listFactory = new ListFactory();
         Collection<Local> listaLocal = listFactory.listLocais().values();
@@ -119,23 +119,59 @@ public class MapManager {
         }
 
         //prep canvas
-        Canvas canvas = new Canvas(xHexes * hexSize * zoomFactor, (yHexes * hexSize * 3 / 4 + SCROLLBAR_SIZE) * zoomFactor);
+        ResizableCanvas canvas = new ResizableCanvas();
+        canvas.setWidth(xHexes * hexSize * zoomFactorCurrent);
+        canvas.setHeight((yHexes * hexSize * 3 / 4 + SCROLLBAR_SIZE) * zoomFactorCurrent);
         GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.scale(zoomFactor, zoomFactor);
-        gc.setFill(Color.GAINSBORO);
-        gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
-        //actual rendering
-        doRenderTerrain(gc, listaLocal);
-        doRenderHexagonGrid(gc, listaLocal);
-        doRenderCoordinateLabels(gc, listaLocal);
+        //gc.scale(zoomFactorUndo, zoomFactorUndo);
+        gc.scale(zoomFactorCurrent, zoomFactorCurrent);
 
-        //profiling
-        long timeFinish = (new Date()).getTime();
-        log.info("finish map " + (timeFinish - timeStart));
+        new AnimationTimer() {
+            @Override
+            public void handle(long currentNanoTime) {
+                if (!CounselorStateMachine.getInstance().isMapChanged()) {
+                    return;
+                }
+                //profiling
+                long timeStart = (new Date()).getTime();
+                //log.info("Start map " + timeStart);
+
+                setRenderingFlags();
+
+                gc.setFill(Color.GAINSBORO);
+                gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+                //actual rendering
+                doRenderTerrain(gc, listaLocal);
+                doRenderHexagonGrid(gc, listaLocal);
+                doRenderCoordinateLabels(gc, listaLocal);
+                //profiling
+                long timeFinish = (new Date()).getTime();
+                log.info("finish map " + (timeFinish - timeStart));
+                CounselorStateMachine.getInstance().setMapChanged(false);
+            }
+        }.start();
+
         return canvas;
     }
 
+    /*
+            new AnimationTimer() {
+            @Override
+            public void handle(long currentNanoTime) {
+                double t = (currentNanoTime - startNanoTime) / 1000000000.0;
+
+                double x = 232 + 128 * Math.cos(t);
+                double y = 232 + 128 * Math.sin(t);
+
+                gc.drawImage(space, 0, 0);
+                gc.drawImage(earth, x, y);
+                gc.drawImage(sun, 196, 196);
+                gc.drawImage(ufo.getFrame(t), 196 + x / 10, 196 + y / 10);
+            }
+        }.start();
+
+     */
     private void doRenderHexagonGrid(GraphicsContext gc, Collection<Local> listLocal) {
         if (!renderGrid && !renderFogOfWar) {
             return;
@@ -407,6 +443,7 @@ public class MapManager {
         gc.setGlobalAlpha(0.5d);
         final Image img = ImageFactory.getTerrainUnknownImage();
         gc.drawImage(img, point.getX() + (hexSize - img.getWidth()) / 2, point.getY() + (hexSize - img.getHeight()) / 2);
+        gc.setGlobalAlpha(1d);
     }
 
     private void doRenderDecoration(Local local, GraphicsContext gc, Point2D point) {
@@ -476,7 +513,6 @@ public class MapManager {
     }
 
     private void setRenderingFlags() {
-        //TODO NEXT: add configs to toolbar or UI config pane
         //direction based
         renderRoads = SettingsManager.getInstance().isConfig("MapRenderRoads", "1", "1");
         renderRivers = SettingsManager.getInstance().isConfig("MapRenderRiver", "1", "1");
@@ -485,7 +521,7 @@ public class MapManager {
         renderSpan = SettingsManager.getInstance().isConfig("MapRenderSpan", "1", "1");
         renderTracks = SettingsManager.getInstance().isConfig("MapRenderArmyTrack", "1", "1");
         renderLanding = SettingsManager.getInstance().isConfig("MapRenderLanding", "1", "1");
-        directionBased = renderRoads && renderRivers && renderCreek && renderBridge && renderSpan && renderTracks && renderLanding;
+        directionBased = renderRoads || renderRivers || renderCreek || renderBridge || renderSpan || renderTracks || renderLanding;
         //other decorations
         renderLandmark = SettingsManager.getInstance().isConfig("MapRenderLandmark", "1", "1");
         renderCities = SettingsManager.getInstance().isConfig("MapRenderCities", "1", "1");
@@ -496,9 +532,48 @@ public class MapManager {
         renderGrid = SettingsManager.getInstance().isConfig("MapRenderGrid", "1", "0");
         renderCoordinates = SettingsManager.getInstance().isConfig("MapRenderCoordinate", "1", "1");
         renderFogOfWar = !SettingsManager.getInstance().isWorldBuilder() && SettingsManager.getInstance().isConfig("MapRenderFogOfWar", "1", "1");
-        zoomFactor = (double) SettingsManager.getInstance().getConfigAsInt("MapZoomPercent", "100") / 100;
-        coordinateFontSize = (int) Math.round(SettingsManager.getInstance().getConfigAsInt("MapCoordinatesSize", "8") / zoomFactor);
+        zoomFactorCurrent = (double) SettingsManager.getInstance().getConfigAsInt("MapZoomPercent", "100") / 100;
+        if (zoomFactorUndo != 1d && zoomFactorCurrent > 0) {
+            zoomFactorUndo = 1d / zoomFactorCurrent;
+        }
+        coordinateFontSize = (int) Math.round(SettingsManager.getInstance().getConfigAsInt("MapCoordinatesSize", "8") / zoomFactorCurrent);
         armyIconDrawType = SettingsManager.getInstance().isConfig("MapDrawAllArmyIcons", "1", "1");
         cityColorType = SettingsManager.getInstance().getConfig("MapCityColorType", "1");
+    }
+
+    class ResizableCanvas extends Canvas {
+
+        public ResizableCanvas() {
+            // Redraw canvas when size changes.
+            widthProperty().addListener(evt -> draw());
+            heightProperty().addListener(evt -> draw());
+        }
+
+        private void draw() {
+            double width = getWidth();
+            double height = getHeight();
+
+            GraphicsContext gc = getGraphicsContext2D();
+            gc.clearRect(0, 0, width, height);
+
+            gc.setStroke(Color.RED);
+            gc.strokeLine(0, 0, width, height);
+            gc.strokeLine(0, height, width, 0);
+        }
+
+        @Override
+        public boolean isResizable() {
+            return true;
+        }
+
+        @Override
+        public double prefWidth(double height) {
+            return getWidth();
+        }
+
+        @Override
+        public double prefHeight(double width) {
+            return getHeight();
+        }
     }
 }

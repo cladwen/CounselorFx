@@ -11,10 +11,13 @@ import business.MapManager;
 import business.facade.NacaoFacade;
 import control.WorldFacadeCounselor;
 import java.util.SortedMap;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import model.Cenario;
 import model.Local;
@@ -96,6 +99,30 @@ public class ImageFactory {
             //bordless meppa
             return new Image("/images/mapa/hex_2b_" + filename + ".gif");
         }
+    }
+
+    public static StackPane getRoadIcon(double barHeight) {
+        //render roads
+        ImageView roadImg1 = new ImageView(ImageFactory.getRoadImage(1));
+        roadImg1.setPreserveRatio(true);
+        roadImg1.setFitHeight(barHeight);
+        roadImg1.setSmooth(true);
+        roadImg1.setCache(true);
+        ImageView roadImg2 = new ImageView(ImageFactory.getRoadImage(3));
+        roadImg2.setPreserveRatio(true);
+        roadImg2.setFitHeight(barHeight);
+        roadImg2.setSmooth(true);
+        roadImg2.setCache(true);
+        ImageView roadImg3 = new ImageView(ImageFactory.getRoadImage(5));
+        roadImg3.setPreserveRatio(true);
+        roadImg3.setFitHeight(barHeight);
+        roadImg3.setSmooth(true);
+        roadImg3.setCache(true);
+        DropShadow shadow = new DropShadow();
+        roadImg1.setEffect(shadow);
+        roadImg2.setEffect(shadow);
+        final StackPane stackPane = new StackPane(roadImg1, roadImg2, roadImg3);
+        return stackPane;
     }
 
     public static Image getRoadImage(int direcao) {
