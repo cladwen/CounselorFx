@@ -54,6 +54,8 @@ public class MapManager {
 
     private static final Log log = LogFactory.getLog(MapManager.class);
     private static final int SCROLLBAR_SIZE = 15;
+    private static final Color CITY_SPRITE_BORDER = Color.rgb(4, 2, 4);
+    private static final Color CITY_SPRIT_FILL = Color.rgb(252, 254, 4);
     private final ImageFactory imageFactory;
     private final DrawingFactory drawingFactory;
     private final LocalFacade localFacade;
@@ -84,6 +86,12 @@ public class MapManager {
     private boolean renderFeatures;
     private boolean armyIconDrawType;
     private boolean renderFogOfWar;
+    private boolean renderShips;
+    private boolean renderCombats;
+    private boolean renderOverrun;
+    private boolean renderItems;
+    private boolean renderCharacters;
+    private String renderTerrainTile;
     private String cityColorType;
     private Point farPoint;
     private int xHexes;
@@ -230,8 +238,9 @@ public class MapManager {
         //main loop
         for (Local local : listaLocal) {
             Point2D point = getPositionCanvas(local);
+            final Image terrainImage = imageFactory.getTerrainImage(local, renderTerrainTile);
             //draw terrain
-            gc.drawImage(imageFactory.getTerrainImage(local), point.getX(), point.getY());
+            gc.drawImage(terrainImage, point.getX(), point.getY());
             //roads, rivers, bridges, span, creek, landing, army tracks
             doRenderDecoration(local, gc, point);
             doRenderCity(local, gc, point);
@@ -325,8 +334,6 @@ public class MapManager {
                 CITY_SPRITE_BORDER, cityBorderColor);
         gc.drawImage(img, point.getX() + (hexSize - img.getWidth()) / 2, point.getY() + 34 - img.getHeight());
     }
-    private static final Color CITY_SPRITE_BORDER = Color.rgb(4, 2, 4);
-    private static final Color CITY_SPRIT_FILL = Color.rgb(252, 254, 4);
 
     private void doRenderArmy(Local local, GraphicsContext gc, Point2D point) {
         if (!renderArmy || localFacade.getExercitos(local).isEmpty()) {
@@ -348,9 +355,13 @@ public class MapManager {
         //render icons
         int nn = 0;
         for (Nacao nation : armyList) {
-            final Image img = imageFactory.getArmyShield(nation, WorldFacadeCounselor.getInstance().getCenario());
+            final Image img = ImageFactory.getArmyShield(nation, WorldFacadeCounselor.getInstance().getCenario());
             gc.drawImage(img, point.getX() + armySpacing[nn][0], point.getY() + armySpacing[nn][1]);
             nn++;
+        }
+        //render ships
+        if (renderShips && localFacade.isBarcos(local)) {
+            gc.drawImage(ImageFactory.getShipsImage(), point.getX() + 34, point.getY() + 30);
         }
     }
 
@@ -394,12 +405,8 @@ public class MapManager {
         if (!renderFeatures) {
             return;
         }
-        //render ships
-        if (localFacade.isBarcos(local)) {
-            gc.drawImage(ImageFactory.getShipsImage(), point.getX() + 34, point.getY() + 30);
-        }
         //renders combat icon
-        if (local.isVisible() && localFacade.isCombatTookPlace(local)) {
+        if (renderCombats && local.isVisible() && localFacade.isCombatTookPlace(local)) {
             //what type of combat?
             if (localFacade.isCombatTookPlaceBigNavy(local)) {
                 gc.drawImage(ImageFactory.getCombatBigNavyImage(), point.getX() + 46, point.getY() + 30);
@@ -411,27 +418,31 @@ public class MapManager {
             }
         }
         //render overrun
-        if (local.isVisible() && localFacade.isOverrunTookPlace(local)) {
+        if (renderOverrun && local.isVisible() && localFacade.isOverrunTookPlace(local)) {
             gc.drawImage(ImageFactory.getExplosionImage(), point.getX() + 40, point.getY() + 36);
         }
         //render items
-        for (Artefato item : localFacade.getArtefatos(local).values()) {
-            if (itemFacade.isPosse(item)) {
-                gc.drawImage(ImageFactory.getItemKnownImage(), point.getX() + 11, point.getY() + 22);
-            } else {
-                gc.drawImage(ImageFactory.getItemLostImage(), point.getX() + 46, point.getY() + 22);
+        if (renderItems) {
+            for (Artefato item : localFacade.getArtefatos(local).values()) {
+                if (itemFacade.isPosse(item)) {
+                    gc.drawImage(ImageFactory.getItemKnownImage(), point.getX() + 11, point.getY() + 22);
+                } else {
+                    gc.drawImage(ImageFactory.getItemLostImage(), point.getX() + 46, point.getY() + 22);
+                }
             }
         }
         //render chars
-        for (Personagem pers : localFacade.getPersonagens(local).values()) {
-            if (persFacade.isNpc(pers)) {
-                gc.drawImage(ImageFactory.getCharNpcImage(), point.getX() + 12, point.getY() + 19);
-            } else if (playerFacade.isMine(pers, observer)) {
-                gc.drawImage(ImageFactory.getCharImage(), point.getX() + 04, point.getY() + 22);
-            } else if (playerFacade.isAlly(pers, observer)) {
-                gc.drawImage(ImageFactory.getCharAllyImage(), point.getX() + 7, point.getY() + 26);
-            } else {
-                gc.drawImage(ImageFactory.getCharOtherImage(), point.getX() + 12, point.getY() + 23);
+        if (renderCharacters) {
+            for (Personagem pers : localFacade.getPersonagens(local).values()) {
+                if (persFacade.isNpc(pers)) {
+                    gc.drawImage(ImageFactory.getCharNpcImage(), point.getX() + 12, point.getY() + 19);
+                } else if (playerFacade.isMine(pers, observer)) {
+                    gc.drawImage(ImageFactory.getCharImage(), point.getX() + 04, point.getY() + 22);
+                } else if (playerFacade.isAlly(pers, observer)) {
+                    gc.drawImage(ImageFactory.getCharAllyImage(), point.getX() + 7, point.getY() + 26);
+                } else {
+                    gc.drawImage(ImageFactory.getCharOtherImage(), point.getX() + 12, point.getY() + 23);
+                }
             }
         }
     }
@@ -524,11 +535,17 @@ public class MapManager {
         directionBased = renderRoads || renderRivers || renderCreek || renderBridge || renderSpan || renderTracks || renderLanding;
         //other decorations
         renderLandmark = SettingsManager.getInstance().isConfig("MapRenderLandmark", "1", "1");
-        renderCities = SettingsManager.getInstance().isConfig("MapRenderCities", "1", "1");
-        renderForts = SettingsManager.getInstance().isConfig("MapRenderForst", "1", "1");
+        renderCities = SettingsManager.getInstance().isConfig("MapRenderCity", "1", "1");
+        renderForts = SettingsManager.getInstance().isConfig("MapRenderFortification", "1", "1");
         renderArmy = SettingsManager.getInstance().isConfig("MapRenderArmy", "1", "1");
-        renderFeatures = SettingsManager.getInstance().isConfig("MapRenderFeature", "1", "1");
-        //TODO wishlist: initializing here will not work once we move to animation
+        renderShips = SettingsManager.getInstance().isConfig("MapRenderShips", "1", "1");
+
+        renderCharacters = SettingsManager.getInstance().isConfig("MapRenderCharacters", "1", "1");
+        renderItems = SettingsManager.getInstance().isConfig("MapRenderItems", "1", "1");
+        renderCombats = SettingsManager.getInstance().isConfig("MapRenderCombats", "1", "1");
+        renderOverrun = SettingsManager.getInstance().isConfig("MapRenderOverrun", "1", "1");
+        renderFeatures = renderCharacters || renderItems || renderCombats || renderOverrun;
+
         renderGrid = SettingsManager.getInstance().isConfig("MapRenderGrid", "1", "0");
         renderCoordinates = SettingsManager.getInstance().isConfig("MapRenderCoordinate", "1", "1");
         renderFogOfWar = !SettingsManager.getInstance().isWorldBuilder() && SettingsManager.getInstance().isConfig("MapRenderFogOfWar", "1", "1");
@@ -539,6 +556,7 @@ public class MapManager {
         coordinateFontSize = (int) Math.round(SettingsManager.getInstance().getConfigAsInt("MapCoordinatesSize", "8") / zoomFactorCurrent);
         armyIconDrawType = SettingsManager.getInstance().isConfig("MapDrawAllArmyIcons", "1", "1");
         cityColorType = SettingsManager.getInstance().getConfig("MapCityColorType", "1");
+        renderTerrainTile = SettingsManager.getInstance().getConfig("MapTerrainTile", "1");
     }
 
     class ResizableCanvas extends Canvas {

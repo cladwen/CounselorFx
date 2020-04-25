@@ -11,6 +11,7 @@ import business.MapManager;
 import business.facade.NacaoFacade;
 import control.WorldFacadeCounselor;
 import java.util.SortedMap;
+import javafx.scene.Node;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -80,48 +81,177 @@ public class ImageFactory {
         this.landmarkNames = localFacade.getTerrainLandmarksImage();
     }
 
-    public Image getTerrainImage(Local local) {
+
+    //FIXME next: convert to static for performance
+    public Image getTerrainImage(Local local, String tileSet) {
         int idxTerrain = ConverterFactory.terrainToIndex(localFacade.getTerrenoCodigo(local));
         final String filename = terrainNames[idxTerrain];
-        if (SettingsManager.getInstance().isConfig("MapTiles", "2a", "2b")) {
-            //feralonso bordless
-            return new Image("/images/mapa/hex_2a_" + filename + ".png");
-        } else if (SettingsManager.getInstance().isConfig("MapTiles", "2b", "2b")) {
-            //bordless meppa
-            return new Image("/images/mapa/hex_2b_" + filename + ".gif");
-        } else if (SettingsManager.getInstance().isConfig("MapTiles", "2d", "2b")) {
-            //border meppa
-            return new Image("/images/mapa/hex_" + filename + ".gif");
-        } else if (SettingsManager.getInstance().isConfig("MapTiles", "3d", "2b")) {
-            //3d from joao bordless
-            return new Image("/images/mapa/hex_" + filename + ".png");
-        } else {
-            //bordless meppa
-            return new Image("/images/mapa/hex_2b_" + filename + ".gif");
+        switch (tileSet) {
+            case "1":
+                //bordless meppa
+                return new Image("/images/mapa/hex_2b_" + filename + ".gif");
+            case "2":
+                //border meppa
+                return new Image("/images/mapa/hex_" + filename + ".gif");
+            case "3":
+                //3d from joao bordless
+                return new Image("/images/mapa/hex_" + filename + ".png");
+            case "4":
+                //feralonso bordless
+                return new Image("/images/mapa/hex_2a_" + filename + ".png");
+            default:
+                //bordless meppa
+                return new Image("/images/mapa/hex_2b_" + filename + ".gif");
         }
     }
 
-    public static StackPane getRoadIcon(double barHeight) {
+    public static Node getRoadIcon(double barHeight, boolean multiple) {
+        return getIconMultiple(barHeight, multiple, ImageFactory.getRoadImage(1), ImageFactory.getRoadImage(3), ImageFactory.getRoadImage(5));
+    }
+
+    public static Node getRiverIcon(double barHeight, boolean multiple) {
+        return getIconMultiple(barHeight, multiple, ImageFactory.getRiverImage(1), ImageFactory.getRiverImage(3), ImageFactory.getRiverImage(5));
+    }
+
+    public static Node getCreekIcon(double barHeight, boolean multiple) {
+        return getIconMultiple(barHeight, multiple, ImageFactory.getCreekImage(1), ImageFactory.getCreekImage(3), ImageFactory.getCreekImage(5));
+    }
+
+    public static Node getBridgeIcon(double barHeight, boolean multiple) {
+        return getIconMultiple(barHeight, multiple, ImageFactory.getBridgeImage(1), ImageFactory.getBridgeImage(3), ImageFactory.getBridgeImage(5));
+    }
+
+    public static Node getSpanIcon(double barHeight, boolean multiple) {
+        return getIconMultiple(barHeight, multiple, ImageFactory.getSpanImage(1), ImageFactory.getSpanImage(3), ImageFactory.getSpanImage(5));
+    }
+
+    public static Node getLandingIcon(double barHeight, boolean multiple) {
+        return getIconMultiple(barHeight, multiple, ImageFactory.getLandingImage(1), ImageFactory.getLandingImage(3), ImageFactory.getLandingImage(5));
+    }
+
+    public static Node getCityIcon(double barHeight, boolean active) {
+        return getIconOnOff(barHeight, active, ImageFactory.getCityImagePlain(1), ImageFactory.getRedxImage());
+    }
+
+    public static Node getFortificationIcon(double barHeight, boolean active) {
+        return getIconOnOff(barHeight, active, ImageFactory.getFortificationImage(1), ImageFactory.getRedxImage());
+    }
+
+    public static Node getArmyIcon(double barHeight, boolean active) {
+        return getIconOnOff(barHeight, active, ImageFactory.getArmyShieldIcon(), ImageFactory.getRedxImage());
+    }
+
+    public static Node getFogofwarIcon(double barHeight, boolean active) {
+        return getIconOnOff(barHeight, active, ImageFactory.getFogofwarIcon(), ImageFactory.getRedxImage());
+    }
+
+    public static Node getGridIcon(double barHeight, boolean active) {
+        return getIconOnOff(barHeight, active, ImageFactory.getGridIcon(), ImageFactory.getRedxImage());
+    }
+
+    public static Node getLandmarkIcon(double barHeight, boolean active) {
+        return getIconOnOff(barHeight, active, ImageFactory.getLandmarkIcon(), ImageFactory.getRedxImage());
+    }
+
+    public static Node getTrackIcon(double barHeight, boolean active) {
+        return getIconOnOff(barHeight, active, ImageFactory.getTrackIcon(), ImageFactory.getRedxImage());
+    }
+
+    public static Node getCharacterIcon(double barHeight, boolean active) {
+        return getIconOnOff(barHeight, active, ImageFactory.getCharAllyImage(), ImageFactory.getRedxImage());
+    }
+
+    public static Node getItemIcon(double barHeight, boolean active) {
+        return getIconOnOff(barHeight, active, ImageFactory.getItemLostImage(), ImageFactory.getRedxImage());
+    }
+
+    public static Node getCombatsIcon(double barHeight, boolean active) {
+        return getIconOnOff(barHeight, active, ImageFactory.getCombatImage(), ImageFactory.getRedxImage());
+    }
+
+    public static Node getOverrunIcon(double barHeight, boolean active) {
+        return getIconOnOff(barHeight, active, ImageFactory.getExplosionImage(), ImageFactory.getRedxImage());
+    }
+
+    private static Node getIconOnOff(double barHeight, boolean active, final Image image1, final Image image2) {
         //render roads
-        ImageView roadImg1 = new ImageView(ImageFactory.getRoadImage(1));
-        roadImg1.setPreserveRatio(true);
-        roadImg1.setFitHeight(barHeight);
-        roadImg1.setSmooth(true);
-        roadImg1.setCache(true);
-        ImageView roadImg2 = new ImageView(ImageFactory.getRoadImage(3));
-        roadImg2.setPreserveRatio(true);
-        roadImg2.setFitHeight(barHeight);
-        roadImg2.setSmooth(true);
-        roadImg2.setCache(true);
-        ImageView roadImg3 = new ImageView(ImageFactory.getRoadImage(5));
-        roadImg3.setPreserveRatio(true);
-        roadImg3.setFitHeight(barHeight);
-        roadImg3.setSmooth(true);
-        roadImg3.setCache(true);
+        ImageView img1 = new ImageView(image1);
+        img1.setPreserveRatio(true);
+        img1.setFitHeight(barHeight);
+        img1.setSmooth(true);
+        img1.setCache(true);
+        if (active) {
+            DropShadow shadow = new DropShadow();
+            img1.setEffect(shadow);
+            return img1;
+        }
+        ImageView img2 = new ImageView(image2);
+        img2.setPreserveRatio(true);
+        img2.setFitHeight(barHeight);
+        img2.setSmooth(true);
+        img2.setCache(true);
+        final StackPane stackPane = new StackPane(img1, img2);
+        return stackPane;
+    }
+
+    private static Node getIconMultiple(double barHeight, boolean multiple, final Image image1, final Image image2, final Image image3) {
+        //render roads
+        ImageView img1 = new ImageView(image1);
+        img1.setPreserveRatio(true);
+        img1.setFitHeight(barHeight);
+        img1.setSmooth(true);
+        img1.setCache(true);
+        if (!multiple) {
+            return img1;
+        }
+        ImageView img2 = new ImageView(image2);
+        img2.setPreserveRatio(true);
+        img2.setFitHeight(barHeight);
+        img2.setSmooth(true);
+        img2.setCache(true);
+        ImageView img3 = new ImageView(image3);
+        img3.setPreserveRatio(true);
+        img3.setFitHeight(barHeight);
+        img3.setSmooth(true);
+        img3.setCache(true);
         DropShadow shadow = new DropShadow();
-        roadImg1.setEffect(shadow);
-        roadImg2.setEffect(shadow);
-        final StackPane stackPane = new StackPane(roadImg1, roadImg2, roadImg3);
+        img1.setEffect(shadow);
+        img2.setEffect(shadow);
+        img3.setEffect(shadow);
+        final StackPane stackPane = new StackPane(img1, img2, img3);
+        return stackPane;
+    }
+
+    public static Node getArmyShieldIcon(double barHeight, boolean multiple, Cenario scenario) {
+        final Image armyShield = ImageFactory.getArmyShieldIcon();
+        //render shields
+        ImageView img1 = new ImageView(armyShield);
+        img1.setPreserveRatio(true);
+        img1.setFitHeight(barHeight);
+        img1.setSmooth(true);
+        img1.setCache(true);
+        if (!multiple) {
+            return img1;
+        }
+        ImageView img2 = new ImageView(armyShield);
+        img2.setPreserveRatio(true);
+        img2.setFitHeight(barHeight / 3);
+        img2.setSmooth(true);
+        img2.setCache(true);
+        img2.setTranslateX(-barHeight / 3);
+        img2.setTranslateY(barHeight / 3);
+        ImageView img3 = new ImageView(armyShield);
+        img3.setPreserveRatio(true);
+        img3.setFitHeight(barHeight / 3);
+        img3.setSmooth(true);
+        img3.setCache(true);
+        img3.setTranslateX(barHeight / 3);
+        img3.setTranslateY(barHeight / 3);
+        DropShadow shadow = new DropShadow();
+        img1.setEffect(shadow);
+        img2.setEffect(shadow);
+        img3.setEffect(shadow);
+        final StackPane stackPane = new StackPane(img1, img2, img3);
         return stackPane;
     }
 
@@ -246,16 +376,40 @@ public class ImageFactory {
         return new Image("/images/explosion.png");
     }
 
+    public static Image getRedxImage() {
+        return new Image("/images/redx.png");
+    }
+
     public static Image getAppIconImage() {
         return new Image("/images/hex_wasteland.png");
     }
 
-    public Image getArmyShield(Nacao nation, Cenario cenario) {
+    public static Image getArmyShieldIcon() {
+        return new Image("/images/armies/wdob_silvan.png");
+    }
+
+    public static Image getArmyShield(Nacao nation, Cenario cenario) {
         try {
             return new Image("/images/armies/" + getExercitoStrings(WorldFacadeCounselor.getInstance().getCenario())[nationFacade.getNacaoNumero(nation)]);
-        } catch (ArrayIndexOutOfBoundsException e) {
+        } catch (ArrayIndexOutOfBoundsException | NullPointerException e) {
             return new Image("/images/armies/" + getExercitoStrings(WorldFacadeCounselor.getInstance().getCenario())[0]);
         }
+    }
+
+    public static Image getFogofwarIcon() {
+        return new Image("/images/hex_fog.png");
+    }
+
+    public static Image getGridIcon() {
+        return new Image("/images/grid.png");
+    }
+
+    public static Image getLandmarkIcon() {
+        return new Image("/images/mapa/feature_tower.gif");
+    }
+
+    public static Image getTrackIcon() {
+        return new Image("/images/hex_path_army.png");
     }
 
     private static String[] getExercitoStrings(Cenario scenario) {

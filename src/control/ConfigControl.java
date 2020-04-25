@@ -8,8 +8,8 @@ package control;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Slider;
@@ -28,6 +28,7 @@ public class ConfigControl {
 
     private static final Log log = LogFactory.getLog(ConfigControl.class);
     private final double barHeight = 18;
+    private final ImageFactory imageFactory = new ImageFactory();
 
     private void setMapConfig(String cdProperty, String value) {
         SettingsManager.getInstance().setConfigAndSaveToFile(cdProperty, value);
@@ -40,41 +41,38 @@ public class ConfigControl {
         //TODO NEXT: Make actions on configs ; load defaults, save values to properties; redraw map
         //TODO: Fix elements Scale to screen DPI
 
+        elements.add(configToggleButton("MapRenderRoads", ImageFactory.getRoadIcon(barHeight, true), ImageFactory.getRoadIcon(barHeight, false), "Draw roads on map"));
+        elements.add(configToggleButton("MapRenderRiver", ImageFactory.getRiverIcon(barHeight, true), ImageFactory.getRiverIcon(barHeight, false), "Draw rivers on map"));
+        elements.add(configToggleButton("MapRenderCreek", ImageFactory.getCreekIcon(barHeight, true), ImageFactory.getCreekIcon(barHeight, false), "Draw creeks on map"));
+        elements.add(configToggleButton("MapRenderBridge", ImageFactory.getBridgeIcon(barHeight, true), ImageFactory.getBridgeIcon(barHeight, false), "Draw bridges on map"));
+        elements.add(configToggleButton("MapRenderSpan", ImageFactory.getSpanIcon(barHeight, true), ImageFactory.getSpanIcon(barHeight, false), "Draw spans on map"));
+        elements.add(configToggleButton("MapRenderLanding", ImageFactory.getLandingIcon(barHeight, true), ImageFactory.getLandingIcon(barHeight, false), "Draw landings on map"));
+
+        elements.add(configToggleButton("MapRenderCity", ImageFactory.getCityIcon(barHeight, true), ImageFactory.getCityIcon(barHeight, false), "Draw cities on map"));
+        elements.add(configToggleButton("MapRenderFortification", ImageFactory.getFortificationIcon(barHeight, true), ImageFactory.getFortificationIcon(barHeight, false), "Draw city's fortification on map"));
+        elements.add(configToggleButton("MapRenderArmy", ImageFactory.getArmyIcon(barHeight, true), ImageFactory.getArmyIcon(barHeight, false), "Draw armies on map"));
+        elements.add(configToggleButton("MapRenderArmyTrack", ImageFactory.getTrackIcon(barHeight, true), ImageFactory.getTrackIcon(barHeight, false), "Draw army's tracks on map"));
+        final Node armyShieldIconOn = ImageFactory.getArmyShieldIcon(barHeight, true, WorldFacadeCounselor.getInstance().getCenario());
+        final Node armyShieldIconOff = ImageFactory.getArmyShieldIcon(barHeight, false, WorldFacadeCounselor.getInstance().getCenario());
+        elements.add(configToggleButton("MapDrawAllArmyIcons", armyShieldIconOn, armyShieldIconOff, "Draw one icon per army or consolidate armies from the same nation"));
+        elements.add(configToggleButton("MapRenderFogOfWar", ImageFactory.getFogofwarIcon(barHeight, true), ImageFactory.getFogofwarIcon(barHeight, false), "Draw fog of war on map"));
+        elements.add(configToggleButton("MapRenderGrid", ImageFactory.getGridIcon(barHeight, true), ImageFactory.getGridIcon(barHeight, false), "Draw grid on map"));
+        elements.add(configToggleButton("MapRenderLandmark", ImageFactory.getLandmarkIcon(barHeight, true), ImageFactory.getLandmarkIcon(barHeight, false), "Draw landmarks on map"));
+        //TODO NEXT: finish the list of configs
+        elements.add(configToggleButton("MapRenderCharacters", ImageFactory.getCharacterIcon(barHeight, true), ImageFactory.getCharacterIcon(barHeight, false), "Draw characters on map"));
+        elements.add(configToggleButton("MapRenderItems", ImageFactory.getItemIcon(barHeight, true), ImageFactory.getItemIcon(barHeight, false), "Draw magic items on map"));
+        elements.add(configToggleButton("MapRenderCombats", ImageFactory.getCombatsIcon(barHeight, true), ImageFactory.getCombatsIcon(barHeight, false), "Draw combat icons on map"));
+        elements.add(configToggleButton("MapRenderOverrun", ImageFactory.getOverrunIcon(barHeight, true), ImageFactory.getOverrunIcon(barHeight, false), "Draw overrun icons on map"));
+
         final String[] titlesCityColor = {"Default", "Alliance", "Team", "Diplomacy"};
-        elements.add(getChoiceBox(titlesCityColor, "MapCityColorType", "1", "How cities are painted. Regular, Alliance, My enemies, Border."));
+        elements.add(getChoiceBox(titlesCityColor, "MapCityColorType", "1", "How cities are painted: Regular, Alliance, My enemies, Border"));
+        //TODO NEXT: finish the list of configs
+        final String[] terrainTile = {"Borderless", "Border", "3D", "Texture"};
+        elements.add(getChoiceBox(terrainTile, "MapTerrainTile", "1", "Which terrain tileset to use"));
         elements.add(getZoomSlider());
         elements.add(getFontSlider());
-
-        //armyIconDrawType = SettingsManager.getInstance().isConfig("MapDrawAllArmyIcons", "1", "1");
-        ToggleButton armyIconsType = new ToggleButton("Individual");
-        armyIconsType.setTooltip(new Tooltip("Army icons are consolidated or individual"));
-        armyIconsType.setOnAction(e -> {
-            if (armyIconsType.isSelected()) {
-                armyIconsType.setText("Individual");
-            } else {
-                armyIconsType.setText("Consolidate");
-            }
-        });
-        armyIconsType.setSelected(true);
-        elements.add(armyIconsType);
-
         elements.add(configCoordinateToggle());
-        elements.add(configRoads("MapRenderRoads", "1", "0", "1", "Draw roads on map"));
 
-        //TODO: finish the list of configs
-//        renderRivers = SettingsManager.getInstance().isConfig("MapRenderRiver", "1", "1");
-//        renderCreek = SettingsManager.getInstance().isConfig("MapRenderCreek", "1", "1");
-//        renderBridge = SettingsManager.getInstance().isConfig("MapRenderBridge", "1", "1");
-//        renderSpan = SettingsManager.getInstance().isConfig("MapRenderSpan", "1", "1");
-//        renderTracks = SettingsManager.getInstance().isConfig("MapRenderArmyTrack", "1", "1");
-//        renderLanding = SettingsManager.getInstance().isConfig("MapRenderLanding", "1", "1");
-//        renderFogOfWar = !SettingsManager.getInstance().isWorldBuilder() && SettingsManager.getInstance().isConfig("MapRenderFogOfWar", "1", "1");
-//        renderLandmark = SettingsManager.getInstance().isConfig("MapRenderLandmark", "1", "1");
-//        renderCities = SettingsManager.getInstance().isConfig("MapRenderCities", "1", "1");
-//        renderForts = SettingsManager.getInstance().isConfig("MapRenderForst", "1", "1");
-//        renderArmy = SettingsManager.getInstance().isConfig("MapRenderArmy", "1", "1");
-//        renderFeatures = SettingsManager.getInstance().isConfig("MapRenderFeature", "1", "1");
-//        renderGrid = SettingsManager.getInstance().isConfig("MapRenderGrid", "1", "0");
         return elements;
     }
 
@@ -122,37 +120,72 @@ public class ConfigControl {
         return cityColor;
     }
 
-    public ToggleButton configRoads(final String cdProperty, final String onValue, final String offValue, final String defaultValue, final String tooltip) {
-        ToggleButton roads = new ToggleButton();
-        roads.setWrapText(true);
-        roads.setSelected(SettingsManager.getInstance().isConfig(cdProperty, onValue, defaultValue));
-        roads.setTooltip(new Tooltip(tooltip));
-        roads.setGraphic(ImageFactory.getRoadIcon(barHeight));
-        roads.setOnAction(e -> {
-            if (roads.isSelected()) {
+    public ToggleButton configToggleButton(final String cdProperty, Node iconOn, Node iconOff, final String tooltip) {
+        final String onValue = "1";
+        final String offValue = "0";
+        final String defaultValue = "1";
+        return configToggleButton(cdProperty, onValue, offValue, defaultValue, iconOn, iconOff, tooltip);
+    }
+
+    public ToggleButton configToggleButton(final String cdProperty, final String onValue, final String offValue, final String defaultValue, Node iconOn, Node iconOff, final String tooltip) {
+        final boolean isSelected = SettingsManager.getInstance().isConfig(cdProperty, onValue, defaultValue);
+        ToggleButton buttonIcon = new ToggleButton();
+        buttonIcon.setWrapText(false);
+        buttonIcon.setSelected(isSelected);
+        buttonIcon.setTooltip(new Tooltip(tooltip));
+        if (isSelected) {
+            buttonIcon.setGraphic(iconOn);
+        } else {
+            buttonIcon.setGraphic(iconOff);
+        }
+        buttonIcon.setOnAction(e -> {
+            if (buttonIcon.isSelected()) {
+                //save property, prep map
                 setMapConfig(cdProperty, onValue);
+                //change icon to new state
+                buttonIcon.setGraphic(iconOn);
             } else {
+                //save property, prep map
                 setMapConfig(cdProperty, offValue);
+                //change icon to new state
+                buttonIcon.setGraphic(iconOff);
             }
         });
-        return roads;
+        return buttonIcon;
     }
 
     public ToggleButton configCoordinateToggle() {
         //render coordinates
-        ToggleButton coordinateToggle = new ToggleButton("0101");
-        coordinateToggle.setSelected(SettingsManager.getInstance().isConfig("MapRenderCoordinate", "1", "1"));
-        coordinateToggle.setTooltip(new Tooltip("Toggle map coordinates on/off"));
-        coordinateToggle.setOnAction(e -> {
-            if (coordinateToggle.isSelected()) {
-                coordinateToggle.setText("0101");
-                setMapConfig("MapRenderCoordinate", "1");
+        final String onValue = "1";
+        final String offValue = "0";
+        final String defaultValue = "1";
+        final String tooltip = "Toggle map coordinates on/off";
+        String cdProperty = "MapRenderCoordinate";
+        final String textOn = "0101";
+        final String textOff = "\"  \"";
+        final boolean isSelected = SettingsManager.getInstance().isConfig(cdProperty, onValue, defaultValue);
+        final ToggleButton button = new ToggleButton();
+        button.setWrapText(false);
+        button.setSelected(isSelected);
+        button.setTooltip(new Tooltip(tooltip));
+        if (isSelected) {
+            button.setText(textOn);
+        } else {
+            button.setText(textOff);
+        }
+        button.setOnAction(e -> {
+            if (button.isSelected()) {
+                //save property, prep map
+                setMapConfig(cdProperty, onValue);
+                //change icon to new state
+                button.setText(textOn);
             } else {
-                coordinateToggle.setText("    ");
-                setMapConfig("MapRenderCoordinate", "0");
+                //save property, prep map
+                setMapConfig(cdProperty, offValue);
+                //change icon to new state
+                button.setText(textOff);
             }
         });
-        return coordinateToggle;
+        return button;
     }
-
 }
