@@ -5,6 +5,7 @@
  */
 package business;
 
+import business.converter.ConverterFactory;
 import business.facade.ArtefatoFacade;
 import business.facade.CidadeFacade;
 import business.facade.ExercitoFacade;
@@ -238,7 +239,7 @@ public class MapManager {
         //main loop
         for (Local local : listaLocal) {
             Point2D point = getPositionCanvas(local);
-            final Image terrainImage = imageFactory.getTerrainImage(local, renderTerrainTile);
+            final Image terrainImage = ImageFactory.getTerrainImage(ConverterFactory.terrainToIndex(localFacade.getTerrenoCodigo(local)), renderTerrainTile);
             //draw terrain
             gc.drawImage(terrainImage, point.getX(), point.getY());
             //roads, rivers, bridges, span, creek, landing, army tracks

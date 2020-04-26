@@ -8,23 +8,20 @@ import java.io.File;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.animation.TranslateTransition;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Slider;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -42,6 +39,7 @@ public class MapCanvasBasic {
     private final Stage mainStage;
     private final FileChooser fileChooser = new FileChooser();
     private final ConfigControl configControl;
+    private BorderPane bPane;
 
     public MapCanvasBasic(Stage primaryStage) {
         mainStage = primaryStage;
@@ -104,13 +102,37 @@ public class MapCanvasBasic {
         return vbox;
     }
 
-    private HBox getConfigBar() {
-        //TODO: add it to sliding toolbar on a timer, button to hide when not needed? how to show?
-        HBox hbox = new HBox();
+    private Pane getConfigBar() {
+        FlowPane hbox = new FlowPane();
         hbox.setAlignment(Pos.BASELINE_CENTER);
-        hbox.setSpacing(10);
+        hbox.setHgap(5);
         hbox.getChildren().addAll(configControl.getUiElements());
+        prepareSlideMenuAnimation(hbox);
         return hbox;
+    }
+
+    private void prepareSlideMenuAnimation(Pane navList) {
+        //TODO NEXT: add the action to a button somewhere else. Swap side panel to show/hide configs. Can't rezise bottom/center to fill?
+        TranslateTransition openNav = new TranslateTransition(new Duration(700), navList);
+        openNav.setToX(0);
+        TranslateTransition closeNav = new TranslateTransition(new Duration(700), navList);
+        navList.addEventHandler(MouseEvent.MOUSE_PRESSED, (MouseEvent event) -> {
+            if (navList.getTranslateX() != 0) {
+                openNav.play();
+            } else {
+                closeNav.setToX(-(navList.getWidth()));
+                closeNav.play();
+                bPane.getCenter().resize(1000, 1000);
+            }
+        });
+//        navList.setOnAction((ActionEvent evt) -> {
+//            if (navList.getTranslateX() != 0) {
+//                openNav.play();
+//            } else {
+//                closeNav.setToX(-(navList.getWidth()));
+//                closeNav.play();
+//            }
+//        });
     }
 
     private MenuBar getMenuTop() {
@@ -133,13 +155,12 @@ public class MapCanvasBasic {
 
     private BorderPane getMainPanel() {
         //create main panel
-        BorderPane bPane = new BorderPane();
+        bPane = new BorderPane();
         bPane.setTop(getMenuTop());
         bPane.setLeft(getSideBar());
         bPane.setCenter(getMapPane());
         bPane.setRight(getSpaceSunEarth());
         bPane.setBottom(getConfigBar());
-
         return bPane;
     }
 

@@ -38,9 +38,6 @@ public class ConfigControl {
 
     public List<Control> getUiElements() {
         List<Control> elements = new ArrayList<>();
-        //TODO NEXT: Make actions on configs ; load defaults, save values to properties; redraw map
-        //TODO: Fix elements Scale to screen DPI
-
         elements.add(configToggleButton("MapRenderRoads", ImageFactory.getRoadIcon(barHeight, true), ImageFactory.getRoadIcon(barHeight, false), "Draw roads on map"));
         elements.add(configToggleButton("MapRenderRiver", ImageFactory.getRiverIcon(barHeight, true), ImageFactory.getRiverIcon(barHeight, false), "Draw rivers on map"));
         elements.add(configToggleButton("MapRenderCreek", ImageFactory.getCreekIcon(barHeight, true), ImageFactory.getCreekIcon(barHeight, false), "Draw creeks on map"));
@@ -58,7 +55,6 @@ public class ConfigControl {
         elements.add(configToggleButton("MapRenderFogOfWar", ImageFactory.getFogofwarIcon(barHeight, true), ImageFactory.getFogofwarIcon(barHeight, false), "Draw fog of war on map"));
         elements.add(configToggleButton("MapRenderGrid", ImageFactory.getGridIcon(barHeight, true), ImageFactory.getGridIcon(barHeight, false), "Draw grid on map"));
         elements.add(configToggleButton("MapRenderLandmark", ImageFactory.getLandmarkIcon(barHeight, true), ImageFactory.getLandmarkIcon(barHeight, false), "Draw landmarks on map"));
-        //TODO NEXT: finish the list of configs
         elements.add(configToggleButton("MapRenderCharacters", ImageFactory.getCharacterIcon(barHeight, true), ImageFactory.getCharacterIcon(barHeight, false), "Draw characters on map"));
         elements.add(configToggleButton("MapRenderItems", ImageFactory.getItemIcon(barHeight, true), ImageFactory.getItemIcon(barHeight, false), "Draw magic items on map"));
         elements.add(configToggleButton("MapRenderCombats", ImageFactory.getCombatsIcon(barHeight, true), ImageFactory.getCombatsIcon(barHeight, false), "Draw combat icons on map"));
@@ -66,7 +62,6 @@ public class ConfigControl {
 
         final String[] titlesCityColor = {"Default", "Alliance", "Team", "Diplomacy"};
         elements.add(getChoiceBox(titlesCityColor, "MapCityColorType", "1", "How cities are painted: Regular, Alliance, My enemies, Border"));
-        //TODO NEXT: finish the list of configs
         final String[] terrainTile = {"Borderless", "Border", "3D", "Texture"};
         elements.add(getChoiceBox(terrainTile, "MapTerrainTile", "1", "Which terrain tileset to use"));
         elements.add(getZoomSlider());
@@ -84,7 +79,7 @@ public class ConfigControl {
         zoomSlider.setSnapToTicks(true);
         zoomSlider.setShowTickMarks(true);
         zoomSlider.setShowTickLabels(true);
-        zoomSlider.setTooltip(new Tooltip("Map zoom"));
+        zoomSlider.setTooltip(new Tooltip("Map zoom, requires restart"));
         //FIXME: need to store previous value and recalculate to current, to be able to enable here.
         zoomSlider.valueProperty().addListener((ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) -> {
             setMapConfig("MapZoomPercent", String.valueOf(newValue.intValue()));

@@ -5,7 +5,6 @@
  */
 package persistence.local;
 
-import business.converter.ConverterFactory;
 import business.facade.LocalFacade;
 import business.MapManager;
 import business.facade.NacaoFacade;
@@ -21,11 +20,9 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import model.Cenario;
-import model.Local;
 import model.Nacao;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import persistenceCommons.SettingsManager;
 
 /**
  *
@@ -81,10 +78,7 @@ public class ImageFactory {
         this.landmarkNames = localFacade.getTerrainLandmarksImage();
     }
 
-
-    //FIXME next: convert to static for performance
-    public Image getTerrainImage(Local local, String tileSet) {
-        int idxTerrain = ConverterFactory.terrainToIndex(localFacade.getTerrenoCodigo(local));
+    public static Image getTerrainImage(int idxTerrain, String tileSet) {
         final String filename = terrainNames[idxTerrain];
         switch (tileSet) {
             case "1":
