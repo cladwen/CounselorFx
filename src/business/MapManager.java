@@ -550,7 +550,13 @@ public class MapManager {
         renderGrid = SettingsManager.getInstance().isConfig("MapRenderGrid", "1", "0");
         renderCoordinates = SettingsManager.getInstance().isConfig("MapRenderCoordinate", "1", "1");
         renderFogOfWar = !SettingsManager.getInstance().isWorldBuilder() && SettingsManager.getInstance().isConfig("MapRenderFogOfWar", "1", "1");
-        zoomFactorCurrent = (double) SettingsManager.getInstance().getConfigAsInt("MapZoomPercent", "100") / 100;
+        final double[] zoomOptions = {.25d, .50d, 1.00d, 1.50d, 2.00d, 3.00d};
+        try {
+            zoomFactorCurrent = zoomOptions[SettingsManager.getInstance().getConfigAsInt("MapZoomPercent", "1")];
+        } catch (Exception e) {
+            //defaults to 100% if trouble
+            zoomFactorCurrent = zoomOptions[1];
+        }
         if (zoomFactorUndo != 1d && zoomFactorCurrent > 0) {
             zoomFactorUndo = 1d / zoomFactorCurrent;
         }

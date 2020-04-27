@@ -9,7 +9,6 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
@@ -156,10 +155,11 @@ public class MapCanvasBasic {
     private BorderPane getMainPanel() {
         //create main panel
         bPane = new BorderPane();
-        bPane.setTop(getMenuTop());
-        bPane.setLeft(getSideBar());
         bPane.setCenter(getMapPane());
+        //TODO NEXT: add an info panel for the hex, start main functions
+        bPane.setLeft(getSideBar());
         bPane.setRight(getSpaceSunEarth());
+        bPane.setTop(getMenuTop());
         bPane.setBottom(getConfigBar());
         return bPane;
     }
