@@ -64,27 +64,30 @@ public class ConfigControl {
         elements.add(getChoiceBox(titlesCityColor, "MapCityColorType", "1", "How cities are painted: Regular, Alliance, My enemies, Border"));
         final String[] terrainTile = {"Borderless", "Border", "3D", "Texture"};
         elements.add(getChoiceBox(terrainTile, "MapTerrainTile", "1", "Which terrain tileset to use"));
-        elements.add(getZoomSlider());
+        final String[] zoomOptionsDisplay = {"50%", "100%", "150%", "200%", "300%"};
+        elements.add(getChoiceBox(zoomOptionsDisplay, "MapZoomPercent", "1", "Map zoom, requires restart to work"));
         elements.add(getFontSlider());
         elements.add(configCoordinateToggle());
 
         return elements;
     }
 
-    private Slider getZoomSlider() {
-        double zoomFactor = (double) SettingsManager.getInstance().getConfigAsInt("MapZoomPercent", "100");
-        Slider zoomSlider = new Slider(50, 200, zoomFactor);
-        zoomSlider.setMajorTickUnit(100d);
-        zoomSlider.setMinorTickCount(50);
-        zoomSlider.setSnapToTicks(true);
-        zoomSlider.setShowTickMarks(true);
-        zoomSlider.setShowTickLabels(true);
-        zoomSlider.setTooltip(new Tooltip("Map zoom, requires restart"));
-        //FIXME: need to store previous value and recalculate to current, to be able to enable here.
-        zoomSlider.valueProperty().addListener((ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) -> {
-            setMapConfig("MapZoomPercent", String.valueOf(newValue.intValue()));
+    private ChoiceBox getChoiceBox(String[] displayValues, final String cdProperty, final String defaultValue, final String tooltip) {
+        final List<String> asList = Arrays.asList(displayValues);
+        ChoiceBox buttonChoice = new ChoiceBox();
+        buttonChoice.getItems().addAll(asList);
+        buttonChoice.setTooltip(new Tooltip(tooltip));
+        try {
+            buttonChoice.setValue(displayValues[SettingsManager.getInstance().getConfigAsInt(cdProperty, defaultValue) - 1]);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            //default to first option if trouble
+            buttonChoice.setValue(displayValues[0]);
+        }
+        buttonChoice.setOnAction(e -> {
+            int index = asList.indexOf(buttonChoice.getValue()) + 1;
+            setMapConfig(cdProperty, index + "");
         });
-        return zoomSlider;
+        return buttonChoice;
     }
 
     private Slider getFontSlider() {
@@ -100,19 +103,6 @@ public class ConfigControl {
             setMapConfig("MapCoordinatesSize", String.valueOf(newValue.intValue()));
         });
         return fontSlider;
-    }
-
-    private ChoiceBox getChoiceBox(String[] displayValues, final String cdProperty, final String defaultValue, final String tooltip) {
-        final List<String> asList = Arrays.asList(displayValues);
-        ChoiceBox cityColor = new ChoiceBox();
-        cityColor.getItems().addAll(asList);
-        cityColor.setTooltip(new Tooltip(tooltip));
-        cityColor.setValue(displayValues[SettingsManager.getInstance().getConfigAsInt(cdProperty, defaultValue) - 1]);
-        cityColor.setOnAction(e -> {
-            int index = asList.indexOf(cityColor.getValue()) + 1;
-            setMapConfig(cdProperty, index + "");
-        });
-        return cityColor;
     }
 
     public ToggleButton configToggleButton(final String cdProperty, Node iconOn, Node iconOff, final String tooltip) {
