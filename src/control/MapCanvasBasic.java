@@ -18,7 +18,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.ToggleButton;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -28,11 +28,14 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import persistenceCommons.BundleManager;
+import persistenceCommons.SettingsManager;
 
 // Animation of Earth rotating around the sun. (Hello, world!)
 public class MapCanvasBasic {
 
     private static final Log log = LogFactory.getLog(CounselorFx.class);
+    private static final BundleManager labels = SettingsManager.getInstance().getBundleManager();
     private final MapManager mapManager;
     private final Stage mainStage;
     private final FileChooser fileChooser = new FileChooser();
@@ -126,7 +129,7 @@ public class MapCanvasBasic {
         //create main panel
         bPane = new BorderPane();
         bPane.setCenter(getMapPane());
-        //TODO NEXT2: add an info panel for the hex, start main functions
+        //TODO NEXT: add an info panel for the hex, start main functions
         bPane.setLeft(getSideBar());
         bPane.setRight(getSpaceSunEarth());
         bPane.setTop(getMenuTop());
@@ -135,12 +138,13 @@ public class MapCanvasBasic {
     }
 
     private StackPane getOpenButton(StackPane root) {
-        fileChooser.setInitialDirectory(new File("."));
+        fileChooser.setInitialDirectory(new File(SettingsManager.getInstance().getConfig("LastFolder", ".")));
         //        fileChooser.setInitialFileName("myfile.txt");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Clash Files", "*.egf")
+                new FileChooser.ExtensionFilter(labels.getString("FILTRO.RESULTADO"), "*.rr.egf")
         );
-        Button button = new Button("Select File");
+        Button button = new Button(labels.getString("ABRIR.TURNO"));
+        button.setTooltip(new Tooltip(labels.getString("ABRIR.TURNO.TOOLTIP")));
         button.setOnAction(e -> {
             loadlWorldStage(root);
         });
@@ -154,6 +158,8 @@ public class MapCanvasBasic {
             //no file selected, no changes to UI
             return;
         }
+        //save last folder
+        SettingsManager.getInstance().setConfigAndSaveToFile("LastFolder", resultsFile.getPath());
         //load world
         WorldLoader wl = new WorldLoader();
         wl.doLoadWorld(resultsFile);

@@ -29,6 +29,7 @@ import javafx.util.Duration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import persistence.local.ImageFactory;
+import persistenceCommons.BundleManager;
 import persistenceCommons.SettingsManager;
 
 /**
@@ -40,6 +41,7 @@ public class ConfigControl {
     private static final Log log = LogFactory.getLog(ConfigControl.class);
     private final double barHeight = 18;
     private final Stage mainStage;
+    private static final BundleManager labels = SettingsManager.getInstance().getBundleManager();
 //    private final ImageFactory imageFactory = new ImageFactory();
 
     public ConfigControl(Stage primaryStage) {
@@ -52,7 +54,7 @@ public class ConfigControl {
 
     private void setMapConfig(String cdProperty, String value, boolean mapChanged) {
         SettingsManager.getInstance().setConfigAndSaveToFile(cdProperty, value);
-        log.debug(String.format("Changed %s to %s", cdProperty, value));
+        log.debug(String.format(labels.getString("CHANGED.X.TO"), cdProperty, value)); //Changed %s to %s
         if (mapChanged) {
             CounselorStateMachine.getInstance().setMapChanged(true);
         }
@@ -60,36 +62,36 @@ public class ConfigControl {
 
     public List<Control> getUiElements() {
         List<Control> elements = new ArrayList<>();
-        elements.add(getToggleButton("MapRenderRoads", ImageFactory.getRoadIcon(barHeight, true), ImageFactory.getRoadIcon(barHeight, false), "Draw roads on map"));
-        elements.add(getToggleButton("MapRenderRiver", ImageFactory.getRiverIcon(barHeight, true), ImageFactory.getRiverIcon(barHeight, false), "Draw rivers on map"));
-        elements.add(getToggleButton("MapRenderCreek", ImageFactory.getCreekIcon(barHeight, true), ImageFactory.getCreekIcon(barHeight, false), "Draw creeks on map"));
-        elements.add(getToggleButton("MapRenderBridge", ImageFactory.getBridgeIcon(barHeight, true), ImageFactory.getBridgeIcon(barHeight, false), "Draw bridges on map"));
-        elements.add(getToggleButton("MapRenderSpan", ImageFactory.getSpanIcon(barHeight, true), ImageFactory.getSpanIcon(barHeight, false), "Draw spans on map"));
-        elements.add(getToggleButton("MapRenderLanding", ImageFactory.getLandingIcon(barHeight, true), ImageFactory.getLandingIcon(barHeight, false), "Draw landings on map"));
+        elements.add(getToggleButton("MapRenderRoads", ImageFactory.getRoadIcon(barHeight, true), ImageFactory.getRoadIcon(barHeight, false), labels.getString("CONFIG.ROADS.TOOLTIP")));
+        elements.add(getToggleButton("MapRenderRiver", ImageFactory.getRiverIcon(barHeight, true), ImageFactory.getRiverIcon(barHeight, false), labels.getString("CONFIG.RIVER.TOOLTIP")));
+        elements.add(getToggleButton("MapRenderCreek", ImageFactory.getCreekIcon(barHeight, true), ImageFactory.getCreekIcon(barHeight, false), labels.getString("CONFIG.CREEK.TOOLTIP")));
+        elements.add(getToggleButton("MapRenderBridge", ImageFactory.getBridgeIcon(barHeight, true), ImageFactory.getBridgeIcon(barHeight, false), labels.getString("CONFIG.BRIDGE.TOOLTIP")));
+        elements.add(getToggleButton("MapRenderSpan", ImageFactory.getSpanIcon(barHeight, true), ImageFactory.getSpanIcon(barHeight, false), labels.getString("CONFIG.SPAN.TOOLTIP")));
+        elements.add(getToggleButton("MapRenderLanding", ImageFactory.getLandingIcon(barHeight, true), ImageFactory.getLandingIcon(barHeight, false), labels.getString("CONFIG.LANDING.TOOLTIP")));
 
-        elements.add(getToggleButton("MapRenderCity", ImageFactory.getCityIcon(barHeight, true), ImageFactory.getCityIcon(barHeight, false), "Draw cities on map"));
-        elements.add(getToggleButton("MapRenderFortification", ImageFactory.getFortificationIcon(barHeight, true), ImageFactory.getFortificationIcon(barHeight, false), "Draw city's fortification on map"));
-        elements.add(getToggleButton("MapRenderArmy", ImageFactory.getArmyIcon(barHeight, true), ImageFactory.getArmyIcon(barHeight, false), "Draw armies on map"));
-        elements.add(getToggleButton("MapRenderArmyTrack", ImageFactory.getTrackIcon(barHeight, true), ImageFactory.getTrackIcon(barHeight, false), "Draw army's tracks on map"));
+        elements.add(getToggleButton("MapRenderCity", ImageFactory.getCityIcon(barHeight, true), ImageFactory.getCityIcon(barHeight, false), labels.getString("CONFIG.CITY.TOOLTIP")));
+        elements.add(getToggleButton("MapRenderFortification", ImageFactory.getFortificationIcon(barHeight, true), ImageFactory.getFortificationIcon(barHeight, false), labels.getString("CONFIG.FORTIFICATION.TOOLTIP")));
+        elements.add(getToggleButton("MapRenderArmy", ImageFactory.getArmyIcon(barHeight, true), ImageFactory.getArmyIcon(barHeight, false), labels.getString("CONFIG.ARMY.TOOLTIP")));
+        elements.add(getToggleButton("MapRenderArmyTrack", ImageFactory.getTrackIcon(barHeight, true), ImageFactory.getTrackIcon(barHeight, false), labels.getString("CONFIG.TRACK.TOOLTIP")));
         final Node armyShieldIconOn = ImageFactory.getArmyShieldIcon(barHeight, true, WorldFacadeCounselor.getInstance().getCenario());
         final Node armyShieldIconOff = ImageFactory.getArmyShieldIcon(barHeight, false, WorldFacadeCounselor.getInstance().getCenario());
-        elements.add(getToggleButton("MapDrawAllArmyIcons", armyShieldIconOn, armyShieldIconOff, "Draw one icon per army or consolidate armies from the same nation"));
-        elements.add(getToggleButton("MapRenderFogOfWar", ImageFactory.getFogofwarIcon(barHeight, true), ImageFactory.getFogofwarIcon(barHeight, false), "Draw fog of war on map"));
-        elements.add(getToggleButton("MapRenderGrid", ImageFactory.getGridIcon(barHeight, true), ImageFactory.getGridIcon(barHeight, false), "Draw grid on map"));
-        elements.add(getToggleButton("MapRenderLandmark", ImageFactory.getLandmarkIcon(barHeight, true), ImageFactory.getLandmarkIcon(barHeight, false), "Draw landmarks on map"));
-        elements.add(getToggleButton("MapRenderCharacters", ImageFactory.getCharacterIcon(barHeight, true), ImageFactory.getCharacterIcon(barHeight, false), "Draw characters on map"));
-        elements.add(getToggleButton("MapRenderItems", ImageFactory.getItemIcon(barHeight, true), ImageFactory.getItemIcon(barHeight, false), "Draw magic items on map"));
-        elements.add(getToggleButton("MapRenderCombats", ImageFactory.getCombatsIcon(barHeight, true), ImageFactory.getCombatsIcon(barHeight, false), "Draw combat icons on map"));
-        elements.add(getToggleButton("MapRenderOverrun", ImageFactory.getOverrunIcon(barHeight, true), ImageFactory.getOverrunIcon(barHeight, false), "Draw overrun icons on map"));
+        elements.add(getToggleButton("MapDrawAllArmyIcons", armyShieldIconOn, armyShieldIconOff, labels.getString("CONFIG.ARMYICON.TOOLTIP")));
+        elements.add(getToggleButton("MapRenderFogOfWar", ImageFactory.getFogofwarIcon(barHeight, true), ImageFactory.getFogofwarIcon(barHeight, false), labels.getString("CONFIG.FOGOFWAR.TOOLTIP")));
+        elements.add(getToggleButton("MapRenderGrid", ImageFactory.getGridIcon(barHeight, true), ImageFactory.getGridIcon(barHeight, false), labels.getString("CONFIG.GRID.TOOLTIP")));
+        elements.add(getToggleButton("MapRenderLandmark", ImageFactory.getLandmarkIcon(barHeight, true), ImageFactory.getLandmarkIcon(barHeight, false), labels.getString("CONFIG.LANDMARK.TOOLTIP")));
+        elements.add(getToggleButton("MapRenderCharacters", ImageFactory.getCharacterIcon(barHeight, true), ImageFactory.getCharacterIcon(barHeight, false), labels.getString("CONFIG.CHAR.TOOLTIP")));
+        elements.add(getToggleButton("MapRenderItems", ImageFactory.getItemIcon(barHeight, true), ImageFactory.getItemIcon(barHeight, false), labels.getString("CONFIG.ITEM.TOOLTIP")));
+        elements.add(getToggleButton("MapRenderCombats", ImageFactory.getCombatsIcon(barHeight, true), ImageFactory.getCombatsIcon(barHeight, false), labels.getString("CONFIG.COMBAT.TOOLTIP")));
+        elements.add(getToggleButton("MapRenderOverrun", ImageFactory.getOverrunIcon(barHeight, true), ImageFactory.getOverrunIcon(barHeight, false), labels.getString("CONFIG.OVERRUN.TOOLTIP")));
 
-        final String[] titlesCityColor = {"Default", "Alliance", "Team", "Diplomacy"};
-        elements.add(getChoiceBox(titlesCityColor, "MapCityColorType", "1", "How cities are painted: Regular, Alliance, My enemies, Border"));
-        final String[] terrainTile = {"Borderless", "Border", "3D", "Texture"};
-        elements.add(getChoiceBox(terrainTile, "MapTerrainTile", "1", "Which terrain tileset to use"));
+        final String[] titlesCityColor = {labels.getString("DEFAULT"), labels.getString("ALIANCA"), labels.getString("TEAM"), labels.getString("DIPLOMACY")};
+        elements.add(getChoiceBox(titlesCityColor, "MapCityColorType", "1", labels.getString("CONFIG.CITYCOLOR.TOOLTIP")));
+        final String[] terrainTile = {labels.getString("BORDERLESS"), labels.getString("BORDER"), labels.getString("3D"), labels.getString("TEXTURE")};
+        elements.add(getChoiceBox(terrainTile, "MapTerrainTile", "1", labels.getString("CONFIG.TILESET.TOOLTIP")));
         final String[] zoomOptionsDisplay = {"50%", "100%", "150%", "200%", "300%"};
-        elements.add(getChoiceBox(zoomOptionsDisplay, "MapZoomPercent", "1", "Map zoom, requires restart to work (for now)"));
-        final String[] styleNames = {"Plain", "Round", "Material"};
-        elements.add(getChoiceBoxUi(styleNames, "UiStyle", "1", "Skin style. Requires restart to work right (for now)"));
+        elements.add(getChoiceBox(zoomOptionsDisplay, "MapZoomPercent", "1", labels.getString("CONFIG.MAPZOOM.TOOLTIP")));
+        final String[] styleNames = {labels.getString("PLAIN"), labels.getString("MATERIAL")};
+        elements.add(getChoiceBoxUi(styleNames, "UiStyle", "1", labels.getString("CONFIG.SKIN.TOOLTIP")));
         elements.add(getFontSlider());
         elements.add(getCoordinateToggle());
 
@@ -141,7 +143,7 @@ public class ConfigControl {
         fontSlider.setSnapToTicks(true);
         fontSlider.setShowTickMarks(true);
         fontSlider.setShowTickLabels(true);
-        fontSlider.setTooltip(new Tooltip("Coordinates font size on map"));
+        fontSlider.setTooltip(new Tooltip(labels.getString("CONFIG.MAPCOORDINATESSIZE.TOOLTIP")));
         fontSlider.valueProperty().addListener((ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) -> {
             setMapConfig("MapCoordinatesSize", String.valueOf(newValue.intValue()));
         });
@@ -168,8 +170,8 @@ public class ConfigControl {
         configBar.setAlignment(Pos.BASELINE_CENTER);
         configBar.setHgap(0);
         //add a dismiss icon at the end
-        ToggleButton dismissIcon = getToggleButton(ImageFactory.getConfigIcon(barHeight, false), "Dismiss configurations menu");
-        ToggleButton displayIcon = getToggleButton(ImageFactory.getConfigIcon(barHeight / 2, true), "Counselor configurations");
+        ToggleButton dismissIcon = getToggleButton(ImageFactory.getConfigIcon(barHeight, false), labels.getString("CONFIG.DISMISSCONFIG.TOOLTIP"));
+        ToggleButton displayIcon = getToggleButton(ImageFactory.getConfigIcon(barHeight / 2, true), labels.getString("CONFIG.SHOWCONFIG.TOOLTIP"));
         configBar.getChildren().add(dismissIcon);
         statusBar.getChildren().add(displayIcon);
 
@@ -253,7 +255,7 @@ public class ConfigControl {
         final String onValue = "1";
         final String offValue = "0";
         final String defaultValue = "1";
-        final String tooltip = "Toggle map coordinates on/off";
+        final String tooltip = labels.getString("CONFIG.COORDINATES.TOOLTIP");
         String cdProperty = "MapRenderCoordinate";
         final String textOn = "0101";
         final String textOff = "\"  \"";

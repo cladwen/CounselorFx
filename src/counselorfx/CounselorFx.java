@@ -49,7 +49,7 @@ public class CounselorFx extends Application {
 
 
     private static void setBasicConfig() {
-        //TODO: internationalize the entire Counselor
+        //TODO NEXT1: internationalize the entire Counselor
         log.info("Starting...");
         //FIXME: Upgrade versions when building
         log.info("Counselor version: " + SysApoio.getVersionClash("version_counselor"));
@@ -80,10 +80,10 @@ public class CounselorFx extends Application {
         setBasicConfig();
         //load game file
         WorldLoader wl = new WorldLoader();
-        //TODO: what if file not found? add gui msgs somewhere.
+        //TODO: what if file not found? add gui msgs somewhere. status msg with timer to fade away?
         wl.doAutoLoad(args);
 
-        //TODO: sync interface (status bar)
+        //TODO: sync interface (status bar). status msg with timer to fade away?
         //launch GUI
         launch(args);
     }
