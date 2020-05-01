@@ -286,18 +286,12 @@ public class ConfigControl {
     public void updateStyle(Scene scene) {
         String styleId = SettingsManager.getInstance().getConfig("UiStyle", "1");
         switch (styleId) {
-            case "1":
-                scene.getStylesheets().add("resources/styles/style.css");
-                break;
             case "2":
-                scene.getStylesheets().add("resources/styles/default-style.css");
-                break;
-            case "3":
                 scene.getStylesheets().add("resources/styles/material-fx-v0_3.css");
                 break;
             default:
+                scene.getStylesheets().add("resources/styles/default-style.css");
                 break;
         }
     }
-
 }
