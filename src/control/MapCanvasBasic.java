@@ -8,9 +8,9 @@ import java.io.File;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.animation.TranslateTransition;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -18,9 +18,8 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -43,7 +42,7 @@ public class MapCanvasBasic {
     public MapCanvasBasic(Stage primaryStage) {
         mainStage = primaryStage;
         mapManager = new MapManager();
-        configControl = new ConfigControl();
+        configControl = new ConfigControl(primaryStage);
     }
 
     public Pane getSceneContent(StackPane root) {
@@ -55,6 +54,10 @@ public class MapCanvasBasic {
             //there's no world. Ask for file
             return this.getOpenButton(root);
         }
+    }
+
+    public void setSceneStyle(final Scene scene) {
+        configControl.updateStyle(scene);
     }
 
     public String getWindowTitle() {
@@ -101,39 +104,6 @@ public class MapCanvasBasic {
         return vbox;
     }
 
-    private Pane getConfigBar() {
-        FlowPane hbox = new FlowPane();
-        hbox.setAlignment(Pos.BASELINE_CENTER);
-        hbox.setHgap(5);
-        hbox.getChildren().addAll(configControl.getUiElements());
-        prepareSlideMenuAnimation(hbox);
-        return hbox;
-    }
-
-    private void prepareSlideMenuAnimation(Pane navList) {
-        //TODO NEXT: add the action to a button somewhere else. Swap side panel to show/hide configs. Can't rezise bottom/center to fill?
-        TranslateTransition openNav = new TranslateTransition(new Duration(700), navList);
-        openNav.setToX(0);
-        TranslateTransition closeNav = new TranslateTransition(new Duration(700), navList);
-        navList.addEventHandler(MouseEvent.MOUSE_PRESSED, (MouseEvent event) -> {
-            if (navList.getTranslateX() != 0) {
-                openNav.play();
-            } else {
-                closeNav.setToX(-(navList.getWidth()));
-                closeNav.play();
-                bPane.getCenter().resize(1000, 1000);
-            }
-        });
-//        navList.setOnAction((ActionEvent evt) -> {
-//            if (navList.getTranslateX() != 0) {
-//                openNav.play();
-//            } else {
-//                closeNav.setToX(-(navList.getWidth()));
-//                closeNav.play();
-//            }
-//        });
-    }
-
     private MenuBar getMenuTop() {
         //create menu
         MenuBar menubar = new MenuBar();
@@ -156,11 +126,11 @@ public class MapCanvasBasic {
         //create main panel
         bPane = new BorderPane();
         bPane.setCenter(getMapPane());
-        //TODO NEXT: add an info panel for the hex, start main functions
+        //TODO NEXT2: add an info panel for the hex, start main functions
         bPane.setLeft(getSideBar());
         bPane.setRight(getSpaceSunEarth());
         bPane.setTop(getMenuTop());
-        bPane.setBottom(getConfigBar());
+        bPane.setBottom(configControl.getConfigBar());
         return bPane;
     }
 

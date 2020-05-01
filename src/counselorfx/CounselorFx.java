@@ -40,15 +40,13 @@ public class CounselorFx extends Application {
         rootPane.getChildren().add(mc.getSceneContent(rootPane));
         final Scene scene = new Scene(rootPane, 1000, 800);
         
-        //TODO: Select css?
-        //scene.getStylesheets().add("resources/styles/style.css");
-        scene.getStylesheets().add("resources/styles/default-style.css");
-        //scene.getStylesheets().add("resources/styles/material-fx-v0_3.css");
+        mc.setSceneStyle(scene);
         
         primaryStage.setTitle(mc.getWindowTitle());
         primaryStage.setScene(scene);
         primaryStage.show();
     }
+
 
     private static void setBasicConfig() {
         //TODO: internationalize the entire Counselor

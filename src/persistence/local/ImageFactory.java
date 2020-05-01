@@ -163,6 +163,10 @@ public class ImageFactory {
         return getIconOnOff(barHeight, active, ImageFactory.getCombatImage(), ImageFactory.getRedxImage());
     }
 
+    public static Node getConfigIcon(double barHeight, boolean active) {
+        return getIconOnOff(barHeight, active, ImageFactory.getConfigImage(), ImageFactory.getRedxImage());
+    }
+
     public static Node getOverrunIcon(double barHeight, boolean active) {
         return getIconOnOff(barHeight, active, ImageFactory.getExplosionImage(), ImageFactory.getRedxImage());
     }
@@ -352,6 +356,10 @@ public class ImageFactory {
 
     public static Image getCombatImage() {
         return new Image("/images/combat.png");
+    }
+
+    public static Image getConfigImage() {
+        return new Image("/images/config.jpg");
     }
 
     public static Image getBlueBallImage() {
