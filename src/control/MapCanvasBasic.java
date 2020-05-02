@@ -3,6 +3,7 @@ package control;
 import business.MapManager;
 import counselorfx.CounselorFx;
 import gui.MapCanvasAnimated;
+import helpers.SpriteMegaMan;
 import java.io.File;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -10,7 +11,6 @@ import javafx.animation.Timeline;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
@@ -70,16 +70,14 @@ public class MapCanvasBasic {
         }
     }
 
-    private Canvas getCanvas() {
-        return this.mapManager.getCanvas();
-    }
-
     private ScrollPane getMapPane() {
-        final Canvas mapCanvas = this.getCanvas();
+        final StackPane mapCanvas = this.mapManager.getCanvas();
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(mapCanvas);
-        scrollPane.setPrefSize(mapCanvas.getWidth(), mapCanvas.getHeight());
-        scrollPane.setMaxSize(mapCanvas.getWidth() + 15, mapCanvas.getHeight() + 15);
+//        scrollPane.setPrefSize(mapCanvas.getWidth(), mapCanvas.getHeight());
+//        scrollPane.setMaxSize(mapCanvas.getWidth() + 15, mapCanvas.getHeight() + 15);
+//        scrollPane.setPrefSize(10000, 10000);
+//        scrollPane.setMaxSize(10000 + 15,10000 + 15);
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
         scrollPane.pannableProperty().set(true);
@@ -98,11 +96,20 @@ public class MapCanvasBasic {
         return vbox;
     }
 
-    private VBox getSideBar() {
+    private VBox getSideBarOld() {
         VBox vbox = new VBox();
         vbox.setAlignment(Pos.BASELINE_CENTER);
         vbox.setSpacing(50);
         vbox.getChildren().addAll(new Label("Game information go here"), mapManager.getMegaman());
+        return vbox;
+    }
+
+    private Pane getSideBar() {
+        Pane vbox = new Pane();
+        final SpriteMegaMan megaman = mapManager.getMegaman();
+        megaman.setY(500);
+        megaman.setX(50);
+        vbox.getChildren().addAll(new Label("Game information go here"), megaman, getSpaceSunEarth());
         return vbox;
     }
 
@@ -130,7 +137,6 @@ public class MapCanvasBasic {
         bPane.setCenter(getMapPane());
         //TODO NEXT 2: add an info panel for the hex, start main functions
         bPane.setLeft(getSideBar());
-        bPane.setRight(getSpaceSunEarth());
         bPane.setTop(getMenuTop());
         bPane.setBottom(configControl.getConfigBar());
         return bPane;

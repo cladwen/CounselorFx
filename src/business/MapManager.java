@@ -32,6 +32,8 @@ import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
@@ -53,7 +55,7 @@ import persistenceCommons.SettingsManager;
  *
  * @author jmoura
  */
-public class MapManager {
+public final class MapManager {
 
     private static final Log log = LogFactory.getLog(MapManager.class);
     private static final int SCROLLBAR_SIZE = 15;
@@ -104,6 +106,8 @@ public class MapManager {
     final int[][] armySpacing6 = {{6, 36}, {12, 39}, {18, 42}, {36, 42}, {40, 39}, {46, 36}};
     final int[][] armySpacing8 = {{6, 36}, {12, 39}, {18, 42}, {24, 45}, {30, 45}, {36, 42}, {40, 39}, {46, 36}};
     private final List<Local> listAnimation = new ArrayList<>();
+    private final Collection<Local> localList;
+    private Pane aniPane;
 
     public MapManager() {
         this.itemFacade = new ArtefatoFacade();
@@ -115,20 +119,84 @@ public class MapManager {
         this.armyFacade = new ExercitoFacade();
         this.drawingFactory = new DrawingFactory();
         this.imageFactory = new ImageFactory();
-        //TODO wishlist: optimize image rendering for animations. static vs dynamic. i.e. terrain and roads, vs armies and chars and events
-    }
-
-    public Canvas getCanvas() {
-        setRenderingFlags();
         //set observer
         observer = WorldFacadeCounselor.getInstance().getJogadorAtivo();
+        setRenderingFlags();
         //load hexes
         ListFactory listFactory = new ListFactory();
-        Collection<Local> listaLocal = listFactory.listLocais().values();
+        localList = listFactory.listLocais().values();
         if (farPoint == null) {
             //calculate max size for map
-            getMapMaxSize(listaLocal);
+            getMapMaxSize(localList);
         }
+        aniPane = new Pane();
+    }
+
+    private AnimatedImage loadUfo() {
+        AnimatedImage ufo = new AnimatedImage();
+        Image[] imageArray = new Image[6];
+        for (int i = 0; i < 6; i++) {
+            imageArray[i] = new Image("resources/ufo_" + i + ".png");
+        }
+        ufo.frames = imageArray;
+        ufo.duration = 0.100;
+        return ufo;
+    }
+
+    public StackPane getCanvas() {
+
+        //prep canvas
+        ResizableCanvas layer1 = new ResizableCanvas();
+        layer1.setWidth(xHexes * hexSize * zoomFactorCurrent);
+        layer1.setHeight((yHexes * hexSize * 3 / 4 + SCROLLBAR_SIZE) * zoomFactorCurrent);
+        GraphicsContext gc = layer1.getGraphicsContext2D();
+        gc.scale(zoomFactorCurrent, zoomFactorCurrent);
+
+        //prep animation
+        final long startNanoTime = System.nanoTime();
+        AnimatedImage ufo = loadUfo();
+
+        //animation timer
+        new AnimationTimer() {
+            @Override
+            public void handle(long currentNanoTime) {
+                //short circuit loop if there's no changes to map
+                if (!CounselorStateMachine.getInstance().isMapChanged()) {
+                    //animation
+//                    double time = (currentNanoTime - startNanoTime) / 1000000000.0;
+//                    double x = 232 + 128 * Math.cos(time);
+//                    double y = 232 + 128 * Math.sin(time);
+//                    gc.drawImage(ufo.getFrame(time), 196 + x / 10, 196 + y / 10);
+                    //FIXME: combat icon here leaves an artifact on screen. why?
+                    return;
+                }
+                //profiling
+                long timeStart = (new Date()).getTime();
+                //log.info("Start map " + timeStart);
+
+                setRenderingFlags();
+
+                //gc.setFill(Color.GAINSBORO);
+                //gc.fillRect(0, 0, layer1.getWidth(), layer1.getHeight());
+                //actual rendering
+                doRenderTerrain(gc, localList);
+                doRenderFeatures(gc);
+                doRenderHexagonGrid(gc, localList);
+                doRenderCoordinateLabels(gc, localList);
+                //profiling
+                long timeFinish = (new Date()).getTime();
+                log.info("finish map " + (timeFinish - timeStart));
+                CounselorStateMachine.getInstance().setMapChanged(false);
+            }
+        }.start();
+        StackPane pane = new StackPane();
+        pane.getChildren().add(layer1);
+        pane.getChildren().add(aniPane);
+        aniPane.toFront();
+        return pane;
+    }
+
+    public Canvas getCanvasOld() {
 
         //prep canvas
         ResizableCanvas canvas = new ResizableCanvas();
@@ -138,30 +206,23 @@ public class MapManager {
 
         //gc.scale(zoomFactorUndo, zoomFactorUndo);
         gc.scale(zoomFactorCurrent, zoomFactorCurrent);
-        //TODO NEXT1: animate icons for combat, encounters, NPC and others... make at least one to figure it out
 
         //prep animation
         final long startNanoTime = System.nanoTime();
-        AnimatedImage ufo = new AnimatedImage();
-        Image[] imageArray = new Image[6];
-        for (int i = 0; i < 6; i++) {
-            imageArray[i] = new Image("resources/ufo_" + i + ".png");
-        }
-        ufo.frames = imageArray;
-        ufo.duration = 0.100;
+        AnimatedImage ufo = loadUfo();
 
         new AnimationTimer() {
             @Override
             public void handle(long currentNanoTime) {
-
+                //TODO NEXT1: can I use the two canvas concept, but with a panel or label for the top layer. Draw MegaMan on an hex. then add both layers to scrollPane
                 //short circuit loop if there's no changes to map
                 if (!CounselorStateMachine.getInstance().isMapChanged()) {
                     //animation
-                    double time = (currentNanoTime - startNanoTime) / 1000000000.0;
-                    double x = 232 + 128 * Math.cos(time);
-                    double y = 232 + 128 * Math.sin(time);
-                    gc.drawImage(ufo.getFrame(time), 196 + x / 10, 196 + y / 10);
-                    doRenderFeatures(gc, time);
+//                    double time = (currentNanoTime - startNanoTime) / 1000000000.0;
+//                    double x = 232 + 128 * Math.cos(time);
+//                    double y = 232 + 128 * Math.sin(time);
+//                    gc.drawImage(ufo.getFrame(time), 196 + x / 10, 196 + y / 10);
+                    //FIXME: combat icon here leaves an artifact on screen. why?
                     return;
                 }
                 //profiling
@@ -173,9 +234,10 @@ public class MapManager {
                 gc.setFill(Color.GAINSBORO);
                 gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
                 //actual rendering
-                doRenderTerrain(gc, listaLocal);
-                doRenderHexagonGrid(gc, listaLocal);
-                doRenderCoordinateLabels(gc, listaLocal);
+                doRenderTerrain(gc, localList);
+                doRenderFeatures(gc);
+                doRenderHexagonGrid(gc, localList);
+                doRenderCoordinateLabels(gc, localList);
                 //profiling
                 long timeFinish = (new Date()).getTime();
                 log.info("finish map " + (timeFinish - timeStart));
@@ -186,23 +248,6 @@ public class MapManager {
         return canvas;
     }
 
-    /*
-            new AnimationTimer() {
-            @Override
-            public void handle(long currentNanoTime) {
-                double t = (currentNanoTime - startNanoTime) / 1000000000.0;
-
-                double x = 232 + 128 * Math.cos(t);
-                double y = 232 + 128 * Math.sin(t);
-
-                gc.drawImage(space, 0, 0);
-                gc.drawImage(earth, x, y);
-                gc.drawImage(sun, 196, 196);
-                gc.drawImage(ufo.getFrame(t), 196 + x / 10, 196 + y / 10);
-            }
-        }.start();
-
-     */
     private void doRenderHexagonGrid(GraphicsContext gc, Collection<Local> listLocal) {
         if (!renderGrid && !renderFogOfWar) {
             return;
@@ -438,14 +483,14 @@ public class MapManager {
         }
     }
 
-    private void doRenderFeatures(GraphicsContext gc, double time) {
+    private void doRenderFeatures(GraphicsContext gc) {
         for (Local local : listAnimation) {
             Point2D point = getPositionCanvas(local);
-            doRenderFeatures(local, gc, point, time);
+            doRenderFeatures(local, gc, point);
         }
     }
 
-    private void doRenderFeatures(Local local, GraphicsContext gc, Point2D point, double time) {
+    private void doRenderFeatures(Local local, GraphicsContext gc, Point2D point) {
         //TODO wishlist: Make animation!
         if (!renderFeatures) {
             return;
@@ -460,7 +505,11 @@ public class MapManager {
             } else {
                 //none of the above
                 //gc.drawImage(ImageFactory.getCombatImage(), point.getX() + 46, point.getY() + 30);
-                gc.drawImage(imageFactory.getCombatAnimated(time), point.getX() + 46, point.getY() + 30);
+                final SpriteMegaMan megaman = getMegaman();
+                megaman.setX(point.getX() + 20);
+                megaman.setY(point.getY() + 3);
+                aniPane.getChildren().add(megaman);
+                //TODO NEXT1: Erase/Draw Megaman according to configSettings. Adjust for Zoom. Create CombatSprite to replace MegaMan
             }
         }
         //render overrun
@@ -650,30 +699,4 @@ public class MapManager {
         }
     }
 
-//    private void createLayers() {
-//        // Layers 1&2 are the same size
-//        layer1 = new Canvas(300, 250);
-//        layer2 = new Canvas(300, 250);
-//
-//        // Obtain Graphics Contexts
-//        gc1 = layer1.getGraphicsContext2D();
-//        gc1.setFill(Color.GREEN);
-//        gc1.fillOval(50, 50, 20, 20);
-//        gc1.getCanvas().setRotate(45);
-//        gc2 = layer2.getGraphicsContext2D();
-//        gc2.setFill(Color.BLUE);
-//        gc2.fillOval(100, 100, 20, 20);
-//        gc.getCanvas().setRotate(135);
-//    }
-//
-//    private void addLayers() {
-//        // Add Layers
-//        borderPane.setTop(cb);
-//        Pane pane = new Pane();
-//        pane.getChildren().add(layer1);
-//        pane.getChildren().add(layer2);
-//        layer1.toFront();
-//        borderPane.setCenter(pane);
-//        root.getChildren().add(borderPane);
-//    }
 }
