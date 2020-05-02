@@ -49,7 +49,6 @@ public class CounselorFx extends Application {
 
 
     private static void setBasicConfig() {
-        //TODO NEXT1: internationalize the entire Counselor
         log.info("Starting...");
         //FIXME: Upgrade versions when building
         log.info("Counselor version: " + SysApoio.getVersionClash("version_counselor"));

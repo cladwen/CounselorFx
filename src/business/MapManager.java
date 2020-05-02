@@ -15,8 +15,10 @@ import business.facade.NacaoFacade;
 import business.facade.PersonagemFacade;
 import control.CounselorStateMachine;
 import control.WorldFacadeCounselor;
+import gui.animation.AnimatedImage;
 import gui.factory.DrawingFactory;
 import helpers.Hexagon;
+import helpers.SpriteMegaMan;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -66,7 +68,7 @@ public class MapManager {
     private final PersonagemFacade persFacade;
     private final JogadorFacade playerFacade;
     private final ExercitoFacade armyFacade;
-    private final int hexSize = 60;
+    private static final int hexSize = 60;
     private int coordinateFontSize;
     private double zoomFactorCurrent;
     private double zoomFactorUndo = 1d;
@@ -101,6 +103,7 @@ public class MapManager {
     final int[][] armySpacing4 = {{7, 36}, {17, 42}, {34, 42}, {46, 36}};
     final int[][] armySpacing6 = {{6, 36}, {12, 39}, {18, 42}, {36, 42}, {40, 39}, {46, 36}};
     final int[][] armySpacing8 = {{6, 36}, {12, 39}, {18, 42}, {24, 45}, {30, 45}, {36, 42}, {40, 39}, {46, 36}};
+    private final List<Local> listAnimation = new ArrayList<>();
 
     public MapManager() {
         this.itemFacade = new ArtefatoFacade();
@@ -135,11 +138,30 @@ public class MapManager {
 
         //gc.scale(zoomFactorUndo, zoomFactorUndo);
         gc.scale(zoomFactorCurrent, zoomFactorCurrent);
+        //TODO NEXT1: animate icons for combat, encounters, NPC and others... make at least one to figure it out
+
+        //prep animation
+        final long startNanoTime = System.nanoTime();
+        AnimatedImage ufo = new AnimatedImage();
+        Image[] imageArray = new Image[6];
+        for (int i = 0; i < 6; i++) {
+            imageArray[i] = new Image("resources/ufo_" + i + ".png");
+        }
+        ufo.frames = imageArray;
+        ufo.duration = 0.100;
 
         new AnimationTimer() {
             @Override
             public void handle(long currentNanoTime) {
+
+                //short circuit loop if there's no changes to map
                 if (!CounselorStateMachine.getInstance().isMapChanged()) {
+                    //animation
+                    double time = (currentNanoTime - startNanoTime) / 1000000000.0;
+                    double x = 232 + 128 * Math.cos(time);
+                    double y = 232 + 128 * Math.sin(time);
+                    gc.drawImage(ufo.getFrame(time), 196 + x / 10, 196 + y / 10);
+                    doRenderFeatures(gc, time);
                     return;
                 }
                 //profiling
@@ -211,6 +233,21 @@ public class MapManager {
         }
     }
 
+    public SpriteMegaMan getMegaman() {
+        // loads a sprite sheet, and specifies the size of one frame/cell
+        SpriteMegaMan megaMan = new SpriteMegaMan("resources/megaman.png", 50, 49); //searches for the image file in the classpath
+        megaMan.setFPS(5); // animation will play at 5 frames per second
+        //megaMan.pause();
+        megaMan.label(4, "powerup"); // associates the fourth (zero-indexed) row of the sheet with "powerup"
+        //megaMan.playTimes("powerup", 10); // plays "powerup" animation 10 times;
+        //megaMan.limitRowColumns(2, 9);
+        //megaMan.play(); // animates the first row of the sprite sheet
+        megaMan.play("powerup");
+        //megaMan.setX(100);
+        //megaMan.setY(200);
+        return megaMan;
+    }
+
     private void doRenderCoordinateLabels(GraphicsContext gc, Collection<Local> listLocal) {
         //TODO wishlist: refactor map coordinates label to be a Text over canvas, out of GraphicsContext so that we can use CSS
         if (!renderCoordinates) {
@@ -246,8 +283,8 @@ public class MapManager {
             doRenderDecoration(local, gc, point);
             doRenderCity(local, gc, point);
             doRenderLandmark(local, gc, point);
-            doRenderFeatures(local, gc, point);
             doRenderArmy(local, gc, point);
+            //doRenderFeatures(local, gc, point);
         }
     }
 
@@ -401,7 +438,14 @@ public class MapManager {
         }
     }
 
-    private void doRenderFeatures(Local local, GraphicsContext gc, Point2D point) {
+    private void doRenderFeatures(GraphicsContext gc, double time) {
+        for (Local local : listAnimation) {
+            Point2D point = getPositionCanvas(local);
+            doRenderFeatures(local, gc, point, time);
+        }
+    }
+
+    private void doRenderFeatures(Local local, GraphicsContext gc, Point2D point, double time) {
         //TODO wishlist: Make animation!
         if (!renderFeatures) {
             return;
@@ -415,7 +459,8 @@ public class MapManager {
                 gc.drawImage(ImageFactory.getCombatBigArmyImage(), point.getX() + 46, point.getY() + 30);
             } else {
                 //none of the above
-                gc.drawImage(ImageFactory.getCombatImage(), point.getX() + 46, point.getY() + 30);
+                //gc.drawImage(ImageFactory.getCombatImage(), point.getX() + 46, point.getY() + 30);
+                gc.drawImage(imageFactory.getCombatAnimated(time), point.getX() + 46, point.getY() + 30);
             }
         }
         //render overrun
@@ -491,11 +536,11 @@ public class MapManager {
         }
     }
 
-    private Point2D getPositionCanvas(Local local) {
+    private static Point2D getPositionCanvas(Local local) {
         //TODO wishlist: convert to static for improved performance
         //calculate position on canvas
-        double x = localFacade.getCol(local) - 1;
-        double y = localFacade.getRow(local) - 1;
+        double x = LocalFacade.getCol(local) - 1;
+        double y = LocalFacade.getRow(local) - 1;
         Point2D ret;
         if (y % 2 == 0) {
             ret = new Point2D(x * hexSize, y * hexSize * 3 / 4);
@@ -509,16 +554,19 @@ public class MapManager {
         int[] ret = {0, 0};
         int row, col;
         for (Local local : listaLocal) {
-            row = localFacade.getRow(local);
-            col = localFacade.getCol(local);
+            row = LocalFacade.getRow(local);
+            col = LocalFacade.getCol(local);
             if (row > ret[0]) {
                 ret[0] = row;
             }
             if (col > ret[1]) {
                 ret[1] = col;
             }
+            if (renderCombats && local.isVisible() && localFacade.isCombatTookPlace(local)) {
+                listAnimation.add(local);
+            }
         }
-        this.farPoint = new Point(ret[1] * this.hexSize + this.hexSize / 2, ret[0] * this.hexSize * 3 / 4 + this.hexSize);
+        this.farPoint = new Point(ret[1] * hexSize + hexSize / 2, ret[0] * hexSize * 3 / 4 + hexSize);
         xHexes = ret[1];
         yHexes = ret[0];
         return this.farPoint;
@@ -601,4 +649,31 @@ public class MapManager {
             return getHeight();
         }
     }
+
+//    private void createLayers() {
+//        // Layers 1&2 are the same size
+//        layer1 = new Canvas(300, 250);
+//        layer2 = new Canvas(300, 250);
+//
+//        // Obtain Graphics Contexts
+//        gc1 = layer1.getGraphicsContext2D();
+//        gc1.setFill(Color.GREEN);
+//        gc1.fillOval(50, 50, 20, 20);
+//        gc1.getCanvas().setRotate(45);
+//        gc2 = layer2.getGraphicsContext2D();
+//        gc2.setFill(Color.BLUE);
+//        gc2.fillOval(100, 100, 20, 20);
+//        gc.getCanvas().setRotate(135);
+//    }
+//
+//    private void addLayers() {
+//        // Add Layers
+//        borderPane.setTop(cb);
+//        Pane pane = new Pane();
+//        pane.getChildren().add(layer1);
+//        pane.getChildren().add(layer2);
+//        layer1.toFront();
+//        borderPane.setCenter(pane);
+//        root.getChildren().add(borderPane);
+//    }
 }

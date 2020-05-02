@@ -3,7 +3,6 @@ package control;
 import business.MapManager;
 import counselorfx.CounselorFx;
 import gui.MapCanvasAnimated;
-import helpers.SpriteMegaMan;
 import java.io.File;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -103,7 +102,7 @@ public class MapCanvasBasic {
         VBox vbox = new VBox();
         vbox.setAlignment(Pos.BASELINE_CENTER);
         vbox.setSpacing(50);
-        vbox.getChildren().addAll(new Label("Game information go here"), getMegaman());
+        vbox.getChildren().addAll(new Label("Game information go here"), mapManager.getMegaman());
         return vbox;
     }
 
@@ -129,7 +128,7 @@ public class MapCanvasBasic {
         //create main panel
         bPane = new BorderPane();
         bPane.setCenter(getMapPane());
-        //TODO NEXT: add an info panel for the hex, start main functions
+        //TODO NEXT 2: add an info panel for the hex, start main functions
         bPane.setLeft(getSideBar());
         bPane.setRight(getSpaceSunEarth());
         bPane.setTop(getMenuTop());
@@ -187,18 +186,4 @@ public class MapCanvasBasic {
         slide.play();
     }
 
-    private SpriteMegaMan getMegaman() {
-        // loads a sprite sheet, and specifies the size of one frame/cell
-        SpriteMegaMan megaMan = new SpriteMegaMan("resources/megaman.png", 50, 49); //searches for the image file in the classpath
-        megaMan.setFPS(5); // animation will play at 5 frames per second
-        //megaMan.pause();
-        megaMan.label(4, "powerup"); // associates the fourth (zero-indexed) row of the sheet with "powerup"
-        //megaMan.playTimes("powerup", 10); // plays "powerup" animation 10 times;
-        //megaMan.limitRowColumns(2, 9);
-        //megaMan.play(); // animates the first row of the sprite sheet
-        megaMan.play("powerup");
-        //megaMan.setX(100);
-        //megaMan.setY(200);
-        return megaMan;
-    }
 }
