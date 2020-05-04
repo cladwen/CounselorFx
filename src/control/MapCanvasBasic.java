@@ -8,19 +8,17 @@ import java.io.File;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.animation.TranslateTransition;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.canvas.Canvas;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -29,11 +27,14 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import persistenceCommons.BundleManager;
+import persistenceCommons.SettingsManager;
 
 // Animation of Earth rotating around the sun. (Hello, world!)
 public class MapCanvasBasic {
 
     private static final Log log = LogFactory.getLog(CounselorFx.class);
+    private static final BundleManager labels = SettingsManager.getInstance().getBundleManager();
     private final MapManager mapManager;
     private final Stage mainStage;
     private final FileChooser fileChooser = new FileChooser();
@@ -43,7 +44,7 @@ public class MapCanvasBasic {
     public MapCanvasBasic(Stage primaryStage) {
         mainStage = primaryStage;
         mapManager = new MapManager();
-        configControl = new ConfigControl();
+        configControl = new ConfigControl(primaryStage);
     }
 
     public Pane getSceneContent(StackPane root) {
@@ -57,6 +58,10 @@ public class MapCanvasBasic {
         }
     }
 
+    public void setSceneStyle(final Scene scene) {
+        configControl.updateStyle(scene);
+    }
+
     public String getWindowTitle() {
         if (CounselorStateMachine.getInstance().getCurrentState().isWorldLoaded()) {
             return String.format("%s - Counselor FX", CounselorStateMachine.getInstance().getWorldFilename());
@@ -65,16 +70,14 @@ public class MapCanvasBasic {
         }
     }
 
-    private Canvas getCanvas() {
-        return this.mapManager.getCanvas();
-    }
-
     private ScrollPane getMapPane() {
-        final Canvas mapCanvas = this.getCanvas();
+        final StackPane mapCanvas = this.mapManager.getCanvas();
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(mapCanvas);
-        scrollPane.setPrefSize(mapCanvas.getWidth(), mapCanvas.getHeight());
-        scrollPane.setMaxSize(mapCanvas.getWidth() + 15, mapCanvas.getHeight() + 15);
+//        scrollPane.setPrefSize(mapCanvas.getWidth(), mapCanvas.getHeight());
+//        scrollPane.setMaxSize(mapCanvas.getWidth() + 15, mapCanvas.getHeight() + 15);
+//        scrollPane.setPrefSize(10000, 10000);
+//        scrollPane.setMaxSize(10000 + 15,10000 + 15);
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
         scrollPane.pannableProperty().set(true);
@@ -93,45 +96,21 @@ public class MapCanvasBasic {
         return vbox;
     }
 
-    private VBox getSideBar() {
+    private VBox getSideBarOld() {
         VBox vbox = new VBox();
         vbox.setAlignment(Pos.BASELINE_CENTER);
         vbox.setSpacing(50);
-        vbox.getChildren().addAll(new Label("Game information go here"), getMegaman());
+        vbox.getChildren().addAll(new Label("Game information go here"), mapManager.getMegaman());
         return vbox;
     }
 
-    private Pane getConfigBar() {
-        FlowPane hbox = new FlowPane();
-        hbox.setAlignment(Pos.BASELINE_CENTER);
-        hbox.setHgap(5);
-        hbox.getChildren().addAll(configControl.getUiElements());
-        prepareSlideMenuAnimation(hbox);
-        return hbox;
-    }
-
-    private void prepareSlideMenuAnimation(Pane navList) {
-        //TODO NEXT: add the action to a button somewhere else. Swap side panel to show/hide configs. Can't rezise bottom/center to fill?
-        TranslateTransition openNav = new TranslateTransition(new Duration(700), navList);
-        openNav.setToX(0);
-        TranslateTransition closeNav = new TranslateTransition(new Duration(700), navList);
-        navList.addEventHandler(MouseEvent.MOUSE_PRESSED, (MouseEvent event) -> {
-            if (navList.getTranslateX() != 0) {
-                openNav.play();
-            } else {
-                closeNav.setToX(-(navList.getWidth()));
-                closeNav.play();
-                bPane.getCenter().resize(1000, 1000);
-            }
-        });
-//        navList.setOnAction((ActionEvent evt) -> {
-//            if (navList.getTranslateX() != 0) {
-//                openNav.play();
-//            } else {
-//                closeNav.setToX(-(navList.getWidth()));
-//                closeNav.play();
-//            }
-//        });
+    private Pane getSideBar() {
+        Pane vbox = new Pane();
+        final SpriteMegaMan megaman = mapManager.getMegaman();
+        megaman.setY(500);
+        megaman.setX(50);
+        vbox.getChildren().addAll(new Label("Game information go here"), megaman, getSpaceSunEarth());
+        return vbox;
     }
 
     private MenuBar getMenuTop() {
@@ -156,21 +135,21 @@ public class MapCanvasBasic {
         //create main panel
         bPane = new BorderPane();
         bPane.setCenter(getMapPane());
-        //TODO NEXT: add an info panel for the hex, start main functions
+        //TODO NEXT 2: add an info panel for the hex, start main functions
         bPane.setLeft(getSideBar());
-        bPane.setRight(getSpaceSunEarth());
         bPane.setTop(getMenuTop());
-        bPane.setBottom(getConfigBar());
+        bPane.setBottom(configControl.getConfigBar());
         return bPane;
     }
 
     private StackPane getOpenButton(StackPane root) {
-        fileChooser.setInitialDirectory(new File("."));
+        fileChooser.setInitialDirectory(new File(SettingsManager.getInstance().getConfig("LastFolder", ".")));
         //        fileChooser.setInitialFileName("myfile.txt");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Clash Files", "*.egf")
+                new FileChooser.ExtensionFilter(labels.getString("FILTRO.RESULTADO"), "*.rr.egf")
         );
-        Button button = new Button("Select File");
+        Button button = new Button(labels.getString("ABRIR.TURNO"));
+        button.setTooltip(new Tooltip(labels.getString("ABRIR.TURNO.TOOLTIP")));
         button.setOnAction(e -> {
             loadlWorldStage(root);
         });
@@ -184,6 +163,8 @@ public class MapCanvasBasic {
             //no file selected, no changes to UI
             return;
         }
+        //save last folder
+        SettingsManager.getInstance().setConfigAndSaveToFile("LastFolder", resultsFile.getPath());
         //load world
         WorldLoader wl = new WorldLoader();
         wl.doLoadWorld(resultsFile);
@@ -211,18 +192,4 @@ public class MapCanvasBasic {
         slide.play();
     }
 
-    private SpriteMegaMan getMegaman() {
-        // loads a sprite sheet, and specifies the size of one frame/cell
-        SpriteMegaMan megaMan = new SpriteMegaMan("resources/megaman.png", 50, 49); //searches for the image file in the classpath
-        megaMan.setFPS(5); // animation will play at 5 frames per second
-        //megaMan.pause();
-        megaMan.label(4, "powerup"); // associates the fourth (zero-indexed) row of the sheet with "powerup"
-        //megaMan.playTimes("powerup", 10); // plays "powerup" animation 10 times;
-        //megaMan.limitRowColumns(2, 9);
-        //megaMan.play(); // animates the first row of the sprite sheet
-        megaMan.play("powerup");
-        //megaMan.setX(100);
-        //megaMan.setY(200);
-        return megaMan;
-    }
 }

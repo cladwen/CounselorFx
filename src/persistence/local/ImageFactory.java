@@ -9,6 +9,7 @@ import business.facade.LocalFacade;
 import business.MapManager;
 import business.facade.NacaoFacade;
 import control.WorldFacadeCounselor;
+import gui.animation.AnimatedImage;
 import java.util.SortedMap;
 import javafx.scene.Node;
 import javafx.scene.effect.DropShadow;
@@ -33,6 +34,7 @@ public class ImageFactory {
     private static final Log log = LogFactory.getLog(MapManager.class);
     private static final LocalFacade localFacade = new LocalFacade();
     private static final NacaoFacade nationFacade = new NacaoFacade();
+    private final AnimatedImage combatSprite;
     private static final String[] bridgeNames = {"empty", "ponte_no", "ponte_ne", "ponte_l", "ponte_se", "ponte_so", "ponte_o"};
     private static final String[] creekNames = {"empty", "riacho_no", "riacho_ne", "riacho_l", "riacho_se", "riacho_so", "riacho_o"};
     private static final String[] landingNames = {"empty", "water_NW", "water_NE", "water_E", "water_SE", "water_SW", "water_W"};
@@ -76,6 +78,17 @@ public class ImageFactory {
     public ImageFactory() {
         //TODO wishlist: SVG graphs?
         this.landmarkNames = localFacade.getTerrainLandmarksImage();
+        //combat sprite
+        combatSprite = new AnimatedImage();
+        Image[] imageArray = new Image[6];
+        imageArray[0] = new Image("/images/combat.png");
+        imageArray[1] = new Image("/images/combat.png");
+        imageArray[2] = new Image("/images/combat.png");
+        imageArray[3] = new Image("/images/combat.png");
+        imageArray[4] = new Image("/images/combat_blue.png");
+        imageArray[5] = new Image("/images/combat_green.png");
+        combatSprite.frames = imageArray;
+        combatSprite.duration = 0.100;
     }
 
     public static Image getTerrainImage(int idxTerrain, String tileSet) {
@@ -161,6 +174,10 @@ public class ImageFactory {
 
     public static Node getCombatsIcon(double barHeight, boolean active) {
         return getIconOnOff(barHeight, active, ImageFactory.getCombatImage(), ImageFactory.getRedxImage());
+    }
+
+    public static Node getConfigIcon(double barHeight, boolean active) {
+        return getIconOnOff(barHeight, active, ImageFactory.getConfigImage(), ImageFactory.getRedxImage());
     }
 
     public static Node getOverrunIcon(double barHeight, boolean active) {
@@ -352,6 +369,14 @@ public class ImageFactory {
 
     public static Image getCombatImage() {
         return new Image("/images/combat.png");
+    }
+
+    public Image getCombatAnimated(double time) {
+        return this.combatSprite.getFrame(time);
+    }
+
+    public static Image getConfigImage() {
+        return new Image("/images/config.jpg");
     }
 
     public static Image getBlueBallImage() {

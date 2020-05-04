@@ -40,18 +40,15 @@ public class CounselorFx extends Application {
         rootPane.getChildren().add(mc.getSceneContent(rootPane));
         final Scene scene = new Scene(rootPane, 1000, 800);
         
-        //TODO: Select css?
-        //scene.getStylesheets().add("resources/styles/style.css");
-        scene.getStylesheets().add("resources/styles/default-style.css");
-        //scene.getStylesheets().add("resources/styles/material-fx-v0_3.css");
+        mc.setSceneStyle(scene);
         
         primaryStage.setTitle(mc.getWindowTitle());
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
+
     private static void setBasicConfig() {
-        //TODO: internationalize the entire Counselor
         log.info("Starting...");
         //FIXME: Upgrade versions when building
         log.info("Counselor version: " + SysApoio.getVersionClash("version_counselor"));
@@ -82,10 +79,10 @@ public class CounselorFx extends Application {
         setBasicConfig();
         //load game file
         WorldLoader wl = new WorldLoader();
-        //TODO: what if file not found? add gui msgs somewhere.
+        //TODO: what if file not found? add gui msgs somewhere. status msg with timer to fade away?
         wl.doAutoLoad(args);
 
-        //TODO: sync interface (status bar)
+        //TODO: sync interface (status bar). status msg with timer to fade away?
         //launch GUI
         launch(args);
     }
