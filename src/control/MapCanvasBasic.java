@@ -143,7 +143,7 @@ public class MapCanvasBasic {
         //create main panel
         bPane = new BorderPane();
         bPane.setCenter(getMapPane());
-        //TODO NEXT 2: add an info panel for the hex, start main functions
+        //TODO NEXT NEXT: add an info panel for the hex, start main functions
         bPane.setRight(getSideBar());
         bPane.setLeft(getSideBar());
         bPane.setTop(getMenuTop());
@@ -173,7 +173,7 @@ public class MapCanvasBasic {
             return;
         }
         //save last folder
-        SettingsManager.getInstance().setConfigAndSaveToFile("LastFolder", resultsFile.getPath());
+        SettingsManager.getInstance().setConfigAndSaveToFile("LastFolder", resultsFile.getParent());
         //load world
         WorldLoader wl = new WorldLoader();
         wl.doLoadWorld(resultsFile);

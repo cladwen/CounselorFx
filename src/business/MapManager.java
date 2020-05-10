@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
 import javafx.animation.Interpolator;
 import javafx.animation.RotateTransition;
@@ -510,28 +511,23 @@ public final class MapManager {
         //renders combat icon
         if (renderCombats && localFacade.isCombatTookPlace(local)) {
             //what type of combat?
+            final Image imgFront;
             if (localFacade.isCombatTookPlaceBigNavy(local)) {
-                //TODO NEXT1:  Do this one now
-                gc.drawImage(ImageFactory.getCombatBigNavyImage(), point.getX() + DECORATION_ARMY_X, point.getY() + DECORATION_ARMY_Y);
+                //gc.drawImage(ImageFactory.getCombatBigNavyImage(), point.getX() + DECORATION_ARMY_X, point.getY() + DECORATION_ARMY_Y);
+                imgFront = ImageFactory.getCombatBigNavyImage();
             } else if (localFacade.isCombatTookPlaceBigArmy(local)) {
-                //TODO NEXT1:  Do this one now. find an example
-                gc.drawImage(ImageFactory.getCombatBigArmyImage(), point.getX() + DECORATION_ARMY_X, point.getY() + DECORATION_ARMY_Y);
+                //gc.drawImage(ImageFactory.getCombatBigArmyImage(), point.getX() + DECORATION_ARMY_X, point.getY() + DECORATION_ARMY_Y);
+                imgFront = ImageFactory.getCombatBigArmyImage();
             } else {
                 //none of the above
                 //gc.drawImage(ImageFactory.getCombatImage(), point.getX() + DECORATION_ARMY_X, point.getY() + DECORATION_ARMY_Y);
-                //final ImageView megaman = getSprite();
-                final ImageView combatSprite = new ImageView(ImageFactory.getCombatImage());
-                combatSprite.setPreserveRatio(true);
-                combatSprite.setFitHeight(12 * zoomFactorCurrent);
-
-                combatSprite.setX((point.getX() + DECORATION_ARMY_X) * zoomFactorCurrent);
-                combatSprite.setY((point.getY() + DECORATION_ARMY_Y) * zoomFactorCurrent);
-
-                createFlipAnimation(combatSprite, combatSprite);
-                aniPane.getChildren().add(combatSprite);
+                imgFront = ImageFactory.getCombatImage();
             }
+            final ImageView combatFront = new ImageView(imgFront);
+            configIcon(combatFront, point);
+            aniPane.getChildren().addAll(combatFront);
         }
-        //TODO: Make more animations!
+        //TODO NEXT 1: Make more animations!
         //render overrun
         if (renderOverrun && localFacade.isOverrunTookPlace(local)) {
             gc.drawImage(ImageFactory.getExplosionImage(), point.getX() + 40, point.getY() + 36);
@@ -562,14 +558,44 @@ public final class MapManager {
         }
     }
 
-    private void createFlipAnimation(final ImageView imgFront, final ImageView imgBack) {
+    private void configIcon(final ImageView imgFront, Point2D point) {
+        //adjust images
+        imgFront.setPreserveRatio(true);
+        imgFront.setFitHeight(12 * zoomFactorCurrent);
+        imgFront.setX((point.getX() + DECORATION_ARMY_X) * zoomFactorCurrent);
+        imgFront.setY((point.getY() + DECORATION_ARMY_Y) * zoomFactorCurrent);
+
+        //set transitions
+        ScaleTransition stHideFront = new ScaleTransition(Duration.millis(1500), imgFront);
+        stHideFront.setFromX(1);
+        stHideFront.setToX(0);
+        stHideFront.setCycleCount(Animation.INDEFINITE);
+        stHideFront.setAutoReverse(true);
+
+        //play
+        stHideFront.play();
+    }
+
+    private void createFlipAnimationOld(final ImageView imgFront, final ImageView imgBack, Point2D point) {
+        //adjust images
+        imgFront.setPreserveRatio(true);
+        imgFront.setFitHeight(12 * zoomFactorCurrent);
+        imgFront.setX((point.getX() + DECORATION_ARMY_X) * zoomFactorCurrent);
+        imgFront.setY((point.getY() + DECORATION_ARMY_Y) * zoomFactorCurrent);
+
+        imgBack.setPreserveRatio(true);
+        imgBack.setFitHeight(12 * zoomFactorCurrent);
+        imgBack.setX((point.getX() + DECORATION_ARMY_X) * zoomFactorCurrent);
+        imgBack.setY((point.getY() + DECORATION_ARMY_Y) * zoomFactorCurrent);
+
+        //set transitions
         ScaleTransition stHideFront = new ScaleTransition(Duration.millis(1500), imgFront);
         stHideFront.setFromX(1);
         stHideFront.setToX(0);
 
         ScaleTransition stShowBack = new ScaleTransition(Duration.millis(1500), imgBack);
-        stShowBack.setFromX(0);
-        stShowBack.setToX(1);
+        stShowBack.setFromX(1);
+        stShowBack.setToX(0);
 
         //endless loop for animation 
         stHideFront.setOnFinished((ActionEvent t) -> {
@@ -688,7 +714,7 @@ public final class MapManager {
         renderFogOfWar = !SettingsManager.getInstance().isWorldBuilder() && SettingsManager.getInstance().isConfig("MapRenderFogOfWar", "1", "1");
         final double[] zoomOptions = {.25d, .50d, 1.00d, 1.50d, 2.00d, 2.50d};
         try {
-            zoomFactorCurrent = zoomOptions[SettingsManager.getInstance().getConfigAsInt("MapZoomPercent", "1")];
+            zoomFactorCurrent = zoomOptions[SettingsManager.getInstance().getConfigAsInt("MapZoomPercent", "2")];
         } catch (Exception e) {
             //defaults to 100% if trouble
             zoomFactorCurrent = zoomOptions[1];
