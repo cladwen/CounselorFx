@@ -5,6 +5,7 @@
  */
 package business;
 
+import helpers.SpriteDecorationIcon;
 import business.converter.ConverterFactory;
 import business.facade.ArtefatoFacade;
 import business.facade.CidadeFacade;
@@ -18,7 +19,6 @@ import control.WorldFacadeCounselor;
 import gui.animation.AnimatedImage;
 import gui.factory.DrawingFactory;
 import helpers.Hexagon;
-import helpers.SpriteMegaMan;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,16 +27,26 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javafx.animation.AnimationTimer;
+import javafx.animation.Interpolator;
+import javafx.animation.RotateTransition;
+import javafx.animation.ScaleTransition;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.VPos;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
+import javafx.scene.transform.Rotate;
+import javafx.util.Duration;
 import model.Artefato;
 import model.Cidade;
 import model.Exercito;
@@ -70,7 +80,7 @@ public final class MapManager {
     private final PersonagemFacade persFacade;
     private final JogadorFacade playerFacade;
     private final ExercitoFacade armyFacade;
-    private static final int hexSize = 60;
+    private static final int HEX_SIZE = 60;
     private int coordinateFontSize;
     private double zoomFactorCurrent;
     private double zoomFactorUndo = 1d;
@@ -102,12 +112,14 @@ public final class MapManager {
     private int xHexes;
     private int yHexes;
     private Jogador observer;
-    final int[][] armySpacing4 = {{7, 36}, {17, 42}, {34, 42}, {46, 36}};
-    final int[][] armySpacing6 = {{6, 36}, {12, 39}, {18, 42}, {36, 42}, {40, 39}, {46, 36}};
-    final int[][] armySpacing8 = {{6, 36}, {12, 39}, {18, 42}, {24, 45}, {30, 45}, {36, 42}, {40, 39}, {46, 36}};
     private final List<Local> listAnimation = new ArrayList<>();
-    private final Collection<Local> localList;
-    private Pane aniPane;
+    private Collection<Local> localList;
+    private final Pane aniPane;
+    private final int[][] armySpacing4 = {{7, 36}, {17, 42}, {34, 42}, {46, 36}};
+    private final int[][] armySpacing6 = {{6, 36}, {12, 39}, {18, 42}, {36, 42}, {40, 39}, {46, 36}};
+    private final int[][] armySpacing8 = {{6, 36}, {12, 39}, {18, 42}, {24, 45}, {30, 45}, {36, 42}, {40, 39}, {46, 36}};
+    private static final int DECORATION_ARMY_Y = 30;
+    private static final int DECORATION_ARMY_X = 46;
 
     public MapManager() {
         this.itemFacade = new ArtefatoFacade();
@@ -119,16 +131,6 @@ public final class MapManager {
         this.armyFacade = new ExercitoFacade();
         this.drawingFactory = new DrawingFactory();
         this.imageFactory = new ImageFactory();
-        //set observer
-        observer = WorldFacadeCounselor.getInstance().getJogadorAtivo();
-        setRenderingFlags();
-        //load hexes
-        ListFactory listFactory = new ListFactory();
-        localList = listFactory.listLocais().values();
-        if (farPoint == null) {
-            //calculate max size for map
-            getMapMaxSize(localList);
-        }
         aniPane = new Pane();
     }
 
@@ -144,11 +146,22 @@ public final class MapManager {
     }
 
     public StackPane getCanvas() {
+        //load map info
+        //set observer
+        observer = WorldFacadeCounselor.getInstance().getJogadorAtivo();
+        setRenderingFlags();
+        //load hexes
+        ListFactory listFactory = new ListFactory();
+        localList = listFactory.listLocais().values();
+        if (farPoint == null) {
+            //calculate max size for map
+            getMapInfo(localList);
+        }
 
         //prep canvas
         ResizableCanvas layer1 = new ResizableCanvas();
-        layer1.setWidth(xHexes * hexSize * zoomFactorCurrent);
-        layer1.setHeight((yHexes * hexSize * 3 / 4 + SCROLLBAR_SIZE) * zoomFactorCurrent);
+        layer1.setWidth(xHexes * HEX_SIZE * zoomFactorCurrent);
+        layer1.setHeight((yHexes * HEX_SIZE * 3 / 4 + SCROLLBAR_SIZE) * zoomFactorCurrent);
         GraphicsContext gc = layer1.getGraphicsContext2D();
         gc.scale(zoomFactorCurrent, zoomFactorCurrent);
 
@@ -196,12 +209,12 @@ public final class MapManager {
         return pane;
     }
 
-    public Canvas getCanvasOld() {
+    private Canvas getCanvasOld() {
 
         //prep canvas
         ResizableCanvas canvas = new ResizableCanvas();
-        canvas.setWidth(xHexes * hexSize * zoomFactorCurrent);
-        canvas.setHeight((yHexes * hexSize * 3 / 4 + SCROLLBAR_SIZE) * zoomFactorCurrent);
+        canvas.setWidth(xHexes * HEX_SIZE * zoomFactorCurrent);
+        canvas.setHeight((yHexes * HEX_SIZE * 3 / 4 + SCROLLBAR_SIZE) * zoomFactorCurrent);
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         //gc.scale(zoomFactorUndo, zoomFactorUndo);
@@ -214,7 +227,6 @@ public final class MapManager {
         new AnimationTimer() {
             @Override
             public void handle(long currentNanoTime) {
-                //TODO NEXT1: can I use the two canvas concept, but with a panel or label for the top layer. Draw MegaMan on an hex. then add both layers to scrollPane
                 //short circuit loop if there's no changes to map
                 if (!CounselorStateMachine.getInstance().isMapChanged()) {
                     //animation
@@ -264,7 +276,7 @@ public final class MapManager {
         for (Local local : listLocal) {
             //calculate position
             Point2D point = getPositionCanvas(local);
-            Hexagon hex = new Hexagon(point.getX(), point.getY(), hexSize / 2);
+            Hexagon hex = new Hexagon(point.getX(), point.getY(), HEX_SIZE / 2);
             //for of war
             if (renderFogOfWar && !local.isVisible()) {
                 //gc.setFill(Color.rgb(188, 143, 143, 0.5));
@@ -278,9 +290,9 @@ public final class MapManager {
         }
     }
 
-    public SpriteMegaMan getMegaman() {
+    private ImageView getSprite() {
         // loads a sprite sheet, and specifies the size of one frame/cell
-        SpriteMegaMan megaMan = new SpriteMegaMan("resources/megaman.png", 50, 49); //searches for the image file in the classpath
+        SpriteDecorationIcon megaMan = new SpriteDecorationIcon("resources/megaman.png", 50, 49, this.zoomFactorCurrent); //searches for the image file in the classpath
         megaMan.setFPS(5); // animation will play at 5 frames per second
         //megaMan.pause();
         megaMan.label(4, "powerup"); // associates the fourth (zero-indexed) row of the sheet with "powerup"
@@ -312,7 +324,7 @@ public final class MapManager {
             // write coordinates
             gc.fillText(
                     local.getCoordenadas(),
-                    point.getX() + hexSize / 2, point.getY() + coordinateFontSize
+                    point.getX() + HEX_SIZE / 2, point.getY() + coordinateFontSize
             );
         }
     }
@@ -342,7 +354,7 @@ public final class MapManager {
         //render fortification
         if (renderForts && cityFacade.isFortificacao(city)) {
             final Image img = ImageFactory.getFortificationImage(cityFacade.getFortificacao(city));
-            gc.drawImage(img, point.getX() + (hexSize - img.getWidth()) / 2, point.getY() + 34 - img.getHeight());
+            gc.drawImage(img, point.getX() + (HEX_SIZE - img.getWidth()) / 2, point.getY() + 34 - img.getHeight());
         }
 
         if (cityFacade.getTamanho(city) > 0 && !cityFacade.isOculto(city)) {
@@ -350,17 +362,17 @@ public final class MapManager {
         } else if (cityFacade.getTamanho(city) > 0 && cityFacade.isOculto(city)) {
             //hidden city
             final Image img = ImageFactory.getHiddenCityImage(cityFacade.getTamanho(city));
-            gc.drawImage(img, point.getX() + (hexSize - img.getWidth()) / 2, point.getY() + 34 - img.getHeight());
+            gc.drawImage(img, point.getX() + (HEX_SIZE - img.getWidth()) / 2, point.getY() + 34 - img.getHeight());
         }
 
         //draw docks
         final Image docksImg = ImageFactory.getDockImage(cityFacade.getDocas(city));
-        gc.drawImage(docksImg, point.getX() + (hexSize - docksImg.getWidth()) / 2, point.getY() + 2);
+        gc.drawImage(docksImg, point.getX() + (HEX_SIZE - docksImg.getWidth()) / 2, point.getY() + 2);
 
         //draw capital
         if (cityFacade.isCapital(city)) {
             final Image img = ImageFactory.getCapitalImage();
-            gc.drawImage(img, point.getX() + (hexSize - img.getWidth()) / 2, point.getY() + 30);
+            gc.drawImage(img, point.getX() + (HEX_SIZE - img.getWidth()) / 2, point.getY() + 30);
         }
     }
 
@@ -415,7 +427,7 @@ public final class MapManager {
         final Image img = ImageFactory.getCityImagePainted(citySize,
                 CITY_SPRIT_FILL, cityFillColor,
                 CITY_SPRITE_BORDER, cityBorderColor);
-        gc.drawImage(img, point.getX() + (hexSize - img.getWidth()) / 2, point.getY() + 34 - img.getHeight());
+        gc.drawImage(img, point.getX() + (HEX_SIZE - img.getWidth()) / 2, point.getY() + 34 - img.getHeight());
     }
 
     private void doRenderArmy(Local local, GraphicsContext gc, Point2D point) {
@@ -479,11 +491,15 @@ public final class MapManager {
         for (Habilidade landmark : localFacade.getTerrainLandmark(local)) {
             //imprime gold mine
             final Image img = imageFactory.getLandmark(landmark.getCodigo());
-            gc.drawImage(img, point.getX() + (hexSize - img.getWidth()) / 2, point.getY() + (hexSize - img.getHeight()) / 2);
+            gc.drawImage(img, point.getX() + (HEX_SIZE - img.getWidth()) / 2, point.getY() + (HEX_SIZE - img.getHeight()) / 2);
         }
     }
 
     private void doRenderFeatures(GraphicsContext gc) {
+        if (!renderFeatures) {
+            return;
+        }
+        aniPane.getChildren().clear();
         for (Local local : listAnimation) {
             Point2D point = getPositionCanvas(local);
             doRenderFeatures(local, gc, point);
@@ -491,29 +507,33 @@ public final class MapManager {
     }
 
     private void doRenderFeatures(Local local, GraphicsContext gc, Point2D point) {
-        //TODO wishlist: Make animation!
-        if (!renderFeatures) {
-            return;
-        }
         //renders combat icon
-        if (renderCombats && local.isVisible() && localFacade.isCombatTookPlace(local)) {
+        if (renderCombats && localFacade.isCombatTookPlace(local)) {
             //what type of combat?
             if (localFacade.isCombatTookPlaceBigNavy(local)) {
-                gc.drawImage(ImageFactory.getCombatBigNavyImage(), point.getX() + 46, point.getY() + 30);
+                //TODO NEXT1:  Do this one now
+                gc.drawImage(ImageFactory.getCombatBigNavyImage(), point.getX() + DECORATION_ARMY_X, point.getY() + DECORATION_ARMY_Y);
             } else if (localFacade.isCombatTookPlaceBigArmy(local)) {
-                gc.drawImage(ImageFactory.getCombatBigArmyImage(), point.getX() + 46, point.getY() + 30);
+                //TODO NEXT1:  Do this one now. find an example
+                gc.drawImage(ImageFactory.getCombatBigArmyImage(), point.getX() + DECORATION_ARMY_X, point.getY() + DECORATION_ARMY_Y);
             } else {
                 //none of the above
-                //gc.drawImage(ImageFactory.getCombatImage(), point.getX() + 46, point.getY() + 30);
-                final SpriteMegaMan megaman = getMegaman();
-                megaman.setX(point.getX() + 20);
-                megaman.setY(point.getY() + 3);
-                aniPane.getChildren().add(megaman);
-                //TODO NEXT1: Erase/Draw Megaman according to configSettings. Adjust for Zoom. Create CombatSprite to replace MegaMan
+                //gc.drawImage(ImageFactory.getCombatImage(), point.getX() + DECORATION_ARMY_X, point.getY() + DECORATION_ARMY_Y);
+                //final ImageView megaman = getSprite();
+                final ImageView combatSprite = new ImageView(ImageFactory.getCombatImage());
+                combatSprite.setPreserveRatio(true);
+                combatSprite.setFitHeight(12 * zoomFactorCurrent);
+
+                combatSprite.setX((point.getX() + DECORATION_ARMY_X) * zoomFactorCurrent);
+                combatSprite.setY((point.getY() + DECORATION_ARMY_Y) * zoomFactorCurrent);
+
+                createFlipAnimation(combatSprite, combatSprite);
+                aniPane.getChildren().add(combatSprite);
             }
         }
+        //TODO: Make more animations!
         //render overrun
-        if (renderOverrun && local.isVisible() && localFacade.isOverrunTookPlace(local)) {
+        if (renderOverrun && localFacade.isOverrunTookPlace(local)) {
             gc.drawImage(ImageFactory.getExplosionImage(), point.getX() + 40, point.getY() + 36);
         }
         //render items
@@ -542,13 +562,33 @@ public final class MapManager {
         }
     }
 
+    private void createFlipAnimation(final ImageView imgFront, final ImageView imgBack) {
+        ScaleTransition stHideFront = new ScaleTransition(Duration.millis(1500), imgFront);
+        stHideFront.setFromX(1);
+        stHideFront.setToX(0);
+
+        ScaleTransition stShowBack = new ScaleTransition(Duration.millis(1500), imgBack);
+        stShowBack.setFromX(0);
+        stShowBack.setToX(1);
+
+        //endless loop for animation 
+        stHideFront.setOnFinished((ActionEvent t) -> {
+            stShowBack.play();
+        });
+        stShowBack.setOnFinished((ActionEvent t) -> {
+            stHideFront.play();
+        });
+        //play
+        stHideFront.play();
+    }
+
     private void doRenderFogOfWar(GraphicsContext gc, Point2D point) {
         //render for of war
         //gc.setGlobalBlendMode(BlendMode.MULTIPLY);
         //gc.setGlobalBlendMode(BlendMode.SOFT_LIGHT);
         gc.setGlobalAlpha(0.5d);
         final Image img = ImageFactory.getTerrainUnknownImage();
-        gc.drawImage(img, point.getX() + (hexSize - img.getWidth()) / 2, point.getY() + (hexSize - img.getHeight()) / 2);
+        gc.drawImage(img, point.getX() + (HEX_SIZE - img.getWidth()) / 2, point.getY() + (HEX_SIZE - img.getHeight()) / 2);
         gc.setGlobalAlpha(1d);
     }
 
@@ -592,14 +632,14 @@ public final class MapManager {
         double y = LocalFacade.getRow(local) - 1;
         Point2D ret;
         if (y % 2 == 0) {
-            ret = new Point2D(x * hexSize, y * hexSize * 3 / 4);
+            ret = new Point2D(x * HEX_SIZE, y * HEX_SIZE * 3 / 4);
         } else {
-            ret = new Point2D(x * hexSize + hexSize / 2, y * hexSize * 3 / 4);
+            ret = new Point2D(x * HEX_SIZE + HEX_SIZE / 2, y * HEX_SIZE * 3 / 4);
         }
         return ret;
     }
 
-    public Point getMapMaxSize(Collection<Local> listaLocal) {
+    private Point getMapInfo(Collection<Local> listaLocal) {
         int[] ret = {0, 0};
         int row, col;
         for (Local local : listaLocal) {
@@ -611,11 +651,11 @@ public final class MapManager {
             if (col > ret[1]) {
                 ret[1] = col;
             }
-            if (renderCombats && local.isVisible() && localFacade.isCombatTookPlace(local)) {
+            if (localFacade.isCombatTookPlace(local)) {
                 listAnimation.add(local);
             }
         }
-        this.farPoint = new Point(ret[1] * hexSize + hexSize / 2, ret[0] * hexSize * 3 / 4 + hexSize);
+        this.farPoint = new Point(ret[1] * HEX_SIZE + HEX_SIZE / 2, ret[0] * HEX_SIZE * 3 / 4 + HEX_SIZE);
         xHexes = ret[1];
         yHexes = ret[0];
         return this.farPoint;
@@ -643,11 +683,10 @@ public final class MapManager {
         renderCombats = SettingsManager.getInstance().isConfig("MapRenderCombats", "1", "1");
         renderOverrun = SettingsManager.getInstance().isConfig("MapRenderOverrun", "1", "1");
         renderFeatures = renderCharacters || renderItems || renderCombats || renderOverrun;
-
         renderGrid = SettingsManager.getInstance().isConfig("MapRenderGrid", "1", "0");
         renderCoordinates = SettingsManager.getInstance().isConfig("MapRenderCoordinate", "1", "1");
         renderFogOfWar = !SettingsManager.getInstance().isWorldBuilder() && SettingsManager.getInstance().isConfig("MapRenderFogOfWar", "1", "1");
-        final double[] zoomOptions = {.25d, .50d, 1.00d, 1.50d, 2.00d, 3.00d};
+        final double[] zoomOptions = {.25d, .50d, 1.00d, 1.50d, 2.00d, 2.50d};
         try {
             zoomFactorCurrent = zoomOptions[SettingsManager.getInstance().getConfigAsInt("MapZoomPercent", "1")];
         } catch (Exception e) {
