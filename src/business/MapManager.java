@@ -178,7 +178,6 @@ public final class MapManager {
 //                    double x = 232 + 128 * Math.cos(time);
 //                    double y = 232 + 128 * Math.sin(time);
 //                    gc.drawImage(ufo.getFrame(time), 196 + x / 10, 196 + y / 10);
-                    //FIXME: combat icon here leaves an artifact on screen. why?
                     return;
                 }
                 //profiling
@@ -474,7 +473,6 @@ public final class MapManager {
                     configIconRotation(imgFront, point.getX() + DECORATION_ARMY_X, point.getY() + DECORATION_ARMY_Y, 1500)
             );
         }
-        //TODO NEXT 1: Make more animations!
         //render overrun
         if (renderOverrun && localFacade.isOverrunTookPlace(local)) {
             //gc.drawImage(ImageFactory.getExplosionImage(), point.getX() + 40, point.getY() + 36);
@@ -638,6 +636,7 @@ public final class MapManager {
     private Point getMapInfo(Collection<Local> listaLocal) {
         int[] ret = {0, 0};
         int row, col;
+        listAnimation.addAll(listaLocal);
         for (Local local : listaLocal) {
             row = LocalFacade.getRow(local);
             col = LocalFacade.getCol(local);
@@ -646,9 +645,6 @@ public final class MapManager {
             }
             if (col > ret[1]) {
                 ret[1] = col;
-            }
-            if (localFacade.isCombatTookPlace(local)) {
-                listAnimation.add(local);
             }
         }
         this.farPoint = new Point(ret[1] * HEX_SIZE + HEX_SIZE / 2, ret[0] * HEX_SIZE * 3 / 4 + HEX_SIZE);

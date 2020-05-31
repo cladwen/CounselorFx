@@ -144,7 +144,7 @@ public class MapCanvasBasic {
         //create main panel
         bPane = new BorderPane();
         bPane.setCenter(getMapPane());
-        //TODO NEXT NEXT: add an info panel for the hex, start main functions
+        //TODO NEXT: add an info panel for the hex, start main functions
         bPane.setRight(getSideBar());
         bPane.setLeft(getSideBar());
         bPane.setTop(getMenuTop());
