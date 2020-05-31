@@ -88,8 +88,8 @@ public class ConfigControl {
         elements.add(getChoiceBox(titlesCityColor, "MapCityColorType", "1", labels.getString("CONFIG.CITYCOLOR.TOOLTIP")));
         final String[] terrainTile = {labels.getString("BORDERLESS"), labels.getString("BORDER"), labels.getString("3D"), labels.getString("TEXTURE")};
         elements.add(getChoiceBox(terrainTile, "MapTerrainTile", "1", labels.getString("CONFIG.TILESET.TOOLTIP")));
-        final String[] zoomOptionsDisplay = {"50%", "100%", "150%", "200%", "250%"};
-        elements.add(getChoiceBox(zoomOptionsDisplay, "MapZoomPercent", "2", labels.getString("CONFIG.MAPZOOM.TOOLTIP")));
+        final String[] zoomOptionsDisplay = {"100%", "50%", "75%", "150%", "200%", "250%"};
+        elements.add(getChoiceBox(zoomOptionsDisplay, "MapZoomPercent", "1", labels.getString("CONFIG.MAPZOOM.TOOLTIP")));
         final String[] styleNames = {labels.getString("PLAIN"), labels.getString("MATERIAL")};
         elements.add(getChoiceBoxUi(styleNames, "UiStyle", "1", labels.getString("CONFIG.SKIN.TOOLTIP")));
         elements.add(getFontSlider());

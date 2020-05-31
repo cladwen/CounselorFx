@@ -1,7 +1,7 @@
 package control;
 
 import business.MapManager;
-import counselorfx.CounselorFx;
+import gui.CounselorFx;
 import gui.MapCanvasAnimated;
 import helpers.SpriteMegaMan;
 import java.io.File;
@@ -71,14 +71,15 @@ public class MapCanvasBasic {
 
     private ScrollPane getMapPane() {
         final StackPane mapCanvas = this.mapManager.getCanvas();
+
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(mapCanvas);
 //        scrollPane.setPrefSize(mapCanvas.getWidth(), mapCanvas.getHeight());
 //        scrollPane.setMaxSize(mapCanvas.getWidth() + 15, mapCanvas.getHeight() + 15);
 //        scrollPane.setPrefSize(10000, 10000);
 //        scrollPane.setMaxSize(10000 + 15,10000 + 15);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(true);
+        scrollPane.setFitToWidth(false);
+        scrollPane.setFitToHeight(false);
         scrollPane.pannableProperty().set(true);
 //        scrollPane.hbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.NEVER);
 //        scrollPane.vbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.NEVER);

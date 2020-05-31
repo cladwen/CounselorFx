@@ -6,7 +6,7 @@
 package control;
 
 import business.BussinessException;
-import counselorfx.CounselorFx;
+import gui.CounselorFx;
 import java.io.File;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
