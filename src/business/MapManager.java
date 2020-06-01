@@ -36,6 +36,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -117,6 +118,7 @@ public final class MapManager {
     private static final int DECORATION_ARMY_X = 46;
 
     public MapManager() {
+        //TODO: Cleanup old/deprecated/sample functions, consider moving some methods to controller
         this.itemFacade = new ArtefatoFacade();
         this.cityFacade = new CidadeFacade();
         this.nationFacade = new NacaoFacade();
@@ -127,6 +129,9 @@ public final class MapManager {
         this.drawingFactory = new DrawingFactory();
         this.imageFactory = new ImageFactory();
         animmationLayer = new Pane();
+        animmationLayer.setOnMouseClicked((MouseEvent e) -> {
+            getCoordinateFromCanvas(e.getX(), e.getY());
+        });
     }
 
     private AnimatedImage loadUfo() {
@@ -620,7 +625,6 @@ public final class MapManager {
     }
 
     private static Point2D getPositionCanvas(Local local) {
-        //TODO wishlist: convert to static for improved performance
         //calculate position on canvas
         double x = LocalFacade.getCol(local) - 1;
         double y = LocalFacade.getRow(local) - 1;
@@ -631,6 +635,15 @@ public final class MapManager {
             ret = new Point2D(x * HEX_SIZE + HEX_SIZE / 2, y * HEX_SIZE * 3 / 4);
         }
         return ret;
+    }
+
+    private void getCoordinateFromCanvas(double x, double y) {
+        //TODO NEXT: do mouse click stuff here. Calculate click hex from  click position. Add tag on the animation panel?
+        //TODO NEXT: add an info panel for the hex, start main functions.  Add hexInfo panel
+        //calculate position on canvas
+        String coordinates = ConverterFactory.doPositionToCoord(x / zoomFactorCurrent, y / zoomFactorCurrent);
+        log.info(String.format("xy (%s, %s) zxy (%s, %s) %s", x, y, x / zoomFactorCurrent, y / zoomFactorCurrent, coordinates));
+        //FIXME NOW: adjust for zoom
     }
 
     private Point getMapInfo(Collection<Local> listaLocal) {
@@ -729,5 +742,4 @@ public final class MapManager {
             return getHeight();
         }
     }
-
 }
