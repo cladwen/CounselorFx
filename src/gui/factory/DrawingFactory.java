@@ -40,7 +40,7 @@ public class DrawingFactory {
         // Draw the Path
         gc.stroke();
 
-        //TODO: make it look like the old Counselor. Replace with animation?
+        //TODO wishlist: make it look like the old Counselor. Replace with animation?
         /*
         big.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         gc.setStroke(new BasicStroke(

@@ -118,7 +118,7 @@ public final class MapManager {
     private static final int DECORATION_ARMY_X = 46;
 
     public MapManager() {
-        //TODO: Cleanup old/deprecated/sample functions, consider moving some methods to controller
+        //TODO wishlist: Cleanup old/deprecated/sample functions, consider moving some methods to controller
         this.itemFacade = new ArtefatoFacade();
         this.cityFacade = new CidadeFacade();
         this.nationFacade = new NacaoFacade();
@@ -458,7 +458,7 @@ public final class MapManager {
     }
 
     private void doRenderFeatures(Local local, GraphicsContext gc, Point2D point) {
-        //TODO: fix the stactic images, redraw less?
+        //TODO wishlist: set the stactic imageViews, redraw less?
         //renders combat icon
         if (renderCombats && localFacade.isCombatTookPlace(local)) {
             //what type of combat?
@@ -638,12 +638,11 @@ public final class MapManager {
     }
 
     private void getCoordinateFromCanvas(double x, double y) {
-        //TODO NEXT: do mouse click stuff here. Calculate click hex from  click position. Add tag on the animation panel?
-        //TODO NEXT: add an info panel for the hex, start main functions.  Add hexInfo panel
+        //TODO NEXT: Add animated tag on the animation panel, stroke animation?
+        //TODO NEXT NEXT: add an info panel for the hex, start main functions.  Add hexInfo panel
         //calculate position on canvas
         String coordinates = ConverterFactory.doPositionToCoord(x / zoomFactorCurrent, y / zoomFactorCurrent);
         log.info(String.format("xy (%s, %s) zxy (%s, %s) %s", x, y, x / zoomFactorCurrent, y / zoomFactorCurrent, coordinates));
-        //FIXME NOW: adjust for zoom
     }
 
     private Point getMapInfo(Collection<Local> listaLocal) {

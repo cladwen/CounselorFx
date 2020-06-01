@@ -72,7 +72,7 @@ public class MapCanvasBasic {
     private ScrollPane getMapPane() {
         final StackPane mapCanvas = this.mapManager.getCanvas();
 
-        //TODO: remove the gray square from the scroll bar CSS.
+        //TODO wishlist: remove the gray square from the scroll bar CSS.
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(mapCanvas);
 //        scrollPane.setPrefSize(mapCanvas.getWidth(), mapCanvas.getHeight());
