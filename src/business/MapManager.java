@@ -29,6 +29,7 @@ import java.util.Set;
 import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
 import javafx.animation.ScaleTransition;
+import javafx.animation.StrokeTransition;
 import javafx.event.ActionEvent;
 import javafx.geometry.Point2D;
 import javafx.geometry.VPos;
@@ -40,6 +41,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
@@ -130,7 +132,7 @@ public final class MapManager {
         this.imageFactory = new ImageFactory();
         animmationLayer = new Pane();
         animmationLayer.setOnMouseClicked((MouseEvent e) -> {
-            getCoordinateFromCanvas(e.getX(), e.getY());
+            setTagPosition(e.getX(), e.getY());
         });
     }
 
@@ -624,10 +626,51 @@ public final class MapManager {
         }
     }
 
-    private static Point2D getPositionCanvas(Local local) {
+    private void setTagPosition(double x, double y) {
+        //TODO NEXT: Add animated tag on the animation panel, stroke animation?
+        //TODO NEXT NEXT: add an info panel for the hex, start main functions.  Add hexInfo panel
+        final String coordinates = getCoordinateFromCanvas(x, y);
+        Point2D positionCanvas = getPositionCanvas(coordinates);
+        final double radius = 61 * zoomFactorCurrent / 2;
+        log.info(String.format("%s - xyR (%s, %s, %s)", coordinates, positionCanvas.getX(), positionCanvas.getY(), radius));
+        setTagOnMap(positionCanvas, radius);
+    }
+
+    private void setTagOnMap(Point2D positionCanvas, final double radius) {
+        //Creating Circle
+        final Circle cir = new Circle(positionCanvas.getX() + radius, positionCanvas.getY() + radius, radius);
+        //Setting stroke and color for the circle  
+        cir.setStroke(Color.BLUE);
+        cir.setFill(Color.TRANSPARENT);
+        cir.setStrokeWidth(2);
+        setStrokeTransition(cir);
+        animmationLayer.getChildren().addAll(cir);
+    }
+
+    private void setStrokeTransition(Circle cir) {
+        //TODO wishlist: move this to a helper class
+        //Instantiating StrokeTransition class
+        StrokeTransition stroke = new StrokeTransition();
+        //The transition will set to be auto reserved by setting this to true  
+        stroke.setAutoReverse(true);
+        //setting cycle count for the Stroke transition   
+        stroke.setCycleCount(10);
+        //setting duration for the Stroke Transition   
+        stroke.setDuration(Duration.millis(2000));
+        //setting the Initial from value of the Stroke color  
+        stroke.setFromValue(Color.LIGHTBLUE);
+        //setting the target value of the Stroke color   
+        stroke.setToValue(Color.NAVY);
+        //setting polygon as the shape onto which the Stroke transition will be applied   
+        stroke.setShape(cir);
+        //playing the Stroke transition   
+        stroke.play();
+    }
+
+    private static Point2D getPositionCanvas(String coordinates) {
         //calculate position on canvas
-        double x = LocalFacade.getCol(local) - 1;
-        double y = LocalFacade.getRow(local) - 1;
+        double x = LocalFacade.getCol(coordinates) - 1;
+        double y = LocalFacade.getRow(coordinates) - 1;
         Point2D ret;
         if (y % 2 == 0) {
             ret = new Point2D(x * HEX_SIZE, y * HEX_SIZE * 3 / 4);
@@ -637,12 +680,14 @@ public final class MapManager {
         return ret;
     }
 
-    private void getCoordinateFromCanvas(double x, double y) {
-        //TODO NEXT: Add animated tag on the animation panel, stroke animation?
-        //TODO NEXT NEXT: add an info panel for the hex, start main functions.  Add hexInfo panel
+    private static Point2D getPositionCanvas(Local local) {
+        return getPositionCanvas(LocalFacade.getCoordenadas(local));
+    }
+
+    private String getCoordinateFromCanvas(double x, double y) {
         //calculate position on canvas
-        String coordinates = ConverterFactory.doPositionToCoord(x / zoomFactorCurrent, y / zoomFactorCurrent);
-        log.info(String.format("xy (%s, %s) zxy (%s, %s) %s", x, y, x / zoomFactorCurrent, y / zoomFactorCurrent, coordinates));
+        final String coordinates = ConverterFactory.doPositionToCoord(x / zoomFactorCurrent, y / zoomFactorCurrent);
+        return coordinates;
     }
 
     private Point getMapInfo(Collection<Local> listaLocal) {
