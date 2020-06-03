@@ -35,6 +35,7 @@ import javafx.geometry.Point2D;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -118,8 +119,12 @@ public final class MapManager {
     private final int[][] armySpacing8 = {{6, 36}, {12, 39}, {18, 42}, {24, 45}, {30, 45}, {36, 42}, {40, 39}, {46, 36}};
     private static final int DECORATION_ARMY_Y = 30;
     private static final int DECORATION_ARMY_X = 46;
+    private Label hexCoordinate;
+    private Label hexInfo;
 
     public MapManager() {
+        this.hexInfo = new Label("Information about 0101");
+        this.hexCoordinate = new Label("0101");
         //TODO wishlist: Cleanup old/deprecated/sample functions, consider moving some methods to controller
         this.itemFacade = new ArtefatoFacade();
         this.cityFacade = new CidadeFacade();
@@ -627,15 +632,18 @@ public final class MapManager {
     }
 
     private void setTagPosition(double x, double y) {
-        //TODO NEXT: add an info panel for the hex, start main functions.  Add hexInfo panel
-        final String coordinates = getCoordinateFromCanvas(x, y);
-        Point2D positionCanvas = getPositionCanvas(coordinates);
+        final String coordinate = getCoordinateFromCanvas(x, y);
+        setHexCoordinate(coordinate);
+        //TODO NEXT: add an info panel for the hex here. update when tag moves
+        //TODO: how to control flow in hex Info
+        setHexInfo(String.format("Hex information on %s with a very very very long looooong text", coordinate));
+        Point2D positionCanvas = getPositionCanvas(coordinate);
         final double radius = 61d * zoomFactorCurrent / 2;
-        log.info(String.format("%s - xyR (%s, %s, %s)", coordinates, positionCanvas.getX(), positionCanvas.getY(), radius));
         setTagOnMap(positionCanvas, radius);
     }
 
     private void setTagOnMap(Point2D positionCanvas, final double radius) {
+        //TODO NEXT: Reuse Tag. Restart animation on re-use
         //Creating Circle
         final Circle cir = new Circle(positionCanvas.getX() + radius, positionCanvas.getY() + radius, radius);
         //Setting stroke and color for the circle  
@@ -784,5 +792,41 @@ public final class MapManager {
         public double prefHeight(double width) {
             return getHeight();
         }
+    }
+
+    /**
+     * @return the hexCoordinate
+     */
+    public Label getHexCoordinate() {
+        return hexCoordinate;
+    }
+
+    /**
+     * @param hexCoordinate the hexCoordinate to set
+     */
+    public void setHexCoordinate(Label hexCoordinate) {
+        this.hexCoordinate = hexCoordinate;
+    }
+
+    public void setHexCoordinate(String coordinate) {
+        this.getHexCoordinate().setText(coordinate);
+    }
+
+    /**
+     * @return the hexInfo
+     */
+    public Label getHexInfo() {
+        return hexInfo;
+    }
+
+    /**
+     * @param hexInfo the hexInfo to set
+     */
+    public void setHexInfo(Label hexInfo) {
+        this.hexInfo = hexInfo;
+    }
+
+    public void setHexInfo(String info) {
+        this.getHexInfo().setText(info);
     }
 }

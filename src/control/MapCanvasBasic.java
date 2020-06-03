@@ -88,11 +88,11 @@ public class MapCanvasBasic {
         return scrollPane;
     }
 
-    private VBox getSideBarOld() {
-        VBox vbox = new VBox();
+    private VBox getSideBarGameInfo() {
+        final VBox vbox = new VBox();
         vbox.setAlignment(Pos.BASELINE_CENTER);
-        vbox.setSpacing(50);
-        vbox.getChildren().addAll(new Label("Game information go here"), this.getMegaman());
+        vbox.setSpacing(5);
+        vbox.getChildren().addAll(this.mapManager.getHexCoordinate(), this.mapManager.getHexInfo());
         return vbox;
     }
 
@@ -144,10 +144,12 @@ public class MapCanvasBasic {
     private BorderPane getMainPanel() {
         //create main panel
         bPane = new BorderPane();
-        bPane.setCenter(getMapPane());
-        bPane.setRight(getSideBar());
-        bPane.setLeft(getSideBar());
         bPane.setTop(getMenuTop());
+        bPane.setLeft(getSideBar());
+        bPane.setCenter(getMapPane());
+        final VBox hexInfoBar = getSideBarGameInfo();
+        //hexInfoBar.setMaxWidth(200);
+        bPane.setRight(hexInfoBar);
         bPane.setBottom(configControl.getConfigBar());
         return bPane;
     }
