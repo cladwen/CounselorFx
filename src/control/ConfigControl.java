@@ -12,6 +12,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -165,6 +166,19 @@ public class ConfigControl {
         configBar.setAlignment(Pos.BASELINE_CENTER);
         configBar.setHgap(0);
         configBar.getChildren().addAll(getUiElements());
+        //set size change when mouse over
+        configBar.setScaleX(.5);
+        configBar.setScaleY(.5);
+        configBar.setOnMouseEntered((MouseEvent e) -> {
+            configBar.setScaleX(1);
+            configBar.setScaleY(1);
+        });
+
+        configBar.setOnMouseExited((MouseEvent e) -> {
+            configBar.setScaleX(.5);
+            configBar.setScaleY(.5);
+        });
+
         //gear icon and status msgs
         FlowPane statusBar = new FlowPane();
         configBar.setAlignment(Pos.BASELINE_CENTER);
@@ -172,6 +186,19 @@ public class ConfigControl {
         //add a dismiss icon at the end
         ToggleButton dismissIcon = getToggleButton(ImageFactory.getConfigIcon(barHeight, false), labels.getString("CONFIG.DISMISSCONFIG.TOOLTIP"));
         ToggleButton displayIcon = getToggleButton(ImageFactory.getConfigIcon(barHeight / 2, true), labels.getString("CONFIG.SHOWCONFIG.TOOLTIP"));
+        //set size change when mouse over
+        displayIcon.setScaleX(.5);
+        displayIcon.setScaleY(.5);
+        displayIcon.setOnMouseEntered((MouseEvent e) -> {
+            displayIcon.setScaleX(1);
+            displayIcon.setScaleY(1);
+        });
+
+        displayIcon.setOnMouseExited((MouseEvent e) -> {
+            displayIcon.setScaleX(.5);
+            displayIcon.setScaleY(.5);
+        });
+
         configBar.getChildren().add(dismissIcon);
         statusBar.getChildren().add(displayIcon);
 

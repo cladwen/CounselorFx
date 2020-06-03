@@ -627,11 +627,10 @@ public final class MapManager {
     }
 
     private void setTagPosition(double x, double y) {
-        //TODO NEXT: Add animated tag on the animation panel, stroke animation?
-        //TODO NEXT NEXT: add an info panel for the hex, start main functions.  Add hexInfo panel
+        //TODO NEXT: add an info panel for the hex, start main functions.  Add hexInfo panel
         final String coordinates = getCoordinateFromCanvas(x, y);
         Point2D positionCanvas = getPositionCanvas(coordinates);
-        final double radius = 61 * zoomFactorCurrent / 2;
+        final double radius = 61d * zoomFactorCurrent / 2;
         log.info(String.format("%s - xyR (%s, %s, %s)", coordinates, positionCanvas.getX(), positionCanvas.getY(), radius));
         setTagOnMap(positionCanvas, radius);
     }
