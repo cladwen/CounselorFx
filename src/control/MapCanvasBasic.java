@@ -141,13 +141,14 @@ public class MapCanvasBasic {
     }
 
     private BorderPane getMainPanel() {
+        //TODO NEXT: show finances and Tom's graphs? First step on how to display read-only info.
         //create main panel
         bPane = new BorderPane();
         bPane.setTop(getMenuTop());
         bPane.setLeft(getSideBar());
         bPane.setCenter(getMapPane());
         final VBox hexInfoBar = getSideBarGameInfo();
-        //hexInfoBar.setMaxWidth(200);
+        hexInfoBar.setMaxWidth(200);
         bPane.setRight(hexInfoBar);
         bPane.setBottom(configControl.getConfigBar());
         return bPane;

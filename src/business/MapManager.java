@@ -40,11 +40,6 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -846,7 +841,7 @@ public final class MapManager {
      */
     private void setHexInfoText(Text hexInfoText) {
         this.hexInfoText = hexInfoText;
-        hexInfoText.setFill(Color.DARKSLATEBLUE);
+        this.hexInfoText.setWrappingWidth(100);
     }
 
     /**
