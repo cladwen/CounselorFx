@@ -121,6 +121,8 @@ public final class MapManager {
     private static final int DECORATION_ARMY_X = 46;
     private Label hexCoordinate;
     private Label hexInfo;
+    private Circle tagMap;
+    private StrokeTransition stroke;
 
     public MapManager() {
         this.hexInfo = new Label("Information about 0101");
@@ -638,26 +640,37 @@ public final class MapManager {
         //TODO: how to control flow in hex Info
         setHexInfo(String.format("Hex information on %s with a very very very long looooong text", coordinate));
         Point2D positionCanvas = getPositionCanvas(coordinate);
-        final double radius = 61d * zoomFactorCurrent / 2;
-        setTagOnMap(positionCanvas, radius);
+        setTagOnMap(positionCanvas);
     }
 
-    private void setTagOnMap(Point2D positionCanvas, final double radius) {
-        //TODO NEXT: Reuse Tag. Restart animation on re-use
-        //Creating Circle
-        final Circle cir = new Circle(positionCanvas.getX() + radius, positionCanvas.getY() + radius, radius);
+    private void setTagOnMap(Point2D positionCanvas) {
+        //Creating tag
+        setTagMap();
+        //moving the tag
+        tagMap.relocate(positionCanvas.getX() - 2, positionCanvas.getY());
+        //Restart animation on re-use
+        stroke.play();
+    }
+
+    private void setTagMap() {
+        if (tagMap != null) {
+            //Reuse Tag. 
+            return;
+        }
+        double radius = 61d * zoomFactorCurrent / 2;
+        tagMap = new Circle(radius, radius, radius);
         //Setting stroke and color for the circle  
-        cir.setStroke(Color.BLUE);
-        cir.setFill(Color.TRANSPARENT);
-        cir.setStrokeWidth(2);
-        setStrokeTransition(cir);
-        animmationLayer.getChildren().addAll(cir);
+        tagMap.setStroke(Color.BLUE);
+        tagMap.setFill(Color.TRANSPARENT);
+        tagMap.setStrokeWidth(2);
+        setStrokeTransition(tagMap);
+        animmationLayer.getChildren().add(tagMap);
     }
 
     private void setStrokeTransition(Circle cir) {
         //TODO wishlist: move this to a helper class
         //Instantiating StrokeTransition class
-        StrokeTransition stroke = new StrokeTransition();
+        stroke = new StrokeTransition();
         //The transition will set to be auto reserved by setting this to true  
         stroke.setAutoReverse(true);
         //setting cycle count for the Stroke transition   
