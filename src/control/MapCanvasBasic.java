@@ -90,9 +90,8 @@ public class MapCanvasBasic {
 
     private VBox getSideBarGameInfo() {
         final VBox vbox = new VBox();
-        vbox.setAlignment(Pos.BASELINE_CENTER);
         vbox.setSpacing(5);
-        vbox.getChildren().addAll(this.mapManager.getHexCoordinate(), this.mapManager.getHexInfo());
+        vbox.getChildren().add(this.mapManager.getHexInfo());
         return vbox;
     }
 

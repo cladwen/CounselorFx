@@ -1,4 +1,4 @@
-package toSort;
+package helpers;
 
 import javafx.scene.image.Image;
 import javafx.scene.canvas.GraphicsContext;

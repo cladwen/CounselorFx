@@ -16,6 +16,7 @@ import business.facade.NacaoFacade;
 import business.facade.PersonagemFacade;
 import control.CounselorStateMachine;
 import control.WorldFacadeCounselor;
+import control.services.LocalConverter;
 import gui.animation.AnimatedImage;
 import gui.factory.DrawingFactory;
 import helpers.Hexagon;
@@ -39,12 +40,19 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 import model.Artefato;
 import model.Cidade;
@@ -58,6 +66,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import persistence.local.ImageFactory;
 import persistence.local.ListFactory;
+import persistenceCommons.BundleManager;
 import persistenceCommons.SettingsManager;
 
 /**
@@ -67,6 +76,7 @@ import persistenceCommons.SettingsManager;
 public final class MapManager {
 
     private static final Log log = LogFactory.getLog(MapManager.class);
+    private static final BundleManager labels = SettingsManager.getInstance().getBundleManager();
     private static final int SCROLLBAR_SIZE = 15;
     private static final Color CITY_SPRITE_BORDER = Color.rgb(4, 2, 4);
     private static final Color CITY_SPRIT_FILL = Color.rgb(252, 254, 4);
@@ -113,6 +123,7 @@ public final class MapManager {
     private Jogador observer;
     private final List<Local> listAnimation = new ArrayList<>();
     private Collection<Local> localList;
+    private final ListFactory listFactory = new ListFactory();
     private final Pane animmationLayer;
     private final int[][] armySpacing4 = {{7, 36}, {17, 42}, {34, 42}, {46, 36}};
     private final int[][] armySpacing6 = {{6, 36}, {12, 39}, {18, 42}, {36, 42}, {40, 39}, {46, 36}};
@@ -120,12 +131,13 @@ public final class MapManager {
     private static final int DECORATION_ARMY_Y = 30;
     private static final int DECORATION_ARMY_X = 46;
     private Label hexCoordinate;
-    private Label hexInfo;
+    private Text hexInfoText;
+    private TextFlow hexInfoPane;
     private Circle tagMap;
     private StrokeTransition stroke;
 
     public MapManager() {
-        this.hexInfo = new Label("Information about 0101");
+        setHexInfo();
         this.hexCoordinate = new Label("0101");
         //TODO wishlist: Cleanup old/deprecated/sample functions, consider moving some methods to controller
         this.itemFacade = new ArtefatoFacade();
@@ -139,7 +151,7 @@ public final class MapManager {
         this.imageFactory = new ImageFactory();
         animmationLayer = new Pane();
         animmationLayer.setOnMouseClicked((MouseEvent e) -> {
-            setTagPosition(e.getX(), e.getY());
+            setHexViewed(e.getX(), e.getY());
         });
     }
 
@@ -160,7 +172,6 @@ public final class MapManager {
         observer = WorldFacadeCounselor.getInstance().getJogadorAtivo();
         setRenderingFlags();
         //load hexes
-        ListFactory listFactory = new ListFactory();
         localList = listFactory.listLocais().values();
         if (farPoint == null) {
             //calculate max size for map
@@ -633,12 +644,10 @@ public final class MapManager {
         }
     }
 
-    private void setTagPosition(double x, double y) {
+    private void setHexViewed(double x, double y) {
         final String coordinate = getCoordinateFromCanvas(x, y);
         setHexCoordinate(coordinate);
-        //TODO NEXT: add an info panel for the hex here. update when tag moves
-        //TODO: how to control flow in hex Info
-        setHexInfo(String.format("Hex information on %s with a very very very long looooong text", coordinate));
+        setHexInfo(coordinate);
         Point2D positionCanvas = getPositionCanvas(coordinate);
         setTagOnMap(positionCanvas);
     }
@@ -817,29 +826,47 @@ public final class MapManager {
     /**
      * @param hexCoordinate the hexCoordinate to set
      */
-    public void setHexCoordinate(Label hexCoordinate) {
+    private void setHexCoordinate(Label hexCoordinate) {
         this.hexCoordinate = hexCoordinate;
     }
 
     public void setHexCoordinate(String coordinate) {
-        this.getHexCoordinate().setText(coordinate);
+        this.getHexCoordinate().setText(String.format(labels.getString("LOCAL.TITLE"), coordinate));
+    }
+
+    /**
+     * @return the hexInfoText
+     */
+    public Text getHexInfoText() {
+        return hexInfoText;
+    }
+
+    /**
+     * @param hexInfoText the hexInfoText to set
+     */
+    private void setHexInfoText(Text hexInfoText) {
+        this.hexInfoText = hexInfoText;
+        hexInfoText.setFill(Color.DARKSLATEBLUE);
     }
 
     /**
      * @return the hexInfo
      */
-    public Label getHexInfo() {
-        return hexInfo;
+    public TextFlow getHexInfo() {
+        return hexInfoPane;
     }
 
     /**
      * @param hexInfo the hexInfo to set
      */
-    public void setHexInfo(Label hexInfo) {
-        this.hexInfo = hexInfo;
+    private void setHexInfo() {
+        this.hexInfoPane = new TextFlow();
+        setHexInfoText(new Text("0101"));
+        hexInfoPane.getChildren().add(getHexInfoText());
     }
 
-    public void setHexInfo(String info) {
-        this.getHexInfo().setText(info);
+    public void setHexInfo(String coordinate) {
+        final String hexInformation = LocalConverter.getInfo(listFactory.getLocal(coordinate));
+        getHexInfoText().setText(hexInformation);
     }
 }
