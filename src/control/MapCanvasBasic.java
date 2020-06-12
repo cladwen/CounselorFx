@@ -1,7 +1,7 @@
 package control;
 
 import business.MapManager;
-import counselorfx.CounselorFx;
+import gui.CounselorFx;
 import gui.MapCanvasAnimated;
 import helpers.SpriteMegaMan;
 import java.io.File;
@@ -15,7 +15,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.BorderPane;
@@ -72,14 +71,16 @@ public class MapCanvasBasic {
 
     private ScrollPane getMapPane() {
         final StackPane mapCanvas = this.mapManager.getCanvas();
+
+        //TODO wishlist: remove the gray square from the scroll bar CSS.
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(mapCanvas);
 //        scrollPane.setPrefSize(mapCanvas.getWidth(), mapCanvas.getHeight());
 //        scrollPane.setMaxSize(mapCanvas.getWidth() + 15, mapCanvas.getHeight() + 15);
 //        scrollPane.setPrefSize(10000, 10000);
 //        scrollPane.setMaxSize(10000 + 15,10000 + 15);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(true);
+        scrollPane.setFitToWidth(false);
+        scrollPane.setFitToHeight(false);
         scrollPane.pannableProperty().set(true);
 //        scrollPane.hbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.NEVER);
 //        scrollPane.vbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.NEVER);
@@ -87,57 +88,68 @@ public class MapCanvasBasic {
         return scrollPane;
     }
 
-    private static VBox getSpaceSunEarth() {
-        VBox vbox = new VBox();
-        vbox.setAlignment(Pos.BASELINE_CENTER);
-        vbox.setSpacing(50);
-        MapCanvasAnimated mca = new MapCanvasAnimated();
-        vbox.getChildren().addAll(new Label("Game Action/Orders go here"), mca.getCanvas());
-        return vbox;
-    }
-
-    private VBox getSideBarOld() {
-        VBox vbox = new VBox();
-        vbox.setAlignment(Pos.BASELINE_CENTER);
-        vbox.setSpacing(50);
-        vbox.getChildren().addAll(new Label("Game information go here"), mapManager.getMegaman());
+    private VBox getSideBarGameInfo() {
+        final VBox vbox = new VBox();
+        vbox.setSpacing(5);
+        vbox.getChildren().add(this.mapManager.getHexInfo());
         return vbox;
     }
 
     private Pane getSideBar() {
-        Pane vbox = new Pane();
-        final SpriteMegaMan megaman = mapManager.getMegaman();
+        final SpriteMegaMan megaman = this.getMegaman();
         megaman.setY(500);
         megaman.setX(50);
-        vbox.getChildren().addAll(new Label("Game information go here"), megaman, getSpaceSunEarth());
+        VBox vbox = new VBox();
+        vbox.setAlignment(Pos.BASELINE_CENTER);
+        vbox.setSpacing(50);
+        MapCanvasAnimated mca = new MapCanvasAnimated();
+        vbox.getChildren().addAll(new Label("Game information go here"), mca.getCanvas(), megaman);
         return vbox;
+    }
+
+    public SpriteMegaMan getMegaman() {
+        // loads a sprite sheet, and specifies the size of one frame/cell
+        SpriteMegaMan megaMan = new SpriteMegaMan("resources/megaman.png", 50, 49); //searches for the image file in the classpath
+        megaMan.setFPS(5); // animation will play at 5 frames per second
+        //megaMan.pause();
+        megaMan.label(4, "powerup"); // associates the fourth (zero-indexed) row of the sheet with "powerup"
+        //megaMan.playTimes("powerup", 10); // plays "powerup" animation 10 times;
+        //megaMan.limitRowColumns(2, 9);
+        //megaMan.play(); // animates the first row of the sprite sheet
+        megaMan.play("powerup");
+        //megaMan.setX(100);
+        //megaMan.setY(200);
+        return megaMan;
     }
 
     private MenuBar getMenuTop() {
         //create menu
         MenuBar menubar = new MenuBar();
         Menu fileMenu = new Menu("File");
-        MenuItem filemenu1 = new MenuItem("New");
-        MenuItem filemenu2 = new MenuItem("Save");
-        MenuItem filemenu3 = new MenuItem("Exit");
-        fileMenu.getItems().addAll(filemenu1, filemenu2, filemenu3);
+        //MenuItem filemenu1 = new MenuItem("New");
+        //MenuItem filemenu2 = new MenuItem("Save");
+        //MenuItem filemenu3 = new MenuItem("Exit");
+        //fileMenu.getItems().addAll(filemenu1, filemenu2, filemenu3);
         Menu editMenu = new Menu("Edit");
-        MenuItem EditMenu1 = new MenuItem("Cut");
-        MenuItem EditMenu2 = new MenuItem("Copy");
-        MenuItem EditMenu3 = new MenuItem("Paste");
-        editMenu.getItems().addAll(EditMenu1, EditMenu2, EditMenu3);
+        //MenuItem EditMenu1 = new MenuItem("Cut");
+        //MenuItem EditMenu2 = new MenuItem("Copy");
+        //MenuItem EditMenu3 = new MenuItem("Paste");
+        //editMenu.getItems().addAll(EditMenu1, EditMenu2, EditMenu3);
         Menu toolBar = new Menu("ToolBar Here");
         menubar.getMenus().addAll(fileMenu, editMenu, toolBar);
         return menubar;
     }
 
     private BorderPane getMainPanel() {
+        //TODO NEXT: show finances and Tom's graphs? First step on how to display read-only info.
         //create main panel
         bPane = new BorderPane();
-        bPane.setCenter(getMapPane());
-        //TODO NEXT 2: add an info panel for the hex, start main functions
-        bPane.setLeft(getSideBar());
         bPane.setTop(getMenuTop());
+        bPane.setLeft(getSideBar());
+        bPane.setCenter(getMapPane());
+        final VBox hexInfoBar = getSideBarGameInfo();
+        hexInfoBar.setMaxWidth(200);
+        bPane.setRight(hexInfoBar);
         bPane.setBottom(configControl.getConfigBar());
         return bPane;
     }
@@ -164,7 +176,7 @@ public class MapCanvasBasic {
             return;
         }
         //save last folder
-        SettingsManager.getInstance().setConfigAndSaveToFile("LastFolder", resultsFile.getPath());
+        SettingsManager.getInstance().setConfigAndSaveToFile("LastFolder", resultsFile.getParent());
         //load world
         WorldLoader wl = new WorldLoader();
         wl.doLoadWorld(resultsFile);

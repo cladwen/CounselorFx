@@ -47,10 +47,10 @@ public class PrintCanvas extends Application {
         } catch (IOException s) {
         }
     }
-
-    public static void main(String[] args) {
-        launch(args);
-    }
+//
+//    public static void main(String[] args) {
+//        launch(args);
+//    }
 
     private void drawShapes(GraphicsContext gc) {
         gc.setFill(Color.GREEN);

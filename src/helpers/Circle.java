@@ -1,8 +1,8 @@
-package toSort;
+package helpers;
 
 import javafx.geometry.Point2D;
 
-public class Circle {
+public final class Circle {
 
     private Point2D center;
     private double radius;

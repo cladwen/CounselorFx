@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package counselorfx;
+package gui;
 
 import control.CounselorStateMachine;
 import control.MapCanvasBasic;
@@ -82,7 +82,7 @@ public class CounselorFx extends Application {
         //TODO: what if file not found? add gui msgs somewhere. status msg with timer to fade away?
         wl.doAutoLoad(args);
 
-        //TODO: sync interface (status bar). status msg with timer to fade away?
+        //TODO wishlist: sync interface (status bar). status msg with timer to fade away?
         //launch GUI
         launch(args);
     }
