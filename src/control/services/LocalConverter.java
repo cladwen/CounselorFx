@@ -8,7 +8,10 @@ import business.facade.LocalFacade;
 import business.services.ComparatorFactory;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import model.Artefato;
 import model.Exercito;
 import model.Habilidade;
@@ -102,5 +105,74 @@ public class LocalConverter implements Serializable {
             }
         }
         return ret.getText();
+    }
+    
+    public static Map<String, String> getInfoMap(Local local) {
+        
+        Map<String, String> infoMap = new HashMap<>();
+        
+        StringBuilder infoCity = new StringBuilder();
+                
+        infoCity.append(String.format(labels.getString("TERRENO.CLIMA"), local.getTerreno().getNome(), BaseMsgs.localClima[local.getClima()]));
+        
+        //landmarks and others
+        infoCity.append("\n");
+        for (Habilidade hab : local.getHabilidades().values()) {
+            if (hab.getCodigo().equals(";-;")) {
+                continue;
+            }
+            //ret.add(labels.getString("LANDMARK.LOCAL") + " " + ConverterFactory.getLandmarkName(hab.getCodigo()));
+            infoCity.append(hab.getNome());
+        }
+                
+        infoCity.append(CidadeConverter.getInfo(local.getCidade()).stream().map(Object::toString).collect(Collectors.joining("\n")));
+        
+        infoMap.put(labels.getString("CIDADES"), infoCity.toString());
+        
+        StringBuilder pjInfo = new StringBuilder();
+        
+        if (local.getPersonagens().values().size() > 0) {
+     
+            if (SettingsManager.getInstance().getConfig("HexInfoPcSorting", "N").equals("N")) {
+                //sort by nation
+                final List<Personagem> personagens = new ArrayList<>(local.getPersonagens().values());
+                ComparatorFactory.getComparatorNationSorter(personagens);
+
+                for (Personagem personagem : personagens) {
+                  pjInfo.append(PersonagemConverter.getInfo(personagem).stream().map(Object::toString).collect(Collectors.joining("\n")));                  
+                  pjInfo.append("\n");
+                }
+            } else {
+                //sort alphabetcaly
+                for (Personagem personagem : local.getPersonagens().values()) {
+                    pjInfo.append(PersonagemConverter.getInfo(personagem).stream().map(Object::toString).collect(Collectors.joining("\n")));                  
+                    pjInfo.append("\n");
+                }
+            }
+        }
+        infoMap.put(labels.getString("PERSONAGENS.LOCAL"), pjInfo.toString());
+        
+        StringBuilder armyInfo = new StringBuilder();
+         if (local.getExercitos().values().size() > 0) {
+          
+            for (Exercito exercito : local.getExercitos().values()) {
+                armyInfo.append(ExercitoConverter.getInfo(exercito).stream().map(Object::toString).collect(Collectors.joining("\n")));                  
+                armyInfo.append("\n");
+            }
+        }
+        
+        infoMap.put(labels.getString("EXERCITOS"), armyInfo.toString());
+        
+        //artefatos
+        StringBuilder artefactInfo = new StringBuilder();
+        if (local.getArtefatos().values().size() > 0) {           
+            
+            for (Artefato artefato : local.getArtefatos().values()) {
+                artefactInfo.append(ArtefatoConverter.getInfo(artefato));
+                artefactInfo.append("\n");
+            }
+        }
+        infoMap.put(labels.getString("ARTEFATOS"), artefactInfo.toString());
+        return infoMap;
     }
 }
