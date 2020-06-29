@@ -136,7 +136,6 @@ public final class MapManager {
     private StrokeTransition stroke;
 
     public MapManager() {
-        setHexInfo();
         this.hexCoordinate = new Label("0101");
         //TODO wishlist: Cleanup old/deprecated/sample functions, consider moving some methods to controller
         this.itemFacade = new ArtefatoFacade();
@@ -167,6 +166,8 @@ public final class MapManager {
 
     public StackPane getCanvas() {
         //load map info
+        setHexInfo();
+
         //set observer
         observer = WorldFacadeCounselor.getInstance().getJogadorAtivo();
         setRenderingFlags();
@@ -845,7 +846,7 @@ public final class MapManager {
      */
     private void setHexInfoText(Map hexInfoText) {
         this.hexInfoText = hexInfoText;
-     //   this.hexInfoText.setWrappingWidth(100);
+        //   this.hexInfoText.setWrappingWidth(100);
     }
 
     /**
@@ -861,25 +862,22 @@ public final class MapManager {
     private void setHexInfo() {
         this.hexInfoPane = new TextFlow();
         this.hexInfoPane.setMinWidth(300);
-    //    setHexInfoText(new Text("0101"));
-     //   hexInfoPane.getChildren().add();
+        //    setHexInfoText(new Text("0101"));
+        //   hexInfoPane.getChildren().add();
         setHexInfo("0101");
         Accordion accordion = new Accordion();
-        getHexInfoText().forEach((k,v) -> {
+        getHexInfoText().forEach((k, v) -> {
             TitledPane titledPane = new TitledPane(k, v);
             accordion.getPanes().add(titledPane);
         });
-        
         hexInfoPane.getChildren().add(accordion);
-        
     }
 
     private void setHexInfo(String coordinate) {
-      //  final String hexInformation = LocalConverter.getInfo(listFactory.getLocal(coordinate));
-      //  getHexInfoText().setText(hexInformation);
-        
+        //  final String hexInformation = LocalConverter.getInfo(listFactory.getLocal(coordinate));
+        //  getHexInfoText().setText(hexInformation);
         final Map<String, String> hexInfoMap = LocalConverter.getInfoMap(listFactory.getLocal(coordinate));
-        hexInfoMap.forEach((k,v) -> { 
+        hexInfoMap.forEach((k, v) -> {
             if (getHexInfoText().containsKey(k)) {
                 getHexInfoText().get(k).setText(v);
             } else {
@@ -887,8 +885,6 @@ public final class MapManager {
                 text.setWrappingWidth(hexInfoPane.getMinWidth());
                 getHexInfoText().put(k, text);
             }
-            
         });
-       
     }
 }
