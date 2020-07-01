@@ -3,6 +3,9 @@ package control;
 import business.MapManager;
 import gui.CounselorFx;
 import gui.MapCanvasAnimated;
+import gui.graphs.GraphPopupScoreByNation;
+import gui.graphs.GraphPopupVpPerTeam;
+import gui.graphs.GraphPopupVpPerTurn;
 import helpers.SpriteMegaMan;
 import java.io.File;
 import javafx.animation.KeyFrame;
@@ -141,7 +144,6 @@ public class MapCanvasBasic {
     }
 
     private BorderPane getMainPanel() {
-        //TODO NEXT: show finances and Tom's graphs? First step on how to display read-only info.
         //create main panel
         bPane = new BorderPane();
         bPane.setTop(getMenuTop());
@@ -151,6 +153,13 @@ public class MapCanvasBasic {
         hexInfoBar.setMaxWidth(200);
         bPane.setRight(hexInfoBar);
         bPane.setBottom(configControl.getConfigBar());
+        //TODO NEXT: show finances and Tom's graphs? First step on how to display read-only info.
+        GraphPopupVpPerTeam graph = new GraphPopupVpPerTeam();
+        graph.start();
+        GraphPopupScoreByNation g2 = new GraphPopupScoreByNation();
+        g2.start();
+        GraphPopupVpPerTurn g3 = new GraphPopupVpPerTurn(WorldFacadeCounselor.getInstance().getNacoes().values());
+        g3.start(WorldFacadeCounselor.getInstance().getVictoryPoints());
         return bPane;
     }
 
