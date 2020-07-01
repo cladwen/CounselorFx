@@ -154,6 +154,7 @@ public class MapCanvasBasic {
         bPane.setRight(hexInfoBar);
         bPane.setBottom(configControl.getConfigBar());
         //TODO NEXT: show finances and Tom's graphs? First step on how to display read-only info.
+        //TODO NEXT: Add graphs to tool bar.
         GraphPopupVpPerTeam graph = new GraphPopupVpPerTeam();
         graph.start();
         GraphPopupScoreByNation g2 = new GraphPopupScoreByNation();

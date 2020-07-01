@@ -23,7 +23,6 @@ import javafx.scene.chart.XYChart.Series;
 import javafx.scene.control.Tooltip;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javax.swing.SwingUtilities;
 import model.Nacao;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,13 +42,6 @@ public class GraphPopupVpPerTeam {
     private final SortedMap<String, Nacao> mapNations = new TreeMap<>();
 
     public void start() {
-        //leave it here because we don't know from what thread it's coming from?
-        SwingUtilities.invokeLater(() -> {
-            initAndShowFXGUI();
-        });
-    }
-
-    private void initAndShowFXGUI() {
         // This method is invoked on the EDT thread
         final JFXPanel fxPanel = new JFXPanel();
 

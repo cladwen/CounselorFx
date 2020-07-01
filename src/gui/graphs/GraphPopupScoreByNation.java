@@ -27,7 +27,6 @@ import javafx.scene.chart.StackedBarChart;
 import javafx.scene.chart.XYChart;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javax.swing.SwingUtilities;
 import javax.swing.event.TableModelEvent;
 import model.Nacao;
 import org.apache.commons.logging.Log;
@@ -47,13 +46,6 @@ public class GraphPopupScoreByNation {
     private final SortedMap<String, Nacao> mapNations = new TreeMap<>();
 
     public void start() {
-        //leave it here because we don't know from what thread it's coming from?
-        SwingUtilities.invokeLater(() -> {
-            initAndShowFXGUI();
-        });
-    }
-
-    private void initAndShowFXGUI() {
         // This method is invoked on the EDT thread
         final JFXPanel fxPanel = new JFXPanel();
 
@@ -206,7 +198,7 @@ public class GraphPopupScoreByNation {
                 final int row = e.getFirstRow();
                 final int column = e.getColumn();
                 final Object value = ((SampleTableModel) e.getSource()).getValueAt(row, column);
-                
+
                 Platform.runLater(() -> {
                     XYChart.Series<String, Number> s = (XYChart.Series<String, Number>) aChart.getData().get(row);
                     BarChart.Data data = s.getData().get(column);

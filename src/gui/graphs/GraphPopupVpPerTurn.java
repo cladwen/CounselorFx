@@ -46,18 +46,11 @@ public class GraphPopupVpPerTurn {
         nationsList = new ArrayList<>(nations);
         //sort by points
         ComparatorFactory.getComparatorNationVictoryPointsSorter(nationsList);
-
     }
 
     public void start(VictoryPointsGame victoryPointsAllTurns) {
         victoryPoints = victoryPointsAllTurns;
         //leave it here because we don't know from what thread it's coming from?
-        SwingUtilities.invokeLater(() -> {
-            initAndShowFXGUI();
-        });
-    }
-
-    private void initAndShowFXGUI() {
         // This method is invoked on the EDT thread
         final JFXPanel fxPanel = new JFXPanel();
 
@@ -105,7 +98,7 @@ public class GraphPopupVpPerTurn {
         //populating graph data
         populateData(areaChart);
 
-        //FIXME: this works for the first 8 colors, then it does not scale.
+        //TODO wishlist: this works for the first 8 colors, then it does not scale.
         //Node node = areaChart.lookup(".default-color0.chart-series-area-fill");
         // set the first series fill to translucent pale green
         //node.setStyle(String.format("-fx-fill: #000000; "));
