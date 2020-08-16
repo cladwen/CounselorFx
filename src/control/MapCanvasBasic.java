@@ -18,8 +18,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -29,6 +31,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import persistence.local.ImageFactory;
 import persistenceCommons.BundleManager;
 import persistenceCommons.SettingsManager;
 
@@ -129,17 +132,31 @@ public class MapCanvasBasic {
         //create menu
         MenuBar menubar = new MenuBar();
         Menu fileMenu = new Menu("File");
-        //MenuItem filemenu1 = new MenuItem("New");
-        //MenuItem filemenu2 = new MenuItem("Save");
-        //MenuItem filemenu3 = new MenuItem("Exit");
-        //fileMenu.getItems().addAll(filemenu1, filemenu2, filemenu3);
-        Menu editMenu = new Menu("Edit");
-        //MenuItem EditMenu1 = new MenuItem("Cut");
-        //MenuItem EditMenu2 = new MenuItem("Copy");
-        //MenuItem EditMenu3 = new MenuItem("Paste");
-        //editMenu.getItems().addAll(EditMenu1, EditMenu2, EditMenu3);
-        Menu toolBar = new Menu("ToolBar Here");
-        menubar.getMenus().addAll(fileMenu, editMenu, toolBar);
+        MenuItem filemenu1 = new MenuItem("New TODO");
+        MenuItem filemenu2 = new MenuItem("Save TODO");
+        MenuItem filemenu3 = new MenuItem("Exit TODO");
+        fileMenu.getItems().addAll(filemenu1, filemenu2, filemenu3);
+        Menu graphMenu = new Menu();
+        graphMenu.setGraphic(new ImageView(ImageFactory.getIconChart()));
+        Tooltip tooltip1 = new Tooltip("Creates a new file");
+        MenuItem graphItem1 = new MenuItem("VpPerTeam");
+        graphItem1.setOnAction(e -> {
+            GraphPopupVpPerTeam graph = new GraphPopupVpPerTeam();
+            graph.start();
+        });
+        MenuItem graphItem2 = new MenuItem("ScoreByNation");
+        graphItem2.setOnAction(e -> {
+            GraphPopupScoreByNation g2 = new GraphPopupScoreByNation();
+            g2.start();
+        });
+        MenuItem graphItem3 = new MenuItem("VpPerTurn");
+        graphItem3.setOnAction(e -> {
+            GraphPopupVpPerTurn g3 = new GraphPopupVpPerTurn(WorldFacadeCounselor.getInstance().getNacoes().values());
+            g3.start(WorldFacadeCounselor.getInstance().getVictoryPoints());
+        });
+        graphMenu.getItems().addAll(graphItem1, graphItem2, graphItem3);
+        Menu toolBar = new Menu("ToolBar Someday");
+        menubar.getMenus().addAll(fileMenu, graphMenu, toolBar);
         return menubar;
     }
 
@@ -154,13 +171,6 @@ public class MapCanvasBasic {
         bPane.setRight(hexInfoBar);
         bPane.setBottom(configControl.getConfigBar());
         //TODO NEXT: show finances and Tom's graphs? First step on how to display read-only info.
-        //TODO NEXT: Add graphs to tool bar.
-        GraphPopupVpPerTeam graph = new GraphPopupVpPerTeam();
-        graph.start();
-        GraphPopupScoreByNation g2 = new GraphPopupScoreByNation();
-        g2.start();
-        GraphPopupVpPerTurn g3 = new GraphPopupVpPerTurn(WorldFacadeCounselor.getInstance().getNacoes().values());
-        g3.start(WorldFacadeCounselor.getInstance().getVictoryPoints());
         return bPane;
     }
 

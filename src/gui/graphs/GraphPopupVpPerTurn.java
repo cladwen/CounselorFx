@@ -18,17 +18,18 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.StackedAreaChart;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Tooltip;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javax.swing.SwingUtilities;
 import model.Nacao;
 import model.VictoryPointsGame;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import persistenceCommons.BundleManager;
 import persistenceCommons.SettingsManager;
-import persistenceCommons.SysApoio;
 
 /**
  * best example at: https://www.tutorialspoint.com/javafx/stacked_area_chart.htm
@@ -75,7 +76,6 @@ public class GraphPopupVpPerTurn {
         window.showAndWait();
 
         fxPanel.setScene(scene);
-
     }
 
     private StackedAreaChart<String, Number> createStackedAreaChart() {
@@ -116,13 +116,6 @@ public class GraphPopupVpPerTurn {
             for (Integer turn : victoryPoints.getTurnList()) {
                 final XYChart.Data item = new XYChart.Data(turn + "", nationPoints.get(turn));
                 serieNation.getData().add(item);
-
-//                //setting colors of charts
-//                Node fill = serieNation.getNode().lookup(".chart-series-area-fill");
-//                fill.setStyle("-fx-fill: #fff7ad;");
-//                Node line = serieNation.getNode().lookup(".chart-series-area-line");
-//                line.setStyle("-fx-stroke: #8bc34a;"
-//                        + "-fx-stroke-width: 3px;"); // set width of line
             }
             //add to list
             series.add(serieNation);
@@ -134,51 +127,6 @@ public class GraphPopupVpPerTurn {
         //install tooltips with series names for the graph
         for (final XYChart.Series<String, Number> items : areaChart.getData()) {
             Tooltip.install(items.getNode(), new Tooltip(items.getName()));
-        }
-
-//        //trying to figure out how to select colors for the area 
-//        int ii = 0;
-//        for (Nacao nation : nationsList) {
-//            final Node node = areaChart.getData().get(ii++).getNode();
-//            node.setStyle(String.format("-fx-fill: %s; ", getNationColorFill(nation)));
-//            node.setStyle(String.format("-fx-background-color: %s; ", getNationColorFill(nation)));
-//            node.setStyle(String.format("-fx-border-color: %s; ", getNationColorBorder(nation)));
-//        }
-//        for (XYChart.Series<String, Number> ss : areaChart.getData()) {
-//            for (XYChart.Series<String, Number> series1 : ss.getChart().getData()) {
-//                series1.getNode().setStyle("-fx-fill: #000000; ");
-//            }
-//        }
-    }
-
-    private String getNationColorFill(Nacao nation) {
-        try {
-            final String color = SysApoio.colorToHexa(nation.getFillColor());
-            log.debug(String.format("%s %s", nation.getNome(), color));
-            if (color.equals("#030303")) {
-                //invert colors, too much black. Particularly important for WDO where all orcs are black.
-                return SysApoio.colorToHexa(nation.getBorderColor());
-            } else {
-                //use ok color
-                return color;
-            }
-        } catch (NullPointerException e) {
-            return "GREY";
-        }
-    }
-
-    private String getNationColorBorder(Nacao nation) {
-        try {
-            final String color = SysApoio.colorToHexa(nation.getFillColor());
-            if (color.equals("#030303")) {
-                //invert colors, too much black. Particularly important for WDO where all orcs are black.
-                return color;
-            } else {
-                //use ok color
-                return SysApoio.colorToHexa(nation.getBorderColor());
-            }
-        } catch (NullPointerException e) {
-            return "GREY";
         }
     }
 }
