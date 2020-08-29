@@ -9,9 +9,11 @@ import control.CounselorStateMachine;
 import control.MapCanvasBasic;
 import control.WorldLoader;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import persistenceCommons.SettingsManager;
@@ -35,18 +37,22 @@ public class CounselorFx extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         StackPane rootPane = new StackPane();
+        Platform.setImplicitExit(false);
 
         final MapCanvasBasic mc = new MapCanvasBasic(primaryStage);
         rootPane.getChildren().add(mc.getSceneContent(rootPane));
         final Scene scene = new Scene(rootPane, 1000, 800);
-        
+
         mc.setSceneStyle(scene);
-        
+
         primaryStage.setTitle(mc.getWindowTitle());
         primaryStage.setScene(scene);
         primaryStage.show();
+        primaryStage.setOnCloseRequest((WindowEvent t) -> {
+            Platform.exit();
+            System.exit(0);
+        });
     }
-
 
     private static void setBasicConfig() {
         log.info("Starting...");

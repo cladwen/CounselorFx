@@ -431,6 +431,10 @@ public class ImageFactory {
         return new Image("/images/hex_path_army.png");
     }
 
+    public static Image getIconChart() {
+        return new Image("/images/bargraph icon.png");
+    }
+
     private static String[] getExercitoStrings(Cenario scenario) {
         if (scenario == null) {
             return shieldsAll;
