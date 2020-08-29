@@ -16,7 +16,6 @@ import business.facade.NacaoFacade;
 import business.facade.PersonagemFacade;
 import control.CounselorStateMachine;
 import control.WorldFacadeCounselor;
-import control.services.LocalConverter;
 import gui.animation.AnimatedImage;
 import gui.factory.DrawingFactory;
 import helpers.Hexagon;
@@ -24,23 +23,21 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
 import javafx.animation.ScaleTransition;
 import javafx.animation.StrokeTransition;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableStringValue;
 import javafx.event.ActionEvent;
 import javafx.geometry.Point2D;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Accordion;
 import javafx.scene.control.Label;
-import javafx.scene.control.TitledPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -49,9 +46,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
-import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 import model.Artefato;
 import model.Cidade;
@@ -130,10 +125,10 @@ public final class MapManager {
     private static final int DECORATION_ARMY_Y = 30;
     private static final int DECORATION_ARMY_X = 46;
     private Label hexCoordinate;
-    private Map<String, Text> hexInfoText = new HashMap<String, Text>();
-    private TextFlow hexInfoPane;
+       
     private Circle tagMap;
     private StrokeTransition stroke;
+    private SimpleStringProperty coordinate = new SimpleStringProperty();
 
     public MapManager() {
         this.hexCoordinate = new Label("0101");
@@ -166,7 +161,7 @@ public final class MapManager {
 
     public StackPane getCanvas() {
         //load map info
-        setHexInfo();
+      
 
         //set observer
         observer = WorldFacadeCounselor.getInstance().getJogadorAtivo();
@@ -645,11 +640,15 @@ public final class MapManager {
     }
 
     private void setHexViewed(double x, double y) {
-        final String coordinate = getCoordinateFromCanvas(x, y);
-        setHexCoordinate(coordinate);
-        setHexInfo(coordinate);
-        Point2D positionCanvas = getPositionCanvas(coordinate);
-        setTagOnMap(positionCanvas);
+        final String coordinateStr = getCoordinateFromCanvas(x, y);
+        this.coordinate.set(coordinateStr);
+        setHexCoordinate(coordinateStr);       
+        Point2D positionCanvas = getPositionCanvas(coordinateStr);
+        setTagOnMap(positionCanvas);       
+    }
+    
+    public ObservableStringValue getCoordinaate() {
+        return this.coordinate;
     }
 
     private void setTagOnMap(Point2D positionCanvas) {
@@ -823,68 +822,7 @@ public final class MapManager {
         return hexCoordinate;
     }
 
-    /**
-     * @param hexCoordinate the hexCoordinate to set
-     */
-    private void setHexCoordinate(Label hexCoordinate) {
-        this.hexCoordinate = hexCoordinate;
-    }
-
-    public void setHexCoordinate(String coordinate) {
+       public void setHexCoordinate(String coordinate) {
         this.getHexCoordinate().setText(String.format(labels.getString("LOCAL.TITLE"), coordinate));
-    }
-
-    /**
-     * @return the hexInfoText
-     */
-    public Map<String, Text> getHexInfoText() {
-        return hexInfoText;
-    }
-
-    /**
-     * @param hexInfoText the hexInfoText to set
-     */
-    private void setHexInfoText(Map hexInfoText) {
-        this.hexInfoText = hexInfoText;
-        //   this.hexInfoText.setWrappingWidth(100);
-    }
-
-    /**
-     * @return the hexInfo
-     */
-    public TextFlow getHexInfo() {
-        return hexInfoPane;
-    }
-
-    /**
-     * @param hexInfo the hexInfo to set
-     */
-    private void setHexInfo() {
-        this.hexInfoPane = new TextFlow();
-        this.hexInfoPane.setMinWidth(300);
-        //    setHexInfoText(new Text("0101"));
-        //   hexInfoPane.getChildren().add();
-        setHexInfo("0101");
-        Accordion accordion = new Accordion();
-        getHexInfoText().forEach((k, v) -> {
-            TitledPane titledPane = new TitledPane(k, v);
-            accordion.getPanes().add(titledPane);
-        });
-        hexInfoPane.getChildren().add(accordion);
-    }
-
-    private void setHexInfo(String coordinate) {
-        //  final String hexInformation = LocalConverter.getInfo(listFactory.getLocal(coordinate));
-        //  getHexInfoText().setText(hexInformation);
-        final Map<String, String> hexInfoMap = LocalConverter.getInfoMap(listFactory.getLocal(coordinate));
-        hexInfoMap.forEach((k, v) -> {
-            if (getHexInfoText().containsKey(k)) {
-                getHexInfoText().get(k).setText(v);
-            } else {
-                Text text = new Text(v);
-                text.setWrappingWidth(hexInfoPane.getMinWidth());
-                getHexInfoText().put(k, text);
-            }
-        });
     }
 }

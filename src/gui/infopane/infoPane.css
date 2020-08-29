@@ -1,0 +1,33 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 21 ago. 2020, 12:29:36
+    Author     : serguei
+*/
+InfoPane {
+    -fx-min-width: 300;
+    -fx-max-width: 300;
+    -fx-padding: 1px;    
+}
+
+.cityText {    
+    -fx-wrap-text: true;   
+}
+.resources-table {
+    -fx-background-color: whitesmoke;
+    -fx-fixed-cell-size: 35px;
+}
+
+/* Table header style */
+.resources-table .label {
+    -fx-font-size: 12px;    
+}
+
+/* Table rows style */
+.resources-table .table-cell{
+    -fx-font-size: 11px;
+}
+
