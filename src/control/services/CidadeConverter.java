@@ -414,15 +414,26 @@ public class CidadeConverter implements Serializable {
     }
 
     public static List<String> getInfo(Cidade cidade) {
-        return getInfo(cidade, WorldFacadeCounselor.getInstance().getJogadorAtivo().getNacoes().values());
+        return getInfo(cidade, WorldFacadeCounselor.getInstance().getJogadorAtivo().getNacoes().values(), true);
+    }
+    
+    public static List<String> getInfo(Cidade cidade, boolean retrieveProducts) {
+        return getInfo(cidade, WorldFacadeCounselor.getInstance().getJogadorAtivo().getNacoes().values(), retrieveProducts);
+    }
+    
+    public static List<String> getInfoProduction(Cidade cidade) {
+        StringRet ret = new StringRet();
+        getInfoResources(ret, cidade);
+        return ret.getList();
+        
     }
 
-    private static List<String> getInfo(Cidade cidade, Collection<Nacao> nations) {
+    private static List<String> getInfo(Cidade cidade, Collection<Nacao> nations, boolean retrieveProducts) {
         StringRet ret = new StringRet();
         if (cidade == null) {
             return ret.getList();
         }
-        ret = getInfoDetailed(cidade);
+        ret = getInfoDetailed(cidade, retrieveProducts);
         for (Nacao nation : nations) {
             final Nacao targetNation = cidadeFacade.getNacao(cidade);
             if (targetNation == null || targetNation == nation) {
@@ -438,7 +449,7 @@ public class CidadeConverter implements Serializable {
         return ret.getList();
     }
 
-    private static StringRet getInfoDetailed(Cidade cidade) {
+    private static StringRet getInfoDetailed(Cidade cidade, boolean retrieveProducts) {
         StringRet ret = new StringRet();
         ret.add(String.format(labels.getString("CIDADE.CAPITAL.DA.NACAO"),
                 cidade.getComboDisplay(),
@@ -467,7 +478,9 @@ public class CidadeConverter implements Serializable {
         ret.addTab(String.format("%s: %s", labels.getString("CIDADE.DOCAS"), BaseMsgs.cidadeDocas[cidade.getDocas()]));
         ret.addTab(String.format("%s: %s", labels.getString("OCULTO"), cidadeFacade.getOculto(cidade)));
         ret.addTab(String.format("%s: %s", labels.getString("SITIADO"), cidadeFacade.getSitiado(cidade)));
-        getInfoResources(ret, cidade);
+        if (retrieveProducts) {
+            getInfoResources(ret, cidade);
+        }
         return ret;
     }
 

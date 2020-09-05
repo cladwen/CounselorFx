@@ -113,7 +113,7 @@ public class LocalConverter implements Serializable {
         
         StringBuilder infoCity = new StringBuilder();
                 
-        infoCity.append(String.format(labels.getString("TERRENO.CLIMA"), local.getTerreno().getNome(), BaseMsgs.localClima[local.getClima()]));
+     //   infoCity.append(String.format(labels.getString("TERRENO.CLIMA"), local.getTerreno().getNome(), BaseMsgs.localClima[local.getClima()]));
         
         //landmarks and others
         infoCity.append("\n");
@@ -124,10 +124,20 @@ public class LocalConverter implements Serializable {
             //ret.add(labels.getString("LANDMARK.LOCAL") + " " + ConverterFactory.getLandmarkName(hab.getCodigo()));
             infoCity.append(hab.getNome());
         }
-                
-        infoCity.append(CidadeConverter.getInfo(local.getCidade()).stream().map(Object::toString).collect(Collectors.joining("\n")));
+       
+        infoCity.append(CidadeConverter.getInfo(local.getCidade(), false).stream().map(Object::toString).collect(Collectors.joining("\n")));
+        infoCity.trimToSize();
+        if (infoCity.length() > 0) {
+            infoMap.put(labels.getString("CIDADES"), infoCity.toString());
+            
+        }
+        if (local.getCidade() != null) {
+            String listProd = CidadeConverter.getInfoProduction(local.getCidade()).stream().map(Object::toString).map(String::trim).collect(Collectors.joining("|"));
+            infoMap.put("PRODUCTION", listProd);
+        } else {
+            infoMap.remove("PRODUCTION");
+        }
         
-        infoMap.put(labels.getString("CIDADES"), infoCity.toString());
         
         StringBuilder pjInfo = new StringBuilder();
         
@@ -150,7 +160,11 @@ public class LocalConverter implements Serializable {
                 }
             }
         }
-        infoMap.put(labels.getString("PERSONAGENS.LOCAL"), pjInfo.toString());
+        if (pjInfo.length() > 0) {
+            infoMap.put(labels.getString("PERSONAGENS.LOCAL"), pjInfo.toString());
+        } else {
+            infoMap.remove(labels.getString("PERSONAGENS.LOCAL"));
+        }
         
         StringBuilder armyInfo = new StringBuilder();
          if (local.getExercitos().values().size() > 0) {
@@ -161,7 +175,7 @@ public class LocalConverter implements Serializable {
             }
         }
         
-        infoMap.put(labels.getString("EXERCITOS"), armyInfo.toString());
+        infoMap.put("EXERCITOS", armyInfo.toString());
         
         //artefatos
         StringBuilder artefactInfo = new StringBuilder();
@@ -172,7 +186,7 @@ public class LocalConverter implements Serializable {
                 artefactInfo.append("\n");
             }
         }
-        infoMap.put(labels.getString("ARTEFATOS"), artefactInfo.toString());
+        infoMap.put("ARTEFATOS", artefactInfo.toString());
         return infoMap;
     }
 }

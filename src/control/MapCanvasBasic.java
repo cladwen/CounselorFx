@@ -3,9 +3,12 @@ package control;
 import business.MapManager;
 import gui.CounselorFx;
 import gui.MapCanvasAnimated;
+import gui.infopane.InfoPaneController;
 import gui.graphs.GraphPopupScoreByNation;
 import gui.graphs.GraphPopupVpPerTeam;
 import gui.graphs.GraphPopupVpPerTurn;
+import gui.infopane.InfoPane;
+import gui.infopane.InfoPaneModel;
 import helpers.SpriteMegaMan;
 import java.io.File;
 import javafx.animation.KeyFrame;
@@ -32,6 +35,7 @@ import javafx.util.Duration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import persistence.local.ImageFactory;
+import persistence.local.ListFactory;
 import persistenceCommons.BundleManager;
 import persistenceCommons.SettingsManager;
 
@@ -97,7 +101,13 @@ public class MapCanvasBasic {
     private VBox getSideBarGameInfo() {
         final VBox vbox = new VBox();
         vbox.setSpacing(5);
-        vbox.getChildren().add(this.mapManager.getHexInfo());
+        InfoPane infoPane = new InfoPane();
+        vbox.getChildren().add(infoPane); //new InfoPane(this.mapManager.getCoordinaate())
+      //  vbox.getChildren().add(this.mapManager.getHexInfo());
+        
+        InfoPaneModel infoPaneModel = new InfoPaneModel(new ListFactory());
+        InfoPaneController infoPaneController = new InfoPaneController(infoPaneModel, infoPane);      
+        infoPaneController.bind(this.mapManager.getCoordinaate());
         return vbox;
     }
 
