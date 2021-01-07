@@ -20,6 +20,9 @@ InfoPane {
     -fx-background-color: whitesmoke;
     -fx-fixed-cell-size: 35px;
 }
+.artifact-list {   
+    -fx-fixed-cell-size: 24px;
+}
 
 /* Table header style */
 .resources-table .label {
@@ -31,3 +34,8 @@ InfoPane {
     -fx-font-size: 11px;
 }
 
+.artifact-popup {
+    -fx-background-color: whitesmoke;
+    -fx-padding: 2px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
+}
