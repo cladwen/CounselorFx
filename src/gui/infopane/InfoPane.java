@@ -5,8 +5,8 @@
  */
 package gui.infopane;
 
-import javafx.beans.binding.Bindings;
-import javafx.beans.value.ObservableStringValue;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -15,6 +15,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import model.Artefato;
 import persistenceCommons.BundleManager;
 import persistenceCommons.SettingsManager;
 
@@ -29,14 +30,14 @@ public class InfoPane extends VBox{
     private TitledPane charactersPane = new TitledPane(labels.getString("PERSONAGENS.LOCAL"), new TextFlow());
     private TitledPane citiesPane = new TitledPane();
     private TitledPane armiesPane = new TitledPane(labels.getString("EXERCITOS"), new TextFlow());   
-    private TitledPane artifactsPane = new TitledPane(labels.getString("ARTEFATOS"), new TextFlow());
+    private TitledPane artifactsPane = new TitledPane(labels.getString("ARTEFATOS"), new VBox());
 
       
     
     private VBox cityBox = new VBox();
     private TextFlow cityTextFlow = null;
     private TableView table = new TableView();
-
+    private ListView<Artefato> artifactListView= new ListView();
     
     
     
@@ -68,11 +69,11 @@ public class InfoPane extends VBox{
         ((TextFlow)armiesPane.getContent()).getChildren().add(armiesText);
         getChildren().add(armiesPane);
         
-        Text artifactsText = new Text();
-        ((TextFlow)artifactsPane.getContent()).getChildren().add(artifactsText);
-        getChildren().add(artifactsPane);
-        
-        
+        artifactsPane.setContent(artifactListView);       
+        artifactsPane.setVisible(false);
+        artifactsPane.setManaged(false);   
+        getChildren().add(artifactsPane);  
+        initArtifactList();
     }
     
      
@@ -98,8 +99,8 @@ public class InfoPane extends VBox{
         return (Text)((TextFlow)this.armiesPane.getContent()).getChildren().get(0);
     }
     
-     public Text getArtifactsText() {
-        return (Text)((TextFlow)this.artifactsPane.getContent()).getChildren().get(0);
+     public ListView getArtifactsList() {
+        return artifactListView;
     }
 
     public TableView getTable() {
@@ -157,10 +158,32 @@ public class InfoPane extends VBox{
             }
         });
         
-        table.getColumns().addAll(productCol, totalCol, prodlCol, storedCol, sellCol);
-        
-        
-      
-       
+        table.getColumns().addAll(productCol, totalCol, prodlCol, storedCol, sellCol);      
+    }
+    
+    private void initArtifactList() {
+     //   artifactListView.setVisible(false);
+     //   artifactListView.setManaged(false);        
+        artifactListView.getStyleClass().add("artifact-list");
+        artifactListView.setCellFactory(artifact -> new ListCell<Artefato>() {
+            @Override
+            protected void updateItem(Artefato item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(item.getNome());
+                    if (item.isPosse()) {
+                        sb.append(" (");
+                        sb.append(item.getOwner().getNome());
+                        sb.append(")");
+                    }
+                    setText(sb.toString());
+                }
+            }
+            
+        });
     }
 }

@@ -6,14 +6,14 @@
 package gui.infopane;
 
 
+
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.IntegerBinding;
-import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableStringValue;
 import javafx.collections.ListChangeListener;
 import javafx.scene.text.Text;
+import model.Artefato;
 
 /**
  *
@@ -23,6 +23,7 @@ public class InfoPaneController {
     
     private InfoPaneModel model;
     private InfoPane infoPane;
+    private final ArtifactPopup artifactPopup = new ArtifactPopup();
     private ObservableStringValue coordinate = new SimpleStringProperty();
     
     
@@ -102,17 +103,30 @@ public class InfoPaneController {
             
         });
         
-        infoPane.getArtifactsText().textProperty().bind(model.getArtifacts());
-        infoPane.getArtifactsText().textProperty().addListener((observable, oldValue, newValue) -> {     
-            if (((String)newValue).trim().isEmpty()) {
-               infoPane.getArtifactsPane().setVisible(false);
-               infoPane.getArtifactsPane().setManaged(false);
-            } else {
-               infoPane.getArtifactsPane().setVisible(true);
-               infoPane.getArtifactsPane().setManaged(true);
-            }
+        infoPane.getArtifactsList().setItems(model.getArtifactData()); 
+        
+                
+        
+        infoPane.getArtifactsList().getItems().addListener((ListChangeListener.Change e) -> {        
+            int rows = Bindings.size(infoPane.getArtifactsList().getItems()).get();
             
+            infoPane.getArtifactsList().prefHeightProperty().bind(infoPane.getArtifactsList().fixedCellSizeProperty().multiply(Bindings.size(infoPane.getArtifactsList().getItems())));
+            infoPane.getArtifactsList().minHeightProperty().bind(infoPane.getArtifactsList().prefHeightProperty());
+            infoPane.getArtifactsList().maxHeightProperty().bind(infoPane.getArtifactsList().prefHeightProperty());
+            
+            boolean isEmpty = rows == 0;
+            infoPane.getArtifactsPane().setVisible(!isEmpty);
+            infoPane.getArtifactsPane().setManaged(!isEmpty);            
         });
+        infoPane.getArtifactsList().setOnMouseClicked(e ->{ 
+        
+            Artefato artifact = (Artefato)infoPane.getArtifactsList().getSelectionModel().getSelectedItem();
+            
+            artifactPopup.hide();
+            artifactPopup.setArtifacto(artifact);                       
+            artifactPopup.show (infoPane.getArtifactsList(), e.getScreenX(), e.getScreenY());            
+        });
+      
     }
         
     

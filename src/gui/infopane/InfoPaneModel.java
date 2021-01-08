@@ -11,7 +11,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.layout.VBox;
+import model.Artefato;
 import model.Local;
 import msgs.BaseMsgs;
 import persistence.local.ListFactory;
@@ -34,7 +34,7 @@ public class InfoPaneModel {
     
     private StringProperty cities = new SimpleStringProperty();
     private ObservableList<ProductModel> productData = FXCollections.observableArrayList();
-
+    private ObservableList<Artefato> artifactData = FXCollections.observableArrayList();
     
     private StringProperty characters = new SimpleStringProperty();
     private StringProperty armies = new SimpleStringProperty();  
@@ -81,11 +81,12 @@ public class InfoPaneModel {
             armies.setValue("");
         }
         
-        if (hexInfoMap.containsKey("ARTEFATOS")) {
-            artifacts.setValue(hexInfoMap.get("ARTEFATOS"));
-        } else {
-            artifacts.setValue("");
-        }
+        artifactData.clear();
+        if (!localHex.getArtefatos().isEmpty()) {           
+            localHex.getArtefatos().values().stream().forEach(e -> {
+                artifactData.add(e);
+            });               
+        } 
         
     }
 
@@ -117,4 +118,7 @@ public class InfoPaneModel {
         return artifacts;
     }
     
+     public ObservableList<Artefato> getArtifactData() {
+        return artifactData;
+    }
 }
