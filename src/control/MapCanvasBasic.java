@@ -9,6 +9,7 @@ import gui.graphs.GraphPopupVpPerTeam;
 import gui.graphs.GraphPopupVpPerTurn;
 import gui.infopane.InfoPane;
 import gui.infopane.InfoPaneModel;
+import gui.persist.PersistUIState;
 import helpers.SpriteMegaMan;
 import java.io.File;
 import javafx.animation.KeyFrame;
@@ -104,6 +105,9 @@ public class MapCanvasBasic {
         InfoPane infoPane = new InfoPane();
         vbox.getChildren().add(infoPane); //new InfoPane(this.mapManager.getCoordinaate())
       //  vbox.getChildren().add(this.mapManager.getHexInfo());
+      
+        PersistUIState.getInstance().getLoadFunctions().add(infoPane);
+                
         
         InfoPaneModel infoPaneModel = new InfoPaneModel(new ListFactory());
         InfoPaneController infoPaneController = new InfoPaneController(infoPaneModel, infoPane);      

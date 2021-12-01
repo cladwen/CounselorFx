@@ -5,6 +5,13 @@
  */
 package gui.infopane;
 
+import gui.CounselorFx;
+import gui.persist.PersistElement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableCell;
@@ -16,6 +23,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import model.Artefato;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import persistenceCommons.BundleManager;
 import persistenceCommons.SettingsManager;
 
@@ -23,24 +32,24 @@ import persistenceCommons.SettingsManager;
  *
  * @author serguei
  */
-public class InfoPane extends VBox{
+public class InfoPane extends VBox implements PersistElement {
+    
+    private static final Log log = LogFactory.getLog(CounselorFx.class);
     
     private static final BundleManager labels = SettingsManager.getInstance().getBundleManager();
     private final TitledPane hexInfoPane = new TitledPane("", new Text());
-    private TitledPane charactersPane = new TitledPane(labels.getString("PERSONAGENS.LOCAL"), new TextFlow());
+    private final TitledPane charactersPane = new TitledPane(labels.getString("PERSONAGENS.LOCAL"), new TextFlow());
     private TitledPane citiesPane = new TitledPane();
     private TitledPane armiesPane = new TitledPane(labels.getString("EXERCITOS"), new TextFlow());   
-    private TitledPane artifactsPane = new TitledPane(labels.getString("ARTEFATOS"), new VBox());
-
-      
+    private TitledPane artifactsPane = new TitledPane(labels.getString("ARTEFATOS"), new VBox());     
     
     private VBox cityBox = new VBox();
     private TextFlow cityTextFlow = null;
     private TableView table = new TableView();
     private ListView<Artefato> artifactListView= new ListView();
     
-    
-    
+    private List<TitledPane> titledPaneList = new ArrayList<>();
+        
     
     public InfoPane() {
         super(0);        
@@ -74,6 +83,13 @@ public class InfoPane extends VBox{
         artifactsPane.setManaged(false);   
         getChildren().add(artifactsPane);  
         initArtifactList();
+        
+        titledPaneList.add(hexInfoPane);
+        titledPaneList.add(citiesPane);
+        titledPaneList.add(charactersPane);
+        titledPaneList.add(armiesPane);
+        titledPaneList.add(artifactsPane);
+        
     }
     
      
@@ -186,4 +202,32 @@ public class InfoPane extends VBox{
             
         });
     }
+
+ 
+    @Override
+    public String getName() {
+        return this.getClass().getName();
+    }
+  
+    @Override
+    public void loadStates(String args) {
+        final boolean[] states = new boolean[getChildren().size()];
+        if (args != null) {
+             String[] stringValue = args.split("\\|");
+             Boolean[] booleanValue = Arrays.stream(stringValue).map(t -> Boolean.valueOf(t)).toArray(Boolean[]::new);
+             for (int i = 0; i < states.length; i++) {
+                 states[i] = booleanValue[i];
+             }
+        }
+        IntStream.range(0, states.length).forEach(i -> ((TitledPane)getChildren().get(i)).expandedProperty().set(states[i]));
+    }
+
+    @Override
+    public String getState() {
+        return getChildren().stream().map(pane -> ((TitledPane)pane).expandedProperty().getValue().toString()).collect(Collectors.joining("|"));     
+    }
+       
+        
+       
+    
 }
