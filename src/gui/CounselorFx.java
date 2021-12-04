@@ -8,6 +8,7 @@ package gui;
 import control.CounselorStateMachine;
 import control.MapCanvasBasic;
 import control.WorldLoader;
+import gui.persist.PersistUIState;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -46,12 +47,16 @@ public class CounselorFx extends Application {
         mc.setSceneStyle(scene);
 
         primaryStage.setTitle(mc.getWindowTitle());
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        primaryStage.setScene(scene);      
+       
+        PersistUIState.getInstance().load();
+                      
         primaryStage.setOnCloseRequest((WindowEvent t) -> {
+            PersistUIState.getInstance().save();
             Platform.exit();
             System.exit(0);
         });
+        primaryStage.show();        
     }
 
     private static void setBasicConfig() {
@@ -62,7 +67,7 @@ public class CounselorFx extends Application {
         final SettingsManager sm = SettingsManager.getInstance();
         sm.setConfigurationMode("Client");
         sm.setLanguage(sm.getConfig("language", "en"));
-        CounselorStateMachine.getInstance().setCurrentStateLoading();
+        CounselorStateMachine.getInstance().setCurrentStateLoading();       
     }
 
     /**
@@ -87,7 +92,7 @@ public class CounselorFx extends Application {
         WorldLoader wl = new WorldLoader();
         //TODO: what if file not found? add gui msgs somewhere. status msg with timer to fade away?
         wl.doAutoLoad(args);
-
+             
         //TODO wishlist: sync interface (status bar). status msg with timer to fade away?
         //launch GUI
         launch(args);
